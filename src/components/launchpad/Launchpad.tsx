@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
-import { Maximize2, MoreHorizontal } from "lucide-react";
+import { Maximize2 } from "lucide-react";
 import { useLaunchpad } from "./hooks/useLaunchpad";
 import { Button } from "../button/Button";
 import {
@@ -18,9 +18,11 @@ import adinkraSymbolStrip from "./assets/adinkra-symbol.png";
 import "./styles/launchpad.css";
 
 /**
- * Max apps shown in the popover grid — fixed, not configurable. The
- * built-in expand button opens a modal showing every app in `apps`
- * (uncapped) on the same tile system, scaled up.
+ * Max apps shown in the popover grid — fixed, not configurable. When
+ * `apps.length` exceeds this cap, the extras are not rendered (the grid
+ * shows the first `MAX_APPS`) and a muted "See more" line appears under
+ * the grid, above the role switcher. Clicking the line — or the top-right
+ * expand button — opens a scaled-up modal showing every app in `apps`.
  */
 const MAX_APPS = 9;
 
@@ -74,22 +76,8 @@ export function Launchpad({
 		[onAppSelect, close],
 	);
 
-	const showMore = apps.length > MAX_APPS;
-	const visibleApps = showMore ? apps.slice(0, MAX_APPS - 1) : apps;
-
-	const moreItem = showMore ? (
-		<button
-			type="button"
-			className="clet-launchpad__item clet-launchpad__item--more gsl-launchpad__item gsl-launchpad__item--more"
-			onClick={handleSeeAll}
-			aria-label="More"
-		>
-			<span className="clet-launchpad__more-icon gsl-launchpad__more-icon">
-				<MoreHorizontal size={24} strokeWidth={1.5} />
-			</span>
-			<span className="clet-launchpad__name gsl-launchpad__name">More</span>
-		</button>
-	) : null;
+	const visibleApps = apps.slice(0, MAX_APPS);
+	const hasMore = apps.length > MAX_APPS;
 
 	return (
 		<>
@@ -132,7 +120,7 @@ export function Launchpad({
 									type="button"
 									variant="ghost"
 									size="sm"
-									className="clet-launchpad__see-more gsl-launchpad__see-more"
+									className="clet-launchpad__see-more-btn gsl-launchpad__see-more-btn"
 									onClick={handleSeeAll}
 									aria-label={SEE_MORE_LABEL}
 								>
@@ -162,7 +150,7 @@ export function Launchpad({
 									</div>
 								) : null}
 
-								{!loading && (visibleApps.length > 0 || showMore) ? (
+								{!loading && visibleApps.length > 0 ? (
 									<div className="clet-launchpad__grid gsl-launchpad__grid">
 										{visibleApps.map((app) => (
 											<LaunchpadItem
@@ -171,10 +159,20 @@ export function Launchpad({
 												onSelect={handleAppSelect}
 											/>
 										))}
-										{moreItem}
 									</div>
 								) : null}
 							</div>
+
+							{!loading && hasMore ? (
+								<button
+									type="button"
+									className="clet-launchpad__see-more gsl-launchpad__see-more"
+									onClick={handleSeeAll}
+									aria-label={SEE_MORE_LABEL}
+								>
+									{SEE_MORE_LABEL}
+								</button>
+							) : null}
 
 							<div className="clet-launchpad__footer gsl-launchpad__footer">{children}</div>
 						</Popover.Content>

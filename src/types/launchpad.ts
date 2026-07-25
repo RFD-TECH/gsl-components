@@ -33,8 +33,11 @@ export interface LaunchpadApp {
 export interface LaunchpadProps {
   /**
    * Apps to display. The popover grid is capped at 9 (see design note on
-   * the component); the built-in expand button opens a modal showing every
-   * app in `apps`, uncapped.
+   * the component); when `apps.length` exceeds the cap, the extras are not
+   * rendered in the grid and a muted "See more" line appears under the
+   * grid (between the grid and the role switcher). Clicking that line —
+   * or the top-right expand button — opens a scaled-up modal showing
+   * every app in `apps`, uncapped.
    */
   apps: LaunchpadApp[];
   /** Shows a loading state (spinner only) in the panel instead of the grid */

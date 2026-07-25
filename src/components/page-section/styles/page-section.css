@@ -1,0 +1,3 @@
+.clet-page-section + .clet-page-section {
+  margin-top: var(--gsl-app-layout-body-gap, var(--clet-app-layout-body-gap, 24px));
+}

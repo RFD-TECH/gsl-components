@@ -590,17 +590,17 @@ Props: `variant`, `size`, `loading`, `loadingLabel`, `classNames`, and standard 
 
 ## Card
 
-Surface card wrapper with optional header and design tokens for padding and background. Uses `--clet-surface-card` for background and `--clet-card-padding` for inner spacing. See the [Card](/docs/card) docs page for props and exported types.
+Surface card wrapper with design tokens for padding and background. Uses `--clet-surface-card` for background and `--clet-card-padding` for inner spacing. See the [Card](/docs/card) docs page for props and exported types.
 
 ```tsx
 import { Card } from "@rfdtech/components";
 
-<Card header="Profile">
+<Card bordered>
   <p>Content goes here.</p>
 </Card>
 ```
 
-Props: `header`, `children`, `classNames`, `className`, plus standard `div` attributes. Exported types: `CardProps`, `CardClassNames`.
+Props: `bordered`, `children`, `classNames`, `className`, plus standard `div` attributes. Exported types: `CardProps`, `CardHeaderProps`, `CardTitleProps`, `CardActionsProps`.
 
 ## Checkbox
 
@@ -917,7 +917,7 @@ Exports: `Draggable`, `DraggableHandle`, `useDraggable`, `clampPosition`. Types:
 
 ## MetricCard
 
-Compact dashboard card for displaying a metric value, label, trend indicator, and optional icon or description. Variants (`default`, `primary`, `success`, `warning`, `error`) only affect the trend color — background and text stay neutral. Use the `color` prop for custom accent colors.
+Compact dashboard card for displaying a metric value, label, trend indicator, and optional icon or description. Three `variant` options: `"default"` (filled card), `"outline"` (bordered no-fill card with chevron trend icons), and `"bordered"` (default layout with a 1px border). Supports count-up animation via the `animate` prop.
 
 See the [MetricCard](/docs/metric-card) docs page for props and exported types.
 
@@ -933,7 +933,7 @@ import { MetricCard } from "@rfdtech/components";
 />
 ```
 
-Props: `label`, `value`, `icon`, `description`, `trend`, `trendValue`, `variant`, `color`, `classNames`, `className`, plus standard `div` attributes. Exported types: `MetricCardProps`, `MetricCardClassNames`, `MetricCardVariant`, `MetricTrend`.
+Props: `label`, `value`, `icon`, `description`, `trend`, `trendValue`, `variant`, `animate`, `animationDuration`, `loading`, `loadingLabel`, `classNames`, `className`, plus standard `div` attributes. Exported types: `MetricCardProps`, `MetricCardClassNames`, `MetricCardVariant`, `MetricTrend`.
 
 ## Modal
 
@@ -1009,6 +1009,26 @@ import { Notice } from "@rfdtech/components";
 ```
 
 Props: `variant`, `color`, `title`, `icon`, `leftBorder`, `dashed`, `classNames`, `className`, `children`. Exported types: `NoticeProps`, `NoticeClassNames`, `NoticeVariant`.
+
+## PageSection
+
+Wrapper that applies consistent vertical spacing between distinct content sections on a page. Uses `--clet-app-layout-body-gap` — no new token. See the [PageSection](/docs/page-section) docs page for props and exported types.
+
+```tsx
+import { PageSection, SectionHeader, SectionTitle } from "@rfdtech/components";
+
+<PageSection>
+  <SectionHeader>
+    <SectionTitle>Dashboard</SectionTitle>
+  </SectionHeader>
+</PageSection>
+
+<PageSection>
+  <Card bordered>...</Card>
+</PageSection>
+```
+
+Props: `classNames`, `className`, and standard `div` attributes. Exported types: `PageSectionProps`, `PageSectionClassNames`.
 
 ## OtpInput
 
@@ -1096,6 +1116,30 @@ import { ProgressBar } from "@rfdtech/components";
 ```
 
 Props: `value`, `max`, `variant`, `size`, `indeterminate`, `label`, `showValue`, `classNames`, `className`, and standard `div` attributes. Exported types: `ProgressBarProps`, `ProgressBarClassNames`, `ProgressBarVariant`, `ProgressBarSize`.
+
+## QuickActions
+
+Responsive quick-action grid with optional "Customize" dialog for toggling visibility. Designed for dashboard sections. See the [QuickActions](/docs/quick-actions) docs page for props and exported types.
+
+```tsx
+import { useState } from "react";
+import { QuickActions } from "@rfdtech/components";
+import { UserPlus, Download } from "lucide-react";
+
+const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+
+<QuickActions
+  actions={[
+    { id: "add", label: "Add Member", icon: <UserPlus size={18} /> },
+    { id: "export", label: "Export Data", icon: <Download size={18} /> },
+  ]}
+  customizable
+  hiddenIds={hiddenIds}
+  onToggleVisibility={(id) => { ... }}
+/>
+```
+
+Props: `actions`, `title`, `customizable`, `hiddenIds`, `onToggleVisibility`, `onAction`, `customizeLabel`, `emptyMessage`, `classNames`, `className`, and standard `div` attributes. Exported types: `QuickActionsProps`, `QuickActionsClassNames`, `QuickActionItem`.
 
 ## RouterAdapter
 

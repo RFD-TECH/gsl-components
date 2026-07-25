@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import {
   Sidebar,
-  SidebarHeader,
   SidebarBrand,
   SidebarContent,
   SidebarFooter,
@@ -95,6 +94,18 @@ export function DemoLayout2() {
             label: "Dashboard",
             href: "/",
             icon: LayoutDashboard,
+          },
+          {
+            id: "users",
+            label: "Users",
+            href: "/users/user-1",
+            icon: User,
+          },
+          {
+            id: "users-new",
+            label: "Create User",
+            href: "/users/new",
+            icon: User,
           },
           {
             id: "docs",
@@ -232,8 +243,9 @@ export function DemoLayout2() {
           </AppHeader>
           <AppSidebar>
             <SidebarOverlay />
-            <Sidebar variant="plain">
-              <SidebarHeader className="clet-sidebar__header--mobile-only">
+            <Sidebar
+              variant="plain"
+              mobileHeader={
                 <SidebarBrand>
                   <img
                     src="/clet-logo.png"
@@ -244,7 +256,8 @@ export function DemoLayout2() {
                   />
                   <span className="demo-home__sidebar-title">CLET Portal</span>
                 </SidebarBrand>
-              </SidebarHeader>
+              }
+            >
               <SidebarContent>
                 <SidebarNav>
                   {navLoading ? (

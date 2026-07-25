@@ -1,0 +1,49 @@
+export const meta = {
+  title: "PageSection",
+  description: "Uniform vertical spacing wrapper for page sections",
+  category: "Components",
+  keywords: ["page section", "section", "spacing", "layout", "vertical gap"],
+  since: "2.1.0",
+  status: "stable",
+  related: ["section-header", "quick-actions", "app-layout"],
+  import: "@rfdtech/components",
+};
+
+import { ExampleTabs } from "../components/ExampleTabs";
+import { PageSectionPreview } from "../previews/code/PageSectionPreview";
+import pageSectionSource from "../previews/examples/page-section.example.tsx?raw";
+
+# PageSection
+
+Wrapper that applies consistent vertical spacing between distinct sections on a page. Uses `--clet-app-layout-body-gap` as the default gap — no new token needed.
+
+## Example
+
+<ExampleTabs
+  title="Section layout"
+  preview={<PageSectionPreview />}
+  code={pageSectionSource}
+/>
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `classNames` | `PageSectionClassNames` | — | Part-level class overrides |
+| `className` | `string` | — | Merged onto the root |
+
+Also accepts standard native `<div>` attributes (`id`, `aria-*`, `data-*`, etc.).
+
+## Types
+
+### `PageSectionClassNames`
+
+| Key | Applied to |
+|-----|------------|
+| `root` | Root `<div>` element |
+
+## Notes
+
+- Every distinct content section on a page should be wrapped in its own `PageSection` — never use hand-rolled `<div>`s with margin.
+- The gap value comes from `--clet-app-layout-body-gap` (24px by default). Override it at any level via the same token.
+- Works inside an `<AppBody>`, a standalone page, or nested in any flex-column container.

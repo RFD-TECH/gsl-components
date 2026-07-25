@@ -6,6 +6,8 @@ import { DemoLayout } from "./components/DemoLayout";
 import { DemoLayout2 } from "./components/DemoLayout2";
 import { DemoPage } from "./pages/DemoPage";
 import { Dashboard2Page } from "./pages/Dashboard2Page";
+import { UserCreatePage } from "./pages/UserCreatePage";
+import { UserDetailPage } from "./pages/UserDetailPage";
 import { DocsPage } from "./pages/DocsPage";
 import { getAllDocSlugs } from "./docs/registry";
 
@@ -21,7 +23,11 @@ export const routes: RouteRecord[] = [
       {
         // Current (new design system) — the main dashboard
         element: <DemoLayout2 />,
-        children: [{ index: true, element: <Dashboard2Page /> }],
+        children: [
+          { index: true, element: <Dashboard2Page /> },
+          { path: "users/new", element: <UserCreatePage /> },
+          { path: "users/:userId", element: <UserDetailPage /> },
+        ],
       },
       {
         // Previous version, unchanged, reachable via the version switcher

@@ -2,6 +2,9 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import { AppLayout, AppSidebar, AppBody } from "../app-layout";
+import { AppHeader, AppHeaderBranding, AppHeaderActions } from "../app-header/AppHeader";
+import { ProfilePopover } from "../profile-popover/ProfilePopover";
 import {
   Sidebar,
   SidebarBadge,
@@ -117,19 +120,28 @@ describe("Sidebar", () => {
 
     renderSidebar({ defaultOpen: true, onOpenChange });
 
-    await user.click(screen.getByRole("button", { name: "Close sidebar" }));
+    // The renderSidebar helper renders <SidebarOverlay />, and the Sidebar
+    // now also renders its own. Use getAllByRole so the click works
+    // regardless of how many overlays are present.
+    const overlays = screen.getAllByRole("button", { name: "Close sidebar" });
+    await user.click(overlays[0]);
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
-  it("closes on mobile when clicking outside the sidebar", async () => {
+  it("tolerates explicit <SidebarOverlay /> alongside the internally rendered one (backward compatibility)", async () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();
 
     renderSidebar({ defaultOpen: true, onOpenChange });
 
-    await user.click(document.body);
+    // The renderSidebar helper renders <SidebarOverlay />, and the Sidebar
+    // now also renders its own. Both are valid close targets and either click
+    // closes the drawer.
+    const overlays = screen.getAllByRole("button", { name: "Close sidebar" });
+    expect(overlays.length).toBeGreaterThanOrEqual(2);
 
+    await user.click(overlays[0]);
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
@@ -822,6 +834,166 @@ describe("Sidebar", () => {
     expect(style.display).not.toBe("none");
     expect(content).toHaveAttribute("data-state", "collapsed");
     expect(content).toHaveAttribute("inert");
+  });
+
+  it("renders the mobile overlay internally on mobile (no explicit SidebarOverlay required)", () => {
+    mockMatchMedia(true);
+
+    renderWithRouter(
+      <SidebarProvider defaultOpen>
+        <Sidebar>
+          <SidebarContent>
+            <SidebarNav aria-label="Main">
+              <SidebarItem>
+                <SidebarLink>Home</SidebarLink>
+              </SidebarItem>
+            </SidebarNav>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>,
+    );
+
+    // When the drawer is open, the overlay is visible and exposed to the
+    // accessibility tree. Hidden overlays (drawer closed) are aria-hidden
+    // and not picked up by getByRole — assert against the class instead.
+    expect(
+      document.querySelector(".clet-sidebar__overlay"),
+    ).toBeInTheDocument();
+  });
+
+  it("does not render the mobile overlay on desktop", () => {
+    mockMatchMedia(false);
+
+    renderWithRouter(
+      <SidebarProvider>
+        <Sidebar>
+          <SidebarContent>
+            <SidebarNav aria-label="Main">
+              <SidebarItem>
+                <SidebarLink>Home</SidebarLink>
+              </SidebarItem>
+            </SidebarNav>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: "Close sidebar" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("auto-injects a mobile-only SidebarHeader when mobileHeader is provided on a plain Sidebar", () => {
+    mockMatchMedia(true);
+
+    renderWithRouter(
+      <SidebarProvider>
+        <Sidebar variant="plain" mobileHeader={<span>Mobile Brand</span>}>
+          <SidebarContent>
+            <SidebarNav aria-label="Main">
+              <SidebarItem>
+                <SidebarLink>Home</SidebarLink>
+              </SidebarItem>
+            </SidebarNav>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>,
+    );
+
+    const header = document.querySelector(".clet-sidebar__header--mobile-only");
+    expect(header).toBeInTheDocument();
+    expect(header).toHaveTextContent("Mobile Brand");
+  });
+
+  it("does not auto-inject a mobile header when variant is default", () => {
+    mockMatchMedia(true);
+
+    renderWithRouter(
+      <SidebarProvider>
+        <Sidebar mobileHeader={<span>Mobile Brand</span>}>
+          <SidebarContent>
+            <SidebarNav aria-label="Main">
+              <SidebarItem>
+                <SidebarLink>Home</SidebarLink>
+              </SidebarItem>
+            </SidebarNav>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>,
+    );
+
+    expect(
+      document.querySelector(".clet-sidebar__header--mobile-only"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not auto-inject when the consumer already provides a SidebarHeader child", () => {
+    mockMatchMedia(true);
+
+    renderWithRouter(
+      <SidebarProvider>
+        <Sidebar variant="plain" mobileHeader={<span>Auto Brand</span>}>
+          <SidebarHeader>
+            <span>Consumer Brand</span>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarNav aria-label="Main">
+              <SidebarItem>
+                <SidebarLink>Home</SidebarLink>
+              </SidebarItem>
+            </SidebarNav>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>,
+    );
+
+    const headers = document.querySelectorAll(
+      ".clet-sidebar__header--mobile-only",
+    );
+    expect(headers).toHaveLength(0);
+    expect(screen.getByText("Consumer Brand")).toBeInTheDocument();
+    expect(screen.queryByText("Auto Brand")).not.toBeInTheDocument();
+  });
+
+  it("opens the drawer when the AppHeader hamburger is clicked on mobile (no click-outside race)", async () => {
+    mockMatchMedia(true);
+    const user = userEvent.setup();
+
+    renderWithRouter(
+      <AppLayout>
+        <AppHeader variant="plain">
+          <AppHeaderBranding title="CLET" />
+          <AppHeaderActions>
+            <ProfilePopover
+              user={{ name: "User", role: "Admin", initials: "U" }}
+              variant="avatar"
+            />
+          </AppHeaderActions>
+        </AppHeader>
+        <AppSidebar>
+          <Sidebar variant="plain">
+            <SidebarContent>
+              <SidebarNav aria-label="Main">
+                <SidebarItem>
+                  <SidebarLink>Home</SidebarLink>
+                </SidebarItem>
+              </SidebarNav>
+            </SidebarContent>
+          </Sidebar>
+        </AppSidebar>
+        <AppBody>Body</AppBody>
+      </AppLayout>,
+    );
+
+    const hamburger = screen.getByRole("button", { name: "Open menu" });
+    expect(hamburger).toHaveAttribute("aria-expanded", "false");
+
+    await user.click(hamburger);
+
+    expect(hamburger).toHaveAttribute("aria-expanded", "true");
+    expect(document.querySelector(".clet-sidebar")).toHaveClass(
+      "clet-sidebar--mobile-open",
+    );
   });
 });
 

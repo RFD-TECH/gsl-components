@@ -85,11 +85,12 @@ Also exports `useSidebar()` for programmatic open/close and collapse.
 
 ### `Sidebar`
 
-Root `<aside>`. Sticky card panel on desktop; fixed offcanvas panel on mobile when open.
+Root `<aside>`. Sticky card panel on desktop; fixed offcanvas panel on mobile when open. Renders the mobile backdrop (`SidebarOverlay`) as an internal sibling on mobile viewports, so explicit `<SidebarOverlay />` usage is optional.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `variant` | `"default" \| "plain"` | `"default"` | Visual style — see [Variants](#variants) |
+| `mobileHeader` | `ReactNode` | — | Content rendered into a mobile-only `SidebarHeader` (hidden on desktop via the built-in `clet-sidebar__header--mobile-only` class) when `variant="plain"`. Typically a `SidebarBrand` with the same logo/title as the sibling `AppHeader`'s `AppHeaderBranding`, so the brand is visible when the mobile drawer opens. Not auto-extracted by `AppLayout` — pass it explicitly. Skipped if you also supply your own `<SidebarHeader>` child. |
 | `classNames` | `SidebarClassNames` | — | Part-level class overrides |
 | `className` | `string` | — | Merged onto the aside |
 | `children` | `ReactNode` | — | Header, content, footer |
@@ -119,7 +120,7 @@ Also accepts standard `button` attributes.
 
 ### `SidebarOverlay`
 
-Mobile backdrop. Click closes the drawer. Not rendered on desktop.
+Mobile backdrop. Click closes the drawer. Not rendered on desktop. **Rendered internally by `Sidebar` on mobile** — explicit usage is no longer required. Two stacked overlays both close the drawer on click with no visual artifact, so existing code keeps working unchanged.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -247,7 +248,7 @@ Props for `SidebarProvider`.
 
 ### `SidebarProps`
 
-Props for `Sidebar`. Includes `variant?: "default" | "plain"` — see [Variants](#variants).
+Props for `Sidebar`. Includes `variant?: "default" | "plain"` and `mobileHeader?: ReactNode` — see [Variants](#variants) and the `Sidebar` prop table above.
 
 ### `SidebarTriggerProps`
 

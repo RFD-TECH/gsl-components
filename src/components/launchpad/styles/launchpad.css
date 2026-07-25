@@ -132,7 +132,7 @@
   text-align: center;
 }
 
-.clet-launchpad__see-more.clet-button {
+.clet-launchpad__see-more-btn.clet-button {
   position: absolute;
   top: 6px;
   right: 8px;
@@ -143,8 +143,32 @@
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
-.clet-launchpad__see-more .clet-button__label {
+.clet-launchpad__see-more-btn .clet-button__label {
   gap: 4px;
+}
+
+.clet-launchpad__see-more {
+  display: block;
+  width: 100%;
+  padding: 10px 16px 8px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.clet-launchpad__see-more:hover {
+  color: var(--gsl-text, var(--clet-text));
+}
+
+.clet-launchpad__see-more:focus-visible {
+  outline: 2px solid var(--gsl-focus, var(--clet-focus));
+  outline-offset: -2px;
 }
 
 .clet-launchpad__grid {
@@ -180,22 +204,6 @@
 .clet-launchpad__item--disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-.clet-launchpad__item--more {
-  background: var(--gsl-hover, var(--clet-hover, rgb(0 0 0 / 4%)));
-  border: 1px dashed var(--gsl-border, var(--clet-border));
-  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
-  justify-content: center;
-}
-
-.clet-launchpad__more-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--gsl-icon-size, var(--clet-icon-size));
-  height: var(--gsl-icon-size, var(--clet-icon-size));
-  color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
 .clet-launchpad__icon {

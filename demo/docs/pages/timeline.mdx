@@ -120,6 +120,10 @@ Exported from `@rfdtech/components`:
 - Dot icons should be ~10×10px (lucide `size={10}`). Larger icons may overflow the 16px dot.
 - Wrap `Timeline` in your own `<section>` or card for layout and heading.
 
+## Don't
+
+- **Never put custom icons inside Timeline items.** The dot's mode colors (`primary`, `success`, `warning`, `error`, `muted`) already convey the event type visually. Adding an icon inside the dot overrides the mode's visual signal and clutters the rail. The `icon` prop exists for the rare case where a specific glyph is genuinely clearer than the mode color alone — but in practice, it should almost never be used. Use the mode prop and let the dot speak.
+
 ### Tokens
 
 Dot mode colors use existing CLET tokens. Customize the dot halo via `--clet-timeline-halo`:

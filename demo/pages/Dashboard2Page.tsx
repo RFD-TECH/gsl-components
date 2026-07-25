@@ -1,42 +1,65 @@
+import { useCallback, useMemo, useState } from "react";
+import {
+  UserCheck,
+  Trash2,
+  UserX,
+  Eye,
+  Edit,
+  UserPlus,
+  Download,
+  FileText,
+  Shield,
+  BarChart3,
+  History,
+} from "lucide-react";
 import type {
   TableColumn,
   TableBulkAction,
   TableRowAction,
 } from "@rfdtech/components";
-import { gslMembers, gslStatuses, type GslMember } from "demo/data/demoHomeMembers";
-import { useMockQuery } from "demo/hooks/useMockQuery";
-import { useCallback, useMemo, useState } from "react";
-import { UserCheck, Trash2, UserX, Eye, Edit, UserPlus } from "lucide-react";
 import {
+  Badge,
+  Button,
   Card,
-  Table,
-  TableHeader,
-  TableSearch,
-  TableFilter,
-  TableContent,
-  TableFooter,
-  TablePagination,
+  Combobox,
+  Dropdown,
+  ExportButton,
   MetricCard,
   Modal,
-  ModalPortal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalTitle,
   ModalBody,
+  ModalContent,
   ModalFooter,
-  Button,
-  Dropdown,
-  Combobox,
-  useTableState,
-  Badge,
+  ModalHeader,
+  ModalOverlay,
+  ModalPortal,
+  ModalTitle,
+  PageSection,
+  QuickActions,
+  SectionDescription,
   SectionHeader,
   SectionTitle,
-  SectionDescription,
-  SectionActions,
-  ExportButton,
+  Table,
+  TableContent,
+  TableFilter,
+  TableFooter,
+  TableHeader,
+  TablePagination,
+  TableSearch,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Timeline,
+  TimelineData,
+  TimelineFooter,
+  TimelineItem,
+  TimelineTitle,
+  useTableState,
 } from "@rfdtech/components";
 import type { ExportColumn } from "@rfdtech/components";
+import { gslMembers, gslStatuses, type GslMember } from "demo/data/demoHomeMembers";
+import { auditTrail } from "demo/data/auditTrail";
+import { useMockQuery } from "demo/hooks/useMockQuery";
 
 function statusVariant(status: string) {
   switch (status) {
@@ -82,40 +105,43 @@ export function Dashboard2Page() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
 
-  const bulkActions: TableBulkAction[] = [
-    {
-      id: "activate",
-      label: "Activate",
-      icon: <UserCheck size={14} strokeWidth={1.5} />,
-      onClick: (ids) => {
-        setMembers((prev) =>
-          prev.map((m) => (ids.has(m.id) ? { ...m, status: "Active" } : m)),
-        );
-        setSelected(new Set());
+  const bulkActions: TableBulkAction[] = useMemo(
+    () => [
+      {
+        id: "activate",
+        label: "Activate",
+        icon: <UserCheck size={14} strokeWidth={1.5} />,
+        onClick: (ids) => {
+          setMembers((prev) =>
+            prev.map((m) => (ids.has(m.id) ? { ...m, status: "Active" } : m)),
+          );
+          setSelected(new Set());
+        },
       },
-    },
-    {
-      id: "deactivate",
-      label: "Deactivate",
-      icon: <UserX size={14} strokeWidth={1.5} />,
-      onClick: (ids) => {
-        setMembers((prev) =>
-          prev.map((m) => (ids.has(m.id) ? { ...m, status: "Inactive" } : m)),
-        );
-        setSelected(new Set());
+      {
+        id: "deactivate",
+        label: "Deactivate",
+        icon: <UserX size={14} strokeWidth={1.5} />,
+        onClick: (ids) => {
+          setMembers((prev) =>
+            prev.map((m) => (ids.has(m.id) ? { ...m, status: "Inactive" } : m)),
+          );
+          setSelected(new Set());
+        },
       },
-    },
-    {
-      id: "delete",
-      label: "Delete",
-      icon: <Trash2 size={14} strokeWidth={1.5} />,
-      onClick: (ids) => {
-        setMembers((prev) => prev.filter((m) => !ids.has(m.id)));
-        setSelected(new Set());
+      {
+        id: "delete",
+        label: "Delete",
+        icon: <Trash2 size={14} strokeWidth={1.5} />,
+        onClick: (ids) => {
+          setMembers((prev) => prev.filter((m) => !ids.has(m.id)));
+          setSelected(new Set());
+        },
+        destructive: true,
       },
-      destructive: true,
-    },
-  ];
+    ],
+    [],
+  );
 
   const handleView = useCallback((member: GslMember) => {
     setViewMember(member);
@@ -196,113 +222,234 @@ export function Dashboard2Page() {
     [],
   );
 
+  const quickActions = useMemo(
+    () => [
+      {
+        id: "add-member",
+        label: "Add Member",
+        icon: <UserPlus size={18} strokeWidth={1.5} />,
+        description: "Create a new member account",
+      },
+      {
+        id: "export-data",
+        label: "Export Data",
+        icon: <Download size={18} strokeWidth={1.5} />,
+        description: "Download member records",
+      },
+      {
+        id: "view-reports",
+        label: "View Reports",
+        icon: <BarChart3 size={18} strokeWidth={1.5} />,
+        description: "Access analytics and reports",
+      },
+      {
+        id: "manage-roles",
+        label: "Manage Roles",
+        icon: <Shield size={18} strokeWidth={1.5} />,
+        description: "Configure role permissions",
+      },
+      {
+        id: "audit-log",
+        label: "Audit Log",
+        icon: <History size={18} strokeWidth={1.5} />,
+        description: "Review system audit trail",
+      },
+      {
+        id: "documents",
+        label: "Documents",
+        icon: <FileText size={18} strokeWidth={1.5} />,
+        description: "Browse and manage documents",
+      },
+    ],
+    [],
+  );
+
+  const handleQuickAction = useCallback((id: string) => {
+    if (id === "add-member") {
+      setViewMember(gslMembers[0]);
+    }
+  }, []);
+
+  const recentActivityEvents = useMemo(
+    () => [
+      { title: "Kwame Asante modified user permissions", date: "Today, 10:32 AM" },
+      { title: "System exported 245 member records", date: "Today, 09:15 AM" },
+      { title: "Abena Mensah published 3 content items", date: "Yesterday, 4:20 PM" },
+      { title: "Nana Yeboah deactivated 2 accounts", date: "Yesterday, 2:00 PM" },
+      { title: "Automated backup completed (1.2 GB)", date: "Yesterday, 1:00 AM" },
+    ],
+    [],
+  );
+
   return (
     <>
-      <SectionHeader>
-        <SectionTitle>Dashboard</SectionTitle>
-        <SectionDescription>
-          Overview of your organization&apos;s members and activity.
-        </SectionDescription>
-        <SectionActions>
+      <PageSection>
+        <SectionHeader>
+          <SectionTitle>Dashboard</SectionTitle>
+          <SectionDescription>
+            Overview of your organization&apos;s members and activity.
+          </SectionDescription>
           <ExportButton
             data={filtered}
             columns={exportColumns}
             title="Dashboard Members"
           />
-          <Button variant="primary" size="md">
-            <UserPlus size={14} strokeWidth={1.5} />
-            Add Member
-          </Button>
-        </SectionActions>
-      </SectionHeader>
+        </SectionHeader>
+      </PageSection>
 
-      <div className="demo-home__metrics">
-        <MetricCard
-          variant="outline"
-          loading={metricsLoading}
-          label="Total Members"
-          value={members.length}
-          description="Across all departments"
-          trend="up"
-          trendValue="+12%"
-        />
-        <MetricCard
-          variant="outline"
-          loading={metricsLoading}
-          label="Active Members"
-          value={members.filter((m) => m.status === "Active").length}
-          description="Currently active"
-          trend="up"
-          trendValue="+5%"
-        />
-        <MetricCard
-          variant="outline"
-          loading={metricsLoading}
-          label="New This Month"
-          value={members.filter((m) => m.joined >= "2025-01-01").length}
-          description="Joined this year"
-          trend="down"
-          trendValue="-3%"
-        />
-        <MetricCard
-          variant="outline"
-          loading={metricsLoading}
-          label="Engagement Rate"
-          value="94.2%"
-          description="Average daily activity"
-          trend="up"
-          trendValue="+1.2%"
-        />
-      </div>
-
-      <Card bordered>
-        <Table paramPrefix="dash2-members">
-          <TableHeader>
-            <TableSearch placeholder="Search members..." />
-            <TableFilter variant="spread">
-              <Dropdown
-                name="role"
-                value={roleValue || null}
-                onValueChange={(v) => setRoleValue(v ?? "")}
-                options={[
-                  { value: "Admin", label: "Admin" },
-                  { value: "Editor", label: "Editor" },
-                  { value: "Viewer", label: "Viewer" },
-                ]}
-                placeholder="All roles"
-                aria-label="Filter by role"
-              />
-              <Combobox
-                value={statusValue || null}
-                onValueChange={(v) => setStatusValue(v ?? "")}
-                options={gslStatuses}
-                placeholder="All statuses"
-                aria-label="Filter by status"
-                clearable
-              />
-            </TableFilter>
-          </TableHeader>
-          <TableContent
-            variant="panel"
-            selectable
-            selectedIds={selected}
-            onSelectionChange={setSelected}
-            columns={columns}
-            data={paged}
-            rowKey={(m: GslMember) => m.id}
-            rowActions={rowActions}
-            bulkActions={bulkActions}
-            bulkActionsFooter
-          />
-          <TableFooter noBorder>
-            <TablePagination
-              totalPages={totalPages}
-              totalItems={filtered.length}
-              pageSizeOptions={pageSizeOptions}
+      <PageSection>
+        <Card bordered>
+          <div className="demo-home__metrics">
+            <MetricCard
+              variant="outline"
+              loading={metricsLoading}
+              label="Total Members"
+              value={members.length}
+              description="Across all departments"
+              trend="up"
+              trendValue="+12%"
             />
-          </TableFooter>
-        </Table>
-      </Card>
+            <MetricCard
+              variant="outline"
+              loading={metricsLoading}
+              label="Active Members"
+              value={members.filter((m) => m.status === "Active").length}
+              description="Currently active"
+              trend="up"
+              trendValue="+5%"
+            />
+            <MetricCard
+              variant="outline"
+              loading={metricsLoading}
+              label="New This Month"
+              value={members.filter((m) => m.joined >= "2025-01-01").length}
+              description="Joined this year"
+              trend="down"
+              trendValue="-3%"
+            />
+            <MetricCard
+              variant="outline"
+              loading={metricsLoading}
+              label="Engagement Rate"
+              value="94.2%"
+              description="Average daily activity"
+              trend="up"
+              trendValue="+1.2%"
+            />
+          </div>
+        </Card>
+      </PageSection>
+
+      <PageSection>
+        <Card bordered>
+          <Tabs variant="pill" defaultValue="members">
+            <TabsList>
+              <TabsTrigger value="members">Members</TabsTrigger>
+              <TabsTrigger value="audit">Audit Trail</TabsTrigger>
+              <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="members">
+              <Table paramPrefix="dash2-members">
+                <TableHeader>
+                  <TableSearch placeholder="Search members..." />
+                  <TableFilter variant="spread">
+                    <Dropdown
+                      name="role"
+                      value={roleValue || null}
+                      onValueChange={(v) => setRoleValue(v ?? "")}
+                      options={[
+                        { value: "Admin", label: "Admin" },
+                        { value: "Editor", label: "Editor" },
+                        { value: "Viewer", label: "Viewer" },
+                      ]}
+                      placeholder="All roles"
+                      aria-label="Filter by role"
+                    />
+                    <Combobox
+                      value={statusValue || null}
+                      onValueChange={(v) => setStatusValue(v ?? "")}
+                      options={gslStatuses}
+                      placeholder="All statuses"
+                      aria-label="Filter by status"
+                      clearable
+                    />
+                  </TableFilter>
+                </TableHeader>
+                <TableContent
+                  variant="panel"
+                  selectable
+                  selectedIds={selected}
+                  onSelectionChange={setSelected}
+                  columns={columns}
+                  data={paged}
+                  rowKey={(m: GslMember) => m.id}
+                  rowActions={rowActions}
+                  bulkActions={bulkActions}
+                  bulkActionsFooter
+                />
+                <TableFooter noBorder>
+                  <TablePagination
+                    totalPages={totalPages}
+                    totalItems={filtered.length}
+                    pageSizeOptions={pageSizeOptions}
+                  />
+                </TableFooter>
+              </Table>
+            </TabsContent>
+
+            <TabsContent value="audit">
+              <Timeline>
+                {auditTrail.map((event) => (
+                  <TimelineItem
+                    key={event.id}
+                    mode={event.mode}
+                  >
+                    <TimelineTitle>{event.title}</TimelineTitle>
+                    <TimelineData>{event.date}</TimelineData>
+                    <TimelineFooter>{event.description}</TimelineFooter>
+                  </TimelineItem>
+                ))}
+              </Timeline>
+            </TabsContent>
+
+            <TabsContent value="activity">
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                  padding: "16px 0",
+                }}
+              >
+                {recentActivityEvents.map((event, i) => (
+                  <div key={i} className="demo-activity-row">
+                    <span className="demo-activity-row__dot" />
+                    <div className="demo-activity-row__content">
+                      <span className="demo-activity-row__title">
+                        {event.title}
+                      </span>
+                      <span className="demo-activity-row__date">
+                        {event.date}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </Card>
+      </PageSection>
+
+      <PageSection>
+        <Card bordered>
+          <QuickActions
+            title="Quick actions"
+            actions={quickActions}
+            onAction={handleQuickAction}
+          />
+        </Card>
+      </PageSection>
 
       <Modal
         open={!!viewMember}

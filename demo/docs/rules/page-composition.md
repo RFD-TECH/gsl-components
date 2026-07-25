@@ -38,9 +38,22 @@ title: Don't render SidebarTrigger in new layouts
 severity: dont
 components: sidebar
 
-The old default layout shell renders `<SidebarTrigger>Menu</SidebarTrigger>` to manually toggle
-the sidebar. The new shell drops it entirely — don't render `SidebarTrigger` in new or touched
+The old default layout shell renders `<SidebarTrigger>Menu</SidebarTrigger>` to manually toggle the
+sidebar. The new shell drops it entirely — don't render `SidebarTrigger` in new or touched
 layouts. Use `SidebarProvider` with its defaults and no manual collapse control.
+
+===RULE===
+id: page-composition-sidebar-overlay-optional
+title: SidebarOverlay is rendered internally by Sidebar on mobile — explicit usage is optional
+severity: do
+components: sidebar
+
+`Sidebar` now renders the mobile overlay (the full-viewport close-on-click backdrop) as a sibling
+of the `<aside>` whenever the viewport is below the sidebar's mobile breakpoint. The old default
+layout shell required you to drop `<SidebarOverlay />` into `<AppSidebar>` — forgetting it left
+the drawer with no backdrop. Drop the explicit `<SidebarOverlay />` in new/touched layouts; it
+remains exported for backward compatibility and is harmless if duplicated (two stacked overlays
+both close the drawer on click, no visual artifact).
 
 ===RULE===
 id: page-composition-sidebar-badge-numeric
@@ -56,14 +69,20 @@ invent other text badges beyond that pattern.
 
 ===RULE===
 id: page-composition-branding-in-app-header
-title: Branding lives in AppHeader via AppHeaderBranding, never in the sidebar
+title: Branding lives in AppHeader via AppHeaderBranding; pass a matching mobileHeader to the plain Sidebar for the mobile drawer
 severity: do
 components: app-header, sidebar
 
-Put branding in `AppHeader` via `AppHeaderBranding` (`logo`/`title`/`subtitle`), never in the
-sidebar. `Sidebar` has no `SidebarHeader`/`SidebarBrand` when `AppHeaderBranding` is used — the
-same logo must not appear twice on screen. Use the current brand logo (`clet-logo.png`) for any
-new system — `gsl-logo.png` is the older mark used only by the legacy default layout shell.
+Put branding in `AppHeader` via `AppHeaderBranding` (`logo`/`title`/`subtitle`). On desktop, the
+plain `Sidebar` has no `SidebarHeader`/`SidebarBrand` — the same logo must not appear twice on
+screen. On mobile, the `AppHeader` collapses to just the hamburger and the sidebar becomes a
+full-overlay drawer — pass the same brand content as a `mobileHeader` prop on the plain `Sidebar`
+(typically a `SidebarBrand` with the same logo/title as the `AppHeaderBranding`). The library
+wraps it in a `SidebarHeader` with the built-in `clet-sidebar__header--mobile-only` class, hidden
+on desktop. `AppLayout` does NOT auto-extract the `AppHeaderBranding` — the two brand blocks are
+intentionally separate, since they live in different visual contexts with different styling.
+Use the current brand logo (`clet-logo.png`) for any new system — `gsl-logo.png` is the older
+mark used only by the legacy default layout shell.
 
 ===RULE===
 id: page-composition-profile-popover-default-items

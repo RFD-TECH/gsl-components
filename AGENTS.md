@@ -31,6 +31,8 @@ change list.
 |-----------|--------|------|
 | `AppHeader` | `variant="plain"` | `variant="default"` |
 | `MetricCard` | `variant="outline"` | `variant="default"` |
+| `PageSection` | wrap every content section | bare `<div>`s with margin |
+| `QuickActions` | action grids with customize dialog | hand-rolled action button rows |
 | `SidebarGroup` | `collapsible` (accordion groups) | flat, non-collapsible groups |
 | `TableContent` | `variant="panel"` | `variant="default"` |
 | `TableFilter` | `variant="spread"` (≤2 actions) / `variant="popover"` (3+ actions) | `variant="popover"` (default) |

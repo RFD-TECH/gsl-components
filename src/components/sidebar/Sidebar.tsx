@@ -60,30 +60,11 @@ const SidebarGroupContext = createContext<SidebarGroupContextValue | null>(
 );
 
 export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
-  { classNames, className, variant = "default", children },
+  { classNames, className, variant = "default", mobileHeader, children },
   ref,
 ) {
-  const { open, setOpen, collapsed, isMobile, sidebarId } = useSidebar();
+  const { open, collapsed, isMobile, sidebarId } = useSidebar();
   const sidebarRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (!isMobile || !open) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("click", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [isMobile, open, setOpen]);
 
   const setRefs = useCallback(
     (node: HTMLElement | null) => {
@@ -95,23 +76,42 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
     [ref],
   );
 
+  // When `mobileHeader` is provided and the consumer hasn't already rendered
+  // a `SidebarHeader` child, auto-inject one wrapped in the built-in
+  // `clet-sidebar__header--mobile-only` class. Only applies to `variant="plain"`
+  // — the desktop-default sidebar has no need for a brand row.
+  const hasExistingHeader = Children.toArray(children).some(
+    (child) => isValidElement(child) && child.type === SidebarHeader,
+  );
+  const showAutoMobileHeader =
+    variant === "plain" && mobileHeader != null && !hasExistingHeader;
+  const autoHeader = showAutoMobileHeader ? (
+    <SidebarHeader className="clet-sidebar__header--mobile-only">
+      {mobileHeader}
+    </SidebarHeader>
+  ) : null;
+
   return (
-    <aside
-      ref={setRefs}
-      id={sidebarId}
-      className={cn(
-        "clet-sidebar gsl-sidebar",
-        variant === "plain" && "clet-sidebar--plain gsl-sidebar--plain",
-        isMobile && "clet-sidebar--mobile gsl-sidebar--mobile",
-        isMobile && open && "clet-sidebar--mobile-open gsl-sidebar--mobile-open",
-        !isMobile && collapsed && "clet-sidebar--collapsed gsl-sidebar--collapsed",
-        classNames?.root,
-        className,
-      )}
-      aria-modal={isMobile && open ? true : undefined}
-    >
-      {children}
-    </aside>
+    <>
+      <aside
+        ref={setRefs}
+        id={sidebarId}
+        className={cn(
+          "clet-sidebar gsl-sidebar",
+          variant === "plain" && "clet-sidebar--plain gsl-sidebar--plain",
+          isMobile && "clet-sidebar--mobile gsl-sidebar--mobile",
+          isMobile && open && "clet-sidebar--mobile-open gsl-sidebar--mobile-open",
+          !isMobile && collapsed && "clet-sidebar--collapsed gsl-sidebar--collapsed",
+          classNames?.root,
+          className,
+        )}
+        aria-modal={isMobile && open ? true : undefined}
+      >
+        {autoHeader}
+        {children}
+      </aside>
+      {isMobile && <SidebarOverlay />}
+    </>
   );
 });
 
