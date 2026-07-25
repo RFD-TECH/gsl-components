@@ -126,6 +126,10 @@ function TableContentRender<T>(
     null,
   );
 
+  const [openTrigger, setOpenTrigger] = useState<"kebab" | "context" | null>(
+    null,
+  );
+
   // Right-clicking outside the (portaled) popover content closes it via
   // Radix's own pointerdown-outside handling — which fires on mousedown,
   // before our row's onContextMenu even runs. Snapshot which row was open
@@ -133,9 +137,10 @@ function TableContentRender<T>(
   // handler can still tell "closing an open menu" apart from "opening one".
   const wasOpenKeyRef = useRef<string | number | null>(null);
 
-  // Shared virtual anchor for the row-actions popover: kebab clicks snap it to
-  // the trigger button's rect, right-clicks snap it to the cursor point, so
-  // the same Popover can be positioned either way without remounting.
+  // Virtual anchor rect — only used for right-click context menus
+  // (positions at the cursor). Kebab clicks use the Popover.Trigger
+  // itself as the anchor (handled by Radix when no PopoverAnchor is
+  // rendered with a virtualRef).
   const anchorRectRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
   const virtualAnchorRef = useRef({
     getBoundingClientRect: (): DOMRect => {
@@ -209,9 +214,12 @@ function TableContentRender<T>(
   // there's nothing for it to show — don't render an empty kebab column.
   const hasActionsColumn = hasRowActions || hasBulkActions;
 
-  // Extra colSpan when selectable or actions column adds a column
-  const colSpan =
-    columns.length + (selectable ? 1 : 0) + (hasActionsColumn ? 1 : 0);
+	// The header row always renders a checkbox cell (even when selectable=false)
+	// and an actions cell when hasActionsColumn is true. colSpan must match
+	// the actual number of <th> elements in the header row to avoid rendering
+	// an empty-state cell that is one column short.
+	const colSpan =
+		columns.length + 1 + (hasActionsColumn ? 1 : 0);
 
   const sorted = [...data].sort((a, b) => {
     if (!sort) return 0;
@@ -251,6 +259,7 @@ function TableContentRender<T>(
       e.stopPropagation();
       cb();
       setOpenPopoverKey(null);
+      setOpenTrigger(null);
     };
 
     return (
@@ -268,6 +277,7 @@ function TableContentRender<T>(
           e.preventDefault();
           if (wasOpenKeyRef.current === key) {
             setOpenPopoverKey(null);
+            setOpenTrigger(null);
             return;
           }
           anchorRectRef.current = {
@@ -276,6 +286,7 @@ function TableContentRender<T>(
             width: 0,
             height: 0,
           };
+          setOpenTrigger("context");
           setOpenPopoverKey(key);
         }}
         className={cn(
@@ -314,23 +325,20 @@ function TableContentRender<T>(
               open={openPopoverKey === key}
               onOpenChange={(open) => {
                 setOpenPopoverKey(open ? key : null);
+                if (!open) setOpenTrigger(null);
               }}
             >
-              <PopoverAnchor virtualRef={virtualAnchorRef} />
+              {openTrigger === "context" && (
+                <PopoverAnchor virtualRef={virtualAnchorRef} />
+              )}
               <PopoverTrigger
                 className={cn(
                   "clet-table__actions-trigger gsl-table__actions-trigger",
                   classNames?.actionsTrigger,
                 )}
                 aria-label="Row actions"
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  anchorRectRef.current = {
-                    x: rect.x,
-                    y: rect.y,
-                    width: rect.width,
-                    height: rect.height,
-                  };
+                onClick={() => {
+                  setOpenTrigger("kebab");
                 }}
               >
                 <MoreHorizontal size={14} strokeWidth={1.5} />
@@ -348,6 +356,7 @@ function TableContentRender<T>(
                     // Second right-click often lands on the open menu, not the row.
                     e.preventDefault();
                     setOpenPopoverKey(null);
+                    setOpenTrigger(null);
                   }}
                 >
                   {selectable && (

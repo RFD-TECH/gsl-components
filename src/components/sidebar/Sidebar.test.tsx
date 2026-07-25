@@ -122,6 +122,17 @@ describe("Sidebar", () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
+  it("closes on mobile when clicking outside the sidebar", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+
+    renderSidebar({ defaultOpen: true, onOpenChange });
+
+    await user.click(document.body);
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
   it("applies active styles to SidebarLink", () => {
     renderSidebar();
 

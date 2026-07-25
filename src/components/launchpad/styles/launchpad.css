@@ -182,6 +182,22 @@
   cursor: not-allowed;
 }
 
+.clet-launchpad__item--more {
+  background: var(--gsl-hover, var(--clet-hover, rgb(0 0 0 / 4%)));
+  border: 1px dashed var(--gsl-border, var(--clet-border));
+  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+  justify-content: center;
+}
+
+.clet-launchpad__more-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--gsl-icon-size, var(--clet-icon-size));
+  height: var(--gsl-icon-size, var(--clet-icon-size));
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
+}
+
 .clet-launchpad__icon {
   display: flex;
   align-items: center;

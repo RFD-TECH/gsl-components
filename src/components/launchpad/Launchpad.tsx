@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, MoreHorizontal } from "lucide-react";
 import { useLaunchpad } from "./hooks/useLaunchpad";
 import { Button } from "../button/Button";
 import {
@@ -54,7 +54,10 @@ export function Launchpad({
 	const [tooltipOpen, setTooltipOpen] = useState(false);
 	const [expandOpen, setExpandOpen] = useState(false);
 
-	const visibleApps = apps.slice(0, MAX_APPS);
+	const handleSeeAll = useCallback(() => {
+		close();
+		setExpandOpen(true);
+	}, [close]);
 
 	const handleAppSelect = useCallback(
 		(app: LaunchpadApp) => {
@@ -71,10 +74,22 @@ export function Launchpad({
 		[onAppSelect, close],
 	);
 
-	const handleSeeAll = useCallback(() => {
-		close();
-		setExpandOpen(true);
-	}, [close]);
+	const showMore = apps.length > MAX_APPS;
+	const visibleApps = showMore ? apps.slice(0, MAX_APPS - 1) : apps;
+
+	const moreItem = showMore ? (
+		<button
+			type="button"
+			className="clet-launchpad__item clet-launchpad__item--more gsl-launchpad__item gsl-launchpad__item--more"
+			onClick={handleSeeAll}
+			aria-label="More"
+		>
+			<span className="clet-launchpad__more-icon gsl-launchpad__more-icon">
+				<MoreHorizontal size={24} strokeWidth={1.5} />
+			</span>
+			<span className="clet-launchpad__name gsl-launchpad__name">More</span>
+		</button>
+	) : null;
 
 	return (
 		<>
@@ -147,7 +162,7 @@ export function Launchpad({
 									</div>
 								) : null}
 
-								{!loading && visibleApps.length > 0 ? (
+								{!loading && (visibleApps.length > 0 || showMore) ? (
 									<div className="clet-launchpad__grid gsl-launchpad__grid">
 										{visibleApps.map((app) => (
 											<LaunchpadItem
@@ -156,6 +171,7 @@ export function Launchpad({
 												onSelect={handleAppSelect}
 											/>
 										))}
+										{moreItem}
 									</div>
 								) : null}
 							</div>

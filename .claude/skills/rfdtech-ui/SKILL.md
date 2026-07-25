@@ -26,7 +26,10 @@ Before generating or editing UI code that uses `@rfdtech/components`:
    `RoleSelect` wired into all three locations when the system has multiple roles, `Launchpad` over
    the deprecated `AppSwitcher`, the `Table`/`MetricCard`/`Tabs` variant set, and more. Also see
    `get_component("migration-v2")` for the full migration/adoption checklist.
-7. **Migrating a project that already overrides tokens?** Never decide silently. Find every
+7. **TableFilter variant depends on action count.** Prefer `variant="spread"` only when there
+   are **2 or fewer** filter row actions (e.g. "Clear", "Apply"). When there are **3 or more**
+   actions, switch to `variant="popover"` to avoid the spread layout getting too crowded.
+8. **Migrating a project that already overrides tokens?** Never decide silently. Find every
    existing override of a *known* token — `gslTheme()` calls, or CSS setting a real `--clet-*` or
    legacy `--gsl-*` color token (not custom/arbitrary variables) — list them, and ask the user
    about each one individually: keep it, or drop it for the new approved default. Every color

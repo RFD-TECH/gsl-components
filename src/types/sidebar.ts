@@ -83,6 +83,16 @@ export interface SidebarProps {
    * "plain" makes the background transparent and adds a right border.
    */
   variant?: "default" | "plain";
+  /**
+   * Content rendered into a mobile-only `SidebarHeader` at the top of the
+   * sidebar when `variant` is `"plain"`. Typically forwarded automatically
+   * by `AppLayout` from the sibling `AppHeader`'s `AppHeaderBranding` so the
+   * brand is visible when the mobile drawer opens. On desktop the auto-injected
+   * `SidebarHeader` is hidden via the built-in `clet-sidebar__header--mobile-only`
+   * class. Pass `null` to disable the auto-injection, or supply your own
+   * `SidebarHeader` child to opt out.
+   */
+  mobileHeader?: ReactNode;
   children: ReactNode;
 }
 

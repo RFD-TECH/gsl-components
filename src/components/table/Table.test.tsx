@@ -551,4 +551,79 @@ describe("Table", () => {
     expect(newSet.has("Alice")).toBe(false);
     expect(newSet.has("Bob")).toBe(true);
   });
+
+  it("opens popover on kebab click and shows row actions", async () => {
+    const user = userEvent.setup();
+    render(
+      <Table paramPrefix="test">
+        <TableContent
+          columns={[
+            { id: "name", header: "Name", accessorKey: "name" },
+          ]}
+          data={[{ id: "1", name: "Alpha" }]}
+          rowKey={(row: { id: string }) => row.id}
+          rowActions={[
+            { id: "edit", label: "Edit", onClick: vi.fn() },
+            { id: "delete", label: "Delete", onClick: vi.fn() },
+          ]}
+        />
+      </Table>,
+    );
+
+    const kebab = screen.getByLabelText("Row actions");
+    await user.click(kebab);
+
+    expect(screen.getByText("Edit")).toBeInTheDocument();
+    expect(screen.getByText("Delete")).toBeInTheDocument();
+  });
+
+  it("opens popover on right-click of the row and shows row actions", async () => {
+    const user = userEvent.setup();
+    render(
+      <Table paramPrefix="test">
+        <TableContent
+          columns={[
+            { id: "name", header: "Name", accessorKey: "name" },
+          ]}
+          data={[{ id: "1", name: "Alpha" }]}
+          rowKey={(row: { id: string }) => row.id}
+          rowActions={[
+            { id: "edit", label: "Edit", onClick: vi.fn() },
+          ]}
+        />
+      </Table>,
+    );
+
+    const row = screen.getByText("Alpha").closest("tr")!;
+    await user.pointer({ target: row, coords: { x: 500, y: 100 }, keys: "[MouseRight]" });
+
+    expect(screen.getByText("Edit")).toBeInTheDocument();
+  });
+
+  it("closes popover after clicking an action", async () => {
+    const user = userEvent.setup();
+    const onAction = vi.fn();
+    render(
+      <Table paramPrefix="test">
+        <TableContent
+          columns={[
+            { id: "name", header: "Name", accessorKey: "name" },
+          ]}
+          data={[{ id: "1", name: "Alpha" }]}
+          rowKey={(row: { id: string }) => row.id}
+          rowActions={[
+            { id: "edit", label: "Edit", onClick: onAction },
+          ]}
+        />
+      </Table>,
+    );
+
+    const kebab = screen.getByLabelText("Row actions");
+    await user.click(kebab);
+    expect(screen.getByText("Edit")).toBeInTheDocument();
+
+    await user.click(screen.getByText("Edit"));
+    expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+    expect(onAction).toHaveBeenCalledTimes(1);
+  });
 });

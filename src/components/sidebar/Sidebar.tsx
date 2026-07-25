@@ -63,11 +63,41 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
   { classNames, className, variant = "default", children },
   ref,
 ) {
-  const { open, collapsed, isMobile, sidebarId } = useSidebar();
+  const { open, setOpen, collapsed, isMobile, sidebarId } = useSidebar();
+  const sidebarRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!isMobile || !open) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isMobile, open, setOpen]);
+
+  const setRefs = useCallback(
+    (node: HTMLElement | null) => {
+      (sidebarRef as React.MutableRefObject<HTMLElement | null>).current = node;
+      if (typeof ref === "function") ref(node);
+      else if (ref)
+        (ref as React.MutableRefObject<HTMLElement | null>).current = node;
+    },
+    [ref],
+  );
 
   return (
     <aside
-      ref={ref}
+      ref={setRefs}
       id={sidebarId}
       className={cn(
         "clet-sidebar gsl-sidebar",

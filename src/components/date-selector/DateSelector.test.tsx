@@ -180,4 +180,137 @@ describe("DateSelector", () => {
 
     expect(screen.getByTestId("value")).not.toHaveTextContent("null");
   });
+
+  // ── 3-level picker (day / month / year) ──
+
+  it("clicking the title switches from day to month view", async () => {
+    const user = userEvent.setup();
+    render(<DateSelector />);
+
+    await user.click(screen.getByRole("button", { name: /select date/i }));
+    expect(screen.getAllByRole("gridcell").length).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole("button", { name: /switch to month picker/i }));
+    expect(screen.queryAllByRole("gridcell")).toHaveLength(12);
+  });
+
+  it("clicking a month in month view returns to day view", async () => {
+    const user = userEvent.setup();
+    render(<DateSelector />);
+
+    await user.click(screen.getByRole("button", { name: /select date/i }));
+    await user.click(screen.getByRole("button", { name: /switch to month picker/i }));
+
+    await user.click(screen.getByRole("gridcell", { name: /^Jun/ }));
+    expect(screen.getByRole("grid")).toBeInTheDocument();
+  });
+
+  it("month view title switches to year view", async () => {
+    const user = userEvent.setup();
+    render(<DateSelector />);
+
+    await user.click(screen.getByRole("button", { name: /select date/i }));
+    await user.click(screen.getByRole("button", { name: /switch to month picker/i }));
+
+    await user.click(screen.getByRole("button", { name: /switch to year picker/i }));
+    const yearCells = screen.getAllByRole("gridcell");
+    expect(yearCells).toHaveLength(12);
+    yearCells.forEach((cell) => {
+      expect(cell.textContent).toMatch(/^\d{4}$/);
+    });
+  });
+
+  it("clicking a year in year view returns to month view", async () => {
+    const user = userEvent.setup();
+    const thisYear = new Date().getFullYear();
+    render(<DateSelector />);
+
+    await user.click(screen.getByRole("button", { name: /select date/i }));
+    await user.click(screen.getByRole("button", { name: /switch to month picker/i }));
+    await user.click(screen.getByRole("button", { name: /switch to year picker/i }));
+
+    await user.click(screen.getByRole("gridcell", { name: String(thisYear) }));
+    expect(screen.getAllByRole("gridcell")).toHaveLength(12);
+  });
+
+  it("disables years outside min/max", async () => {
+    const user = userEvent.setup();
+    const min = new Date(2025, 0, 1);
+    const max = new Date(2028, 11, 31);
+    render(<DateSelector min={min} max={max} />);
+
+    await user.click(screen.getByRole("button", { name: /select date/i }));
+    await user.click(screen.getByRole("button", { name: /switch to month picker/i }));
+    await user.click(screen.getByRole("button", { name: /switch to year picker/i }));
+
+    const yearCells = screen.getAllByRole("gridcell");
+    const disabledYears = yearCells.filter((c) => c.hasAttribute("disabled"));
+    expect(disabledYears.length).toBeGreaterThan(0);
+  });
+
+  it("disables months outside min/max", async () => {
+    const user = userEvent.setup();
+    const min = new Date(2026, 5, 1); // June 1
+    render(<DateSelector min={min} />);
+
+    await user.click(screen.getByRole("button", { name: /select date/i }));
+    await user.click(screen.getByRole("button", { name: /switch to month picker/i }));
+
+    const monthCells = screen.getAllByRole("gridcell");
+    const disabledMonths = monthCells.filter((c) => c.hasAttribute("disabled"));
+    expect(disabledMonths.length).toBeGreaterThan(0);
+  });
+
+  it("navigates decades in year view", async () => {
+    const user = userEvent.setup();
+    render(<DateSelector />);
+
+    await user.click(screen.getByRole("button", { name: /select date/i }));
+    await user.click(screen.getByRole("button", { name: /switch to month picker/i }));
+    await user.click(screen.getByRole("button", { name: /switch to year picker/i }));
+
+    const firstGridcells = screen.getAllByRole("gridcell");
+    const firstYear = parseInt(firstGridcells[0].textContent!, 10);
+
+    await user.click(screen.getByRole("button", { name: /next 12 years/i }));
+    const secondGridcells = screen.getAllByRole("gridcell");
+    const secondFirstYear = parseInt(secondGridcells[0].textContent!, 10);
+    expect(secondFirstYear).toBe(firstYear + 12);
+  });
+
+  it("navigates years in month view", async () => {
+    const user = userEvent.setup();
+    render(<DateSelector />);
+
+    await user.click(screen.getByRole("button", { name: /select date/i }));
+    await user.click(screen.getByRole("button", { name: /switch to month picker/i }));
+
+    // Should show current year
+    const thisYear = new Date().getFullYear();
+    expect(screen.getByText(String(thisYear))).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /next year/i }));
+    expect(screen.getByText(String(thisYear + 1))).toBeInTheDocument();
+  });
+
+  it("resets to day view when popover reopens", async () => {
+    const user = userEvent.setup();
+    render(<DateSelector />);
+
+    const trigger = screen.getByRole("button", { name: /select date/i });
+
+    // Open, switch to year view
+    await user.click(trigger);
+    await user.click(screen.getByRole("button", { name: /switch to month picker/i }));
+    await user.click(screen.getByRole("button", { name: /switch to year picker/i }));
+    expect(screen.getByRole("button", { name: /switch to month picker/i })).toBeInTheDocument();
+
+    // Close and reopen
+    await user.click(trigger);
+    await user.click(trigger);
+
+    // Should be back in day view
+    expect(screen.getByRole("button", { name: /switch to month picker/i })).toBeInTheDocument();
+    expect(screen.getByRole("grid")).toBeInTheDocument();
+  });
 });

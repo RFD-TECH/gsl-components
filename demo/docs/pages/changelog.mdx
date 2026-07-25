@@ -19,6 +19,25 @@ Upgrading from `1.22.0`? See the [migration guide](/docs/migration-v2) for a ste
 
 ## [Unreleased]
 
+### Changed
+
+- **DateSelector**: the calendar header title is now clickable and opens a 3-level picker (day / month / year) inspired by iOS and Material patterns. Click the title in day view for a 3×4 month grid; click again for a 3×4 year grid. Month and year cells use the same selected/today/disabled styling as day cells. Navigation arrows adapt per level (month, year, or decade step). The popover re-opens at the selected date's period. Added `calendarMonthGrid`, `calendarMonth`, `calendarYearGrid`, `calendarYear` to `DateSelectorClassNames`.
+
+### Fixed
+
+- **Combobox**: mouse-wheel scrolling now works on the option list. An `onWheel` handler manually manages `scrollTop` to work around `cmdk`'s non-intercepted scroll behavior.
+
+## [2.0.2] - 2026-07-23
+
+### Changed
+
+- **Sidebar**: mobile drawer now uses a dedicated `--clet-sidebar-z` token defaulting to `10000` so it layers above headers, command popovers, and table bulk-action bars in responsive layouts.
+- **Table**: header bar stacks into a column below `1024px`, with actions wrapping beneath the search/filter row for smaller screens.
+
+### Fixed
+
+- **Lottie animations**: `BulkImportModal` and `ProgressModal` now load `lottie-react` only on the client, preventing `lottie-web` canvas initialization crashes during SSR/static builds and test imports.
+
 ## [2.0.1] - 2026-07-16
 
 ### Added

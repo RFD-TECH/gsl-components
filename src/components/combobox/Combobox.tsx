@@ -1,6 +1,6 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Command as CommandPrimitive } from "cmdk";
-import { Check, ChevronDown, Search, XCircle } from "lucide-react";
+import { Check, ChevronDown, Loader2, Search, XCircle } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import type { ComboboxProps } from "../../types/combobox";
 import { cn } from "../../utils/cn";
@@ -17,6 +17,8 @@ export function Combobox(props: ComboboxProps) {
     disabled = false,
     invalid = false,
     clearable = false,
+    loading = false,
+    loadingLabel = "Loading options",
     emptyMessage = "No results",
     "aria-label": ariaLabel,
     classNames,
@@ -75,6 +77,16 @@ export function Combobox(props: ComboboxProps) {
     [multiple, onValueChange],
   );
 
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    const el = e.currentTarget as HTMLElement;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const atTop = scrollTop === 0;
+    const atBottom = scrollTop + clientHeight >= scrollHeight;
+    if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) return;
+    e.preventDefault();
+    el.scrollTop += e.deltaY;
+  }, []);
+
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={setOpen}>
       <span className={cn("clet-combobox gsl-combobox", classNames?.root, className)}>
@@ -124,78 +136,100 @@ export function Combobox(props: ComboboxProps) {
             sideOffset={4}
             align="start"
           >
-            <CommandPrimitive className="clet-combobox__command gsl-combobox__command">
-              <div className="clet-combobox__input-wrapper gsl-combobox__input-wrapper">
-                <Search
-                  className="clet-combobox__input-icon gsl-combobox__input-icon"
-                  size={16}
+            {loading ? (
+              <div
+                className={cn(
+                  "clet-combobox__loading gsl-combobox__loading",
+                  classNames?.loading,
+                )}
+                aria-busy="true"
+                aria-label={loadingLabel}
+              >
+                <Loader2
+                  className="clet-combobox__spinner gsl-combobox__spinner"
+                  size={20}
+                  strokeWidth={2}
                   aria-hidden
                 />
-                <CommandPrimitive.Input
-                  className={cn("clet-combobox__input gsl-combobox__input", classNames?.input)}
-                  placeholder={searchPlaceholder}
-                />
+                <span className="clet-combobox__loading-text gsl-combobox__loading-text">
+                  {loadingLabel}
+                </span>
               </div>
-              <CommandPrimitive.List
-                className={cn("clet-combobox__list gsl-combobox__list", classNames?.list)}
-              >
-                <CommandPrimitive.Empty
-                  className={cn("clet-combobox__empty gsl-combobox__empty", classNames?.empty)}
+            ) : (
+              <CommandPrimitive className="clet-combobox__command gsl-combobox__command">
+                <div className="clet-combobox__input-wrapper gsl-combobox__input-wrapper">
+                  <Search
+                    className="clet-combobox__input-icon gsl-combobox__input-icon"
+                    size={16}
+                    aria-hidden
+                  />
+                  <CommandPrimitive.Input
+                    className={cn("clet-combobox__input gsl-combobox__input", classNames?.input)}
+                    placeholder={searchPlaceholder}
+                  />
+                </div>
+                <CommandPrimitive.List
+                  className={cn("clet-combobox__list gsl-combobox__list", classNames?.list)}
+                  onWheel={handleWheel}
                 >
-                  {emptyMessage}
-                </CommandPrimitive.Empty>
-                {options.map((option) => {
-                  const isSelected = selectedValues.includes(option.value);
-                  return (
-                    <CommandPrimitive.Item
-                      key={option.value}
-                      value={option.value}
-                      keywords={[option.label]}
-                      disabled={option.disabled}
-                      onSelect={() => handleSelect(option.value)}
-                      className={cn("clet-combobox__item gsl-combobox__item", classNames?.item)}
-                    >
-                      {option.icon ? (
-                        <span
-                          className={cn(
-                            "clet-combobox__item-icon gsl-combobox__item-icon",
-                            classNames?.itemIcon,
-                          )}
-                        >
-                          {option.icon}
+                  <CommandPrimitive.Empty
+                    className={cn("clet-combobox__empty gsl-combobox__empty", classNames?.empty)}
+                  >
+                    {emptyMessage}
+                  </CommandPrimitive.Empty>
+                  {options.map((option) => {
+                    const isSelected = selectedValues.includes(option.value);
+                    return (
+                      <CommandPrimitive.Item
+                        key={option.value}
+                        value={option.value}
+                        keywords={[option.label]}
+                        disabled={option.disabled}
+                        onSelect={() => handleSelect(option.value)}
+                        className={cn("clet-combobox__item gsl-combobox__item", classNames?.item)}
+                      >
+                        {option.icon ? (
+                          <span
+                            className={cn(
+                              "clet-combobox__item-icon gsl-combobox__item-icon",
+                              classNames?.itemIcon,
+                            )}
+                          >
+                            {option.icon}
+                          </span>
+                        ) : null}
+                        <span className="clet-combobox__item-label gsl-combobox__item-label">
+                          {option.label}
                         </span>
-                      ) : null}
-                      <span className="clet-combobox__item-label gsl-combobox__item-label">
-                        {option.label}
-                      </span>
-                      {multiple ? (
-                        <span
-                          className={cn(
-                            "clet-combobox__item-check gsl-combobox__item-check",
-                            isSelected && "clet-combobox__item-check--checked gsl-combobox__item-check--checked",
-                            classNames?.itemCheck,
-                          )}
-                          aria-hidden
-                        >
-                          {isSelected ? (
-                            <Check size={12} strokeWidth={3} />
-                          ) : null}
-                        </span>
-                      ) : isSelected ? (
-                        <Check
-                          className={cn(
-                            "clet-combobox__item-check-single gsl-combobox__item-check-single",
-                            classNames?.itemCheck,
-                          )}
-                          size={16}
-                          aria-hidden
-                        />
-                      ) : null}
-                    </CommandPrimitive.Item>
-                  );
-                })}
-              </CommandPrimitive.List>
-            </CommandPrimitive>
+                        {multiple ? (
+                          <span
+                            className={cn(
+                              "clet-combobox__item-check gsl-combobox__item-check",
+                              isSelected && "clet-combobox__item-check--checked gsl-combobox__item-check--checked",
+                              classNames?.itemCheck,
+                            )}
+                            aria-hidden
+                          >
+                            {isSelected ? (
+                              <Check size={12} strokeWidth={3} />
+                            ) : null}
+                          </span>
+                        ) : isSelected ? (
+                          <Check
+                            className={cn(
+                              "clet-combobox__item-check-single gsl-combobox__item-check-single",
+                              classNames?.itemCheck,
+                            )}
+                            size={16}
+                            aria-hidden
+                          />
+                        ) : null}
+                      </CommandPrimitive.Item>
+                    );
+                  })}
+                </CommandPrimitive.List>
+              </CommandPrimitive>
+            )}
           </PopoverPrimitive.Content>
         </PopoverPrimitive.Portal>
       </span>

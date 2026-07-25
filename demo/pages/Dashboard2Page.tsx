@@ -3,7 +3,7 @@ import type {
   TableBulkAction,
   TableRowAction,
 } from "@rfdtech/components";
-import { gslMembers, type GslMember } from "demo/data/demoHomeMembers";
+import { gslMembers, gslStatuses, type GslMember } from "demo/data/demoHomeMembers";
 import { useMockQuery } from "demo/hooks/useMockQuery";
 import { useCallback, useMemo, useState } from "react";
 import { UserCheck, Trash2, UserX, Eye, Edit, UserPlus } from "lucide-react";
@@ -27,6 +27,7 @@ import {
   ModalFooter,
   Button,
   Dropdown,
+  Combobox,
   useTableState,
   Badge,
   SectionHeader,
@@ -271,19 +272,13 @@ export function Dashboard2Page() {
                 placeholder="All roles"
                 aria-label="Filter by role"
               />
-              <Dropdown
-                name="status"
+              <Combobox
                 value={statusValue || null}
                 onValueChange={(v) => setStatusValue(v ?? "")}
-                options={[
-                  { value: "Active", label: "Active" },
-                  { value: "Pending", label: "Pending" },
-                  { value: "Inactive", label: "Inactive" },
-                  { value: "Suspended", label: "Suspended" },
-                  { value: "Terminated", label: "Terminated" },
-                ]}
+                options={gslStatuses}
                 placeholder="All statuses"
                 aria-label="Filter by status"
+                clearable
               />
             </TableFilter>
           </TableHeader>

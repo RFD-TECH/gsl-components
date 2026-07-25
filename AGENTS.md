@@ -33,7 +33,7 @@ change list.
 | `MetricCard` | `variant="outline"` | `variant="default"` |
 | `SidebarGroup` | `collapsible` (accordion groups) | flat, non-collapsible groups |
 | `TableContent` | `variant="panel"` | `variant="default"` |
-| `TableFilter` | `variant="spread"` | `variant="popover"` (default) |
+| `TableFilter` | `variant="spread"` (≤2 actions) / `variant="popover"` (3+ actions) | `variant="popover"` (default) |
 
 Brand tokens: `--clet-primary` (navy) and `--clet-secondary` (gold) in
 `src/styles/theme/light.css` / `dark.css` are the current defaults — not

@@ -1,239 +1,252 @@
 /* ── Root ── */
 
 .clet-table {
-  --clet-table-font: var(--gsl-font-body, var(--clet-font-body));
+	--clet-table-font: var(--gsl-font-body, var(--clet-font-body));
 
-  display: flex;
-  flex-direction: column;
-  font-family: var(--gsl-table-font, var(--clet-table-font));
-  position: relative;
+	display: flex;
+	flex-direction: column;
+	font-family: var(--gsl-table-font, var(--clet-table-font));
+	position: relative;
 }
 
 /* ── Header bar ── */
 
 .clet-table__header-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 16px;
 }
 
 .clet-table__actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-left: auto;
+}
+
+@media (width < 1024px) {
+	.clet-table__header-bar {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.clet-table__actions {
+		width: 100%;
+		margin-left: 0;
+		flex-wrap: wrap;
+	}
 }
 
 /* ── Search ── */
 
 .clet-table__search {
-  display: flex;
-  cursor: text;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  height: stretch;
-  border: 1px solid var(--gsl-border, var(--clet-border));
-  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
-  background: var(--gsl-bg, var(--clet-bg));
-  min-width: 320px;
-  transition: border-color 150ms ease;
+	display: flex;
+	cursor: text;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 16px;
+	height: stretch;
+	border: 1px solid var(--gsl-border, var(--clet-border));
+	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+	background: var(--gsl-bg, var(--clet-bg));
+	min-width: 320px;
+	transition: border-color 150ms ease;
 }
 .clet-table__search:hover {
-  border-color: var(--gsl-border-strong, var(--clet-border-strong));
+	border-color: var(--gsl-border-strong, var(--clet-border-strong));
 }
 
 .clet-table__search:focus-within {
-  box-shadow: 0 0 0 1px var(--gsl-primary, var(--clet-primary));
+	box-shadow: 0 0 0 1px var(--gsl-primary, var(--clet-primary));
 }
 
 .clet-table__search-icon {
-  flex-shrink: 0;
-  color: var(--gsl-text-muted, var(--clet-text-muted));
+	flex-shrink: 0;
+	color: var(--gsl-text-muted, var(--clet-text-muted));
 }
 
 .clet-table__search-input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-family: var(--gsl-table-font, var(--clet-table-font));
-  font-size: 13px;
-  color: var(--gsl-text, var(--clet-text));
-  line-height: 1.4;
+	flex: 1;
+	min-width: 0;
+	border: none;
+	outline: none;
+	background: transparent;
+	font-family: var(--gsl-table-font, var(--clet-table-font));
+	font-size: 13px;
+	color: var(--gsl-text, var(--clet-text));
+	line-height: 1.4;
 }
 
 .clet-table__search-input::placeholder {
-  color: var(--gsl-text-muted, var(--clet-text-muted));
+	color: var(--gsl-text-muted, var(--clet-text-muted));
 }
 
 .clet-table__search-clear {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  border: none;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--gsl-text-muted, var(--clet-text-muted));
-  cursor: pointer;
-  transition: color 150ms ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	border: none;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--gsl-text-muted, var(--clet-text-muted));
+	cursor: pointer;
+	transition: color 150ms ease;
 }
 
 .clet-table__search-clear:hover {
-  color: var(--gsl-text, var(--clet-text));
+	color: var(--gsl-text, var(--clet-text));
 }
 
 .clet-table__search-clear:focus-visible {
-  outline: 2px solid var(--gsl-focus, var(--clet-focus));
-  outline-offset: 2px;
+	outline: 2px solid var(--gsl-focus, var(--clet-focus));
+	outline-offset: 2px;
 }
 
 /* ── Filter ── */
 
 .clet-table__filter-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 12px;
-  border: 1px solid var(--gsl-border, var(--clet-border));
-  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
-  background: var(--gsl-bg, var(--clet-bg));
-  color: var(--gsl-text-secondary, var(--clet-text-secondary));
-  font-family: var(--gsl-table-font, var(--clet-table-font));
-  font-size: 13px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    border-color 150ms ease,
-    background-color 150ms ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 34px;
+	padding: 0 12px;
+	border: 1px solid var(--gsl-border, var(--clet-border));
+	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+	background: var(--gsl-bg, var(--clet-bg));
+	color: var(--gsl-text-secondary, var(--clet-text-secondary));
+	font-family: var(--gsl-table-font, var(--clet-table-font));
+	font-size: 13px;
+	cursor: pointer;
+	white-space: nowrap;
+	transition:
+		border-color 150ms ease,
+		background-color 150ms ease;
 }
 
 .clet-table__filter-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 9px;
-  background: var(--gsl-primary, var(--clet-primary));
-  color: var(--gsl-on-primary, var(--clet-on-primary));
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	border-radius: 9px;
+	background: var(--gsl-primary, var(--clet-primary));
+	color: var(--gsl-on-primary, var(--clet-on-primary));
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1;
 }
 
 .clet-table__filter-header {
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  justify-content: space-between;
-  gap: 8px;
-  padding-bottom: 8px;
-  margin-bottom: 16px;
+	display: flex;
+	align-items: center;
+	font-size: 13px;
+	justify-content: space-between;
+	gap: 8px;
+	padding-bottom: 8px;
+	margin-bottom: 16px;
 }
 .clet-table__filter-trigger:hover {
-  background: var(--gsl-hover, var(--clet-hover));
-  border-color: var(--gsl-border-strong, var(--clet-border-strong));
+	background: var(--gsl-hover, var(--clet-hover));
+	border-color: var(--gsl-border-strong, var(--clet-border-strong));
 }
 
 .clet-table__filter-trigger:focus-visible {
-  outline: 2px solid var(--gsl-focus, var(--clet-focus));
-  outline-offset: 2px;
+	outline: 2px solid var(--gsl-focus, var(--clet-focus));
+	outline-offset: 2px;
 }
 
 .clet-table__filter-content {
-  --clet-table-filter-font: var(--gsl-font-body, var(--clet-font-body));
+	--clet-table-filter-font: var(--gsl-font-body, var(--clet-font-body));
 
-  z-index: var(--gsl-z-popover, var(--clet-z-popover));
-  min-width: 240px;
-  max-width: calc(100vw - 32px);
-  padding: 16px;
-  background: var(--gsl-bg, var(--clet-bg));
-  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
-  box-shadow: 0 1px 10px rgb(0 0 0 / 10%);
+	z-index: var(--gsl-z-popover, var(--clet-z-popover));
+	min-width: 240px;
+	max-width: calc(100vw - 32px);
+	padding: 16px;
+	background: var(--gsl-bg, var(--clet-bg));
+	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+	box-shadow: 0 1px 10px rgb(0 0 0 / 10%);
 }
 [data-clet-theme="dark"] .clet-table__filter-content {
-  border: 1px solid var(--gsl-border, var(--clet-border));
-  box-shadow: 0 1px 20px rgb(0 0 0 / 60%);
+	border: 1px solid var(--gsl-border, var(--clet-border));
+	box-shadow: 0 1px 20px rgb(0 0 0 / 60%);
 }
 
 .clet-table__filter-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-bottom: 16px;
 }
 
 .clet-table__filter-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
 }
 
 .clet-table__filter-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
-  padding: 0 14px;
-  border: 1px solid var(--gsl-border, var(--clet-border));
-  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
-  font-family: var(--gsl-table-filter-font, var(--clet-table-filter-font));
-  font-size: 13px;
-  cursor: pointer;
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease;
-  width: 100%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 32px;
+	padding: 0 14px;
+	border: 1px solid var(--gsl-border, var(--clet-border));
+	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+	font-family: var(--gsl-table-filter-font, var(--clet-table-filter-font));
+	font-size: 13px;
+	cursor: pointer;
+	transition:
+		background-color 150ms ease,
+		border-color 150ms ease;
+	width: 100%;
 }
 
 .clet-table__filter-btn--reset {
-  background: transparent;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--gsl-error-text, var(--clet-error-text));
-  border: none;
+	background: transparent;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--gsl-error-text, var(--clet-error-text));
+	border: none;
 }
 
 .clet-table__filter-btn--reset:hover {
-  text-decoration: underline;
-  cursor: pointer;
+	text-decoration: underline;
+	cursor: pointer;
 }
 
 .clet-table__filter-btn--apply {
-  background: var(--gsl-primary, var(--clet-primary));
-  color: var(--gsl-on-primary, var(--clet-on-primary));
-  border-color: var(--gsl-primary, var(--clet-primary));
+	background: var(--gsl-primary, var(--clet-primary));
+	color: var(--gsl-on-primary, var(--clet-on-primary));
+	border-color: var(--gsl-primary, var(--clet-primary));
 }
 
 .clet-table__filter-btn--apply:hover {
-  opacity: 0.9;
+	opacity: 0.9;
 }
 
 /* ── Filter — spread variant: no popover, fields laid out as a flex row ── */
 
 .clet-table__filter--spread {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
 }
 
 .clet-table__filter-fields--spread {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 0;
+	display: flex;
+	flex-flow: row wrap;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 0;
 }
 
 /* Fields (e.g. Dropdown) default to width: 100% for stacked/popover layouts,
@@ -247,111 +260,111 @@
    form participation) — it has no competing `min-width` of its own, so
    without this exclusion it would get forced to 160px too. */
 .clet-table__filter-fields--spread.clet-table__filter-fields--spread
-  > *:not([aria-hidden="true"]) {
-  flex: 0 0 auto;
-  width: auto;
-  min-width: 160px;
+> *:not([aria-hidden="true"]) {
+	flex: 0 0 auto;
+	width: auto;
+	min-width: 160px;
 }
 
 .clet-table__filter-actions--spread {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-left: auto;
 }
 
 /* ── Content (table wrapper) ── */
 
 .clet-table__content {
-  overflow-x: auto;
-  scrollbar-width: none;
+	overflow-x: auto;
+	scrollbar-width: none;
 
-  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
 }
 
 .clet-table__content::-webkit-scrollbar {
-  display: none;
+	display: none;
 }
 
 .clet-table__content table {
-  width: 100%;
-  border-collapse: collapse;
+	width: 100%;
+	border-collapse: collapse;
 }
 
 /* Header cells get surface background */
 .clet-table__content th,
 .clet-table__content thead td,
 .clet-table__content td {
-  padding: 0 16px;
+	padding: 0 16px;
 }
 
 .clet-table__content thead th:first-child {
-  border-top-left-radius: var(--gsl-radius-base, var(--clet-radius-base));
+	border-top-left-radius: var(--gsl-radius-base, var(--clet-radius-base));
 }
 .clet-table__content thead th:last-child {
-  border-top-right-radius: var(--gsl-radius-base, var(--clet-radius-base));
+	border-top-right-radius: var(--gsl-radius-base, var(--clet-radius-base));
 }
 
 .clet-table__content th,
 .clet-table__content thead td {
-  background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--gsl-text-secondary, var(--clet-text-secondary));
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  height: 40px;
-  text-align: left;
-  white-space: nowrap;
-  user-select: none;
+	background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--gsl-text-secondary, var(--clet-text-secondary));
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	height: 40px;
+	text-align: left;
+	white-space: nowrap;
+	user-select: none;
 }
 
 .clet-table__th--sortable {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 .clet-table__th--sortable:hover {
-  color: var(--gsl-text, var(--clet-text));
+	color: var(--gsl-text, var(--clet-text));
 }
 
 .clet-table__th--sorted {
-  color: var(--gsl-text, var(--clet-text));
+	color: var(--gsl-text, var(--clet-text));
 }
 
 .clet-table__th-label {
-  margin-right: 6px;
+	margin-right: 6px;
 }
 
 .clet-table__sort-icon {
-  display: inline-flex;
-  vertical-align: middle;
-  color: var(--gsl-text-muted, var(--clet-text-muted));
+	display: inline-flex;
+	vertical-align: middle;
+	color: var(--gsl-text-muted, var(--clet-text-muted));
 }
 
 .clet-table__th--sortable:hover .clet-table__sort-icon {
-  color: var(--gsl-text-secondary, var(--clet-text-secondary));
+	color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
 /* Only border-bottom between rows */
 .clet-table__content tr:nth-child(even):not(:first-child) {
-  background: rgb(255 255 255 / 1%);
+	background: rgb(255 255 255 / 1%);
 }
 .clet-table__content thead tr {
-  border-bottom: 1px solid var(--gsl-border, var(--clet-border));
-  background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
+	border-bottom: 1px solid var(--gsl-border, var(--clet-border));
+	background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
 }
 
 .clet-table__content td {
-  padding: var(
-      --gsl-table-cell-padding-y,
-      var(--clet-table-cell-padding-y, 12px)
-    )
-    16px;
-  font-size: 14px;
-  color: var(--gsl-text, var(--clet-text));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+	padding: var(
+			--gsl-table-cell-padding-y,
+			var(--clet-table-cell-padding-y, 12px)
+		)
+		16px;
+	font-size: 14px;
+	color: var(--gsl-text, var(--clet-text));
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /* ── Panel variant ── */
@@ -359,493 +372,493 @@
 /* Faint recessed surface with a subtle border all around — for embedding
    inside tabs or cards. Pure CSS override of the default content styling. */
 .clet-table__content--panel {
-  background: var(--gsl-surface-panel, var(--clet-surface-panel));
-  border: 1px solid var(--gsl-border-subtle, var(--clet-border-subtle));
+	background: var(--gsl-surface-panel, var(--clet-surface-panel));
+	border: 1px solid var(--gsl-border-subtle, var(--clet-border-subtle));
 }
 
 .clet-table__content--panel th,
 .clet-table__content--panel thead td,
 .clet-table__content--panel thead tr {
-  background: var(--gsl-surface-panel, var(--clet-surface-panel));
+	background: var(--gsl-surface-panel, var(--clet-surface-panel));
 }
 
 .clet-table__content--panel thead tr {
-  border-bottom: 1px solid var(--gsl-border-subtle, var(--clet-border-subtle));
+	border-bottom: 1px solid var(--gsl-border-subtle, var(--clet-border-subtle));
 }
 
 .clet-table__content--panel tbody tr {
-  border-bottom: 1px solid var(--gsl-border-subtle, var(--clet-border-subtle));
+	border-bottom: 1px solid var(--gsl-border-subtle, var(--clet-border-subtle));
 }
 
 .clet-table__content--panel tbody tr:last-child {
-  border-bottom: none;
+	border-bottom: none;
 }
 
 .clet-table__empty {
-  text-align: center;
-  padding: 56px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
+	text-align: center;
+	padding: 56px 16px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
 }
 
 .clet-table__empty-icon {
-  display: inline-flex;
-  color: var(--gsl-text-muted, var(--clet-text-muted));
-  opacity: 0.7;
+	display: inline-flex;
+	color: var(--gsl-text-muted, var(--clet-text-muted));
+	opacity: 0.7;
 }
 
 .clet-table__empty-text {
-  color: var(--gsl-text-secondary, var(--clet-text-secondary));
-  font-size: 14px;
+	color: var(--gsl-text-secondary, var(--clet-text-secondary));
+	font-size: 14px;
 }
 
 /* ── Footer ── */
 
 .clet-table__footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 12px 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--gsl-border, var(--clet-border));
-  transition: opacity 200ms ease;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	padding: 12px 16px;
+	padding-top: 16px;
+	border-top: 1px solid var(--gsl-border, var(--clet-border));
+	transition: opacity 200ms ease;
 }
 
 .clet-table:has(.clet-table__content--has-selected) .clet-table__footer {
-  opacity: 0.5;
+	opacity: 0.5;
 }
 
 .clet-table__footer--no-border {
-  border-top: none;
+	border-top: none;
 }
 
 /* ── Pagination ── */
 
 .clet-table__pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	width: 100%;
 }
 
 .clet-table__pagination-pages {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
 }
 
 .clet-table__page-ellipsis {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  font-size: 13px;
-  color: var(--gsl-text-muted, var(--clet-text-muted));
-  user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	font-size: 13px;
+	color: var(--gsl-text-muted, var(--clet-text-muted));
+	user-select: none;
 }
 
 .clet-table__page-results {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--gsl-text-muted, var(--clet-text-muted));
-  white-space: nowrap;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	color: var(--gsl-text-muted, var(--clet-text-muted));
+	white-space: nowrap;
 }
 
 .clet-table__page-size {
-  font-size: 13px;
+	font-size: 13px;
 }
 
 /* ── Row states ── */
 
 .clet-table__row--clickable {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 table tbody tr.clet-table__row--clickable:hover {
-  background: var(--gsl-hover, var(--clet-hover)) !important;
+	background: var(--gsl-hover, var(--clet-hover)) !important;
 }
 
 /* Row height (acts as min-height in table layout) */
 .clet-table__content tbody tr {
-  height: var(--gsl-table-row-height, var(--clet-table-row-height, 44px));
+	height: var(--gsl-table-row-height, var(--clet-table-row-height, 44px));
 }
 
 /* ── Selection checkbox cell ── */
 
 /* Collapsed by default — slides open when rows are selected */
 .clet-table__content .clet-table__checkbox-cell {
-  width: 0;
-  min-width: 0;
-  max-width: 0;
-  padding: 0;
-  border: 0;
-  overflow: hidden;
-  text-overflow: clip;
-  text-align: center;
+	width: 0;
+	min-width: 0;
+	max-width: 0;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	text-overflow: clip;
+	text-align: center;
 
-  transition:
-    max-width 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    width 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    min-width 250ms cubic-bezier(0.4, 0, 0.2, 1);
+	transition:
+		max-width 250ms cubic-bezier(0.4, 0, 0.2, 1),
+		width 250ms cubic-bezier(0.4, 0, 0.2, 1),
+		min-width 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .clet-table__checkbox-cell > * {
-  opacity: 0;
-  transition: opacity 150ms ease;
+	opacity: 0;
+	transition: opacity 150ms ease;
 }
 
 .clet-table__content--has-selected .clet-table__checkbox-cell {
-  width: 40px;
-  min-width: 40px;
-  max-width: 40px;
-  text-align: center;
+	width: 40px;
+	min-width: 40px;
+	max-width: 40px;
+	text-align: center;
 }
 
 .clet-table__content--has-selected .clet-table__checkbox-cell > * {
-  opacity: 1;
-  transition: opacity 150ms ease 100ms;
+	opacity: 1;
+	transition: opacity 150ms ease 100ms;
 }
 
 /* ── Row actions cell ── */
 
 .clet-table__actions-cell {
-  width: 40px;
-  min-width: 40px;
-  text-align: center;
+	width: 40px;
+	min-width: 40px;
+	text-align: center;
 }
 
 .clet-table__actions-trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--gsl-text-secondary, var(--clet-text-secondary));
-  cursor: pointer;
-  transition:
-    background 100ms ease,
-    color 100ms ease;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: var(--gsl-text-secondary, var(--clet-text-secondary));
+	cursor: pointer;
+	transition:
+		background 100ms ease,
+		color 100ms ease;
 }
 
 .clet-table__actions-trigger:hover {
-  background: var(--gsl-hover, var(--clet-hover));
-  color: var(--gsl-text, var(--clet-text));
+	background: var(--gsl-hover, var(--clet-hover));
+	color: var(--gsl-text, var(--clet-text));
 }
 
 .clet-table__actions-menu {
-  --clet-table-actions-font: var(--gsl-font-body, var(--clet-font-body));
+	--clet-table-actions-font: var(--gsl-font-body, var(--clet-font-body));
 
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 140px;
-  padding: 4px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 140px;
+	padding: 4px;
 }
 
 .clet-table__actions-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 6px 8px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--gsl-text, var(--clet-text));
-  font-family: var(--gsl-table-actions-font, var(--clet-table-actions-font));
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 100ms ease;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 6px 8px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: var(--gsl-text, var(--clet-text));
+	font-family: var(--gsl-table-actions-font, var(--clet-table-actions-font));
+	font-size: 13px;
+	cursor: pointer;
+	transition: background 100ms ease;
 }
 
 .clet-table__actions-item:hover {
-  background: var(--gsl-hover, var(--clet-hover));
+	background: var(--gsl-hover, var(--clet-hover));
 }
 
 .clet-table__actions-item--destructive {
-  color: var(--gsl-error, var(--clet-error));
+	color: var(--gsl-error, var(--clet-error));
 }
 
 .clet-table__actions-item--destructive:hover {
-  background: var(--gsl-error-bg, var(--clet-error-bg));
+	background: var(--gsl-error-bg, var(--clet-error-bg));
 }
 
 .clet-table__actions-separator {
-  height: 1px;
-  margin: 2px 8px;
-  background: var(--gsl-border, var(--clet-border));
+	height: 1px;
+	margin: 2px 8px;
+	background: var(--gsl-border, var(--clet-border));
 }
 
 .clet-table__actions-section-label {
-  padding: 4px 8px 2px;
-  color: var(--gsl-text-muted, var(--clet-text-muted));
-  font-family: var(--gsl-table-actions-font, var(--clet-table-actions-font));
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+	padding: 4px 8px 2px;
+	color: var(--gsl-text-muted, var(--clet-text-muted));
+	font-family: var(--gsl-table-actions-font, var(--clet-table-actions-font));
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
 }
 
 /* ── Bulk actions bar ── */
 
 .clet-table__bulk-actions-bar-wrapper {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  bottom: 0;
-  display: flex;
-  align-items: end;
-  pointer-events: none;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	bottom: 0;
+	display: flex;
+	align-items: end;
+	pointer-events: none;
 }
 
 .clet-table__bulk-actions-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px;
-  background: var(--gsl-bg, var(--clet-bg));
-  border-top: 1px solid var(--gsl-border, var(--clet-border));
-  position: sticky;
-  bottom: 8px;
-  width: 80%;
-  margin-inline: auto;
-  margin-top: auto;
-  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
-  border: 1px solid var(--gsl-border, var(--clet-border));
-  z-index: var(--gsl-z-popover, var(--clet-z-popover));
-  pointer-events: auto;
-  box-shadow: var(--gsl-shadow-md, var(--clet-shadow-md));
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px;
+	background: var(--gsl-bg, var(--clet-bg));
+	border-top: 1px solid var(--gsl-border, var(--clet-border));
+	position: sticky;
+	bottom: 8px;
+	width: 80%;
+	margin-inline: auto;
+	margin-top: auto;
+	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+	border: 1px solid var(--gsl-border, var(--clet-border));
+	z-index: var(--gsl-z-popover, var(--clet-z-popover));
+	pointer-events: auto;
+	box-shadow: var(--gsl-shadow-md, var(--clet-shadow-md));
 }
 
 .clet-table__bulk-actions-left {
-  padding-left: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+	padding-left: 12px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .clet-table__bulk-actions-count {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--gsl-text-secondary, var(--clet-text-secondary));
-  white-space: nowrap;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--gsl-text-secondary, var(--clet-text-secondary));
+	white-space: nowrap;
 }
 
 .clet-table__bulk-actions-clear {
-  justify-content: center;
-  height: 24px;
-  border: none;
-  opacity: 0.5;
-  padding: 0;
-  color: var(--gsl-text, var(--clet-text));
-  background: transparent;
-  cursor: pointer;
+	justify-content: center;
+	height: 24px;
+	border: none;
+	opacity: 0.5;
+	padding: 0;
+	color: var(--gsl-text, var(--clet-text));
+	background: transparent;
+	cursor: pointer;
 
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: opacity 300ms ease;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	transition: opacity 300ms ease;
 }
 
 .clet-table__bulk-actions-clear .clet__table__bulk-actions-clear-label {
-  opacity: 0;
-  transition: opacity 300ms ease;
+	opacity: 0;
+	transition: opacity 300ms ease;
 }
 .clet-table__bulk-actions-clear:hover .clet__table__bulk-actions-clear-label {
-  opacity: 1;
+	opacity: 1;
 }
 
 .clet-table__bulk-actions-clear:hover {
-  opacity: 1;
-  color: var(--gsl-error, var(--clet-error));
+	opacity: 1;
+	color: var(--gsl-error, var(--clet-error));
 }
 
 .clet-table__bulk-actions-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
 }
 
 .clet-table__bulk-actions-action--destructive {
-  color: var(--gsl-error, var(--clet-error));
-  border-color: var(--gsl-error, var(--clet-error));
+	color: var(--gsl-error, var(--clet-error));
+	border-color: var(--gsl-error, var(--clet-error));
 }
 
 .clet-table__bulk-actions-action--destructive:hover {
-  background: var(--gsl-error-bg, var(--clet-error-bg));
+	background: var(--gsl-error-bg, var(--clet-error-bg));
 }
 
 /* ── Skeleton loading ── */
 
 .clet-table__skeleton {
-  display: block;
-  border-radius: 4px;
-  background: var(--gsl-hover, var(--clet-hover));
-  animation: clet-table-skeleton-pulse 1.5s ease-in-out infinite;
+	display: block;
+	border-radius: 4px;
+	background: var(--gsl-hover, var(--clet-hover));
+	animation: clet-table-skeleton-pulse 1.5s ease-in-out infinite;
 }
 
 .clet-table__skeleton--th {
-  height: 12px;
-  width: 60%;
+	height: 12px;
+	width: 60%;
 }
 
 .clet-table__skeleton--td {
-  height: 14px;
-  width: 75%;
+	height: 14px;
+	width: 75%;
 }
 
 .clet-table__skeleton--cb {
-  height: 16px;
-  width: 16px;
-  border-radius: 3px;
-  margin: 0 auto;
+	height: 16px;
+	width: 16px;
+	border-radius: 3px;
+	margin: 0 auto;
 }
 
 @keyframes clet-table-skeleton-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.4;
+	}
 }
 
 /* ── Responsive (mobile) ── */
 
 @media (width <= 768px) {
-  /* Header bar: search / filter / actions stack full-width instead of
+	/* Header bar: search / filter / actions stack full-width instead of
      squeezing into one row. */
-  .clet-table__header-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
+	.clet-table__header-bar {
+		flex-direction: column;
+		align-items: stretch;
+	}
 
-  .clet-table__search {
-    min-width: 0;
-    width: 100%;
-  }
+	.clet-table__search {
+		min-width: 0;
+		width: 100%;
+	}
 
-  .clet-table__actions {
-    margin-left: 0;
-    flex-wrap: wrap;
-  }
+	.clet-table__actions {
+		margin-left: 0;
+		flex-wrap: wrap;
+	}
 
-  .clet-table__filter-trigger {
-    width: 100%;
-    justify-content: center;
-  }
+	.clet-table__filter-trigger {
+		width: 100%;
+		justify-content: center;
+	}
 
-  /* Spread filter variant: fields stack full-width instead of a cramped row. */
-  .clet-table__filter--spread {
-    flex-direction: column;
-    align-items: stretch;
-  }
+	/* Spread filter variant: fields stack full-width instead of a cramped row. */
+	.clet-table__filter--spread {
+		flex-direction: column;
+		align-items: stretch;
+	}
 
-  .clet-table__filter-fields--spread {
-    flex-direction: column;
-    align-items: stretch;
-  }
+	.clet-table__filter-fields--spread {
+		flex-direction: column;
+		align-items: stretch;
+	}
 
-  .clet-table__filter-fields--spread.clet-table__filter-fields--spread
-    > *:not([aria-hidden="true"]) {
-    width: 100%;
-    min-width: 0;
-  }
+	.clet-table__filter-fields--spread.clet-table__filter-fields--spread
+		> *:not([aria-hidden="true"]) {
+		width: 100%;
+		min-width: 0;
+	}
 
-  .clet-table__filter-actions--spread {
-    margin-left: 0;
-    justify-content: flex-end;
-  }
+	.clet-table__filter-actions--spread {
+		margin-left: 0;
+		justify-content: flex-end;
+	}
 
-  /* Pagination: results text and the page-size Dropdown spread end to end
+	/* Pagination: results text and the page-size Dropdown spread end to end
      on one row (text left, Dropdown right); prev/next/page-numbers wraps
      and centers on its own row below, instead of overflowing a single
      space-between row. */
-  .clet-table__pagination {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+	.clet-table__pagination {
+		flex-wrap: wrap;
+		justify-content: center;
+	}
 
-  .clet-table__page-results {
-    width: 100%;
-    justify-content: space-between;
-  }
+	.clet-table__page-results {
+		width: 100%;
+		justify-content: space-between;
+	}
 
-  /* Keep the Dropdown itself compact (sized to content) instead of
+	/* Keep the Dropdown itself compact (sized to content) instead of
      stretching to fill the now-full-width row — its own `width: 100%`
      otherwise resolves against this row's definite width. */
-  .clet-table__page-results .clet-table__page-size {
-    flex: 0 0 auto;
-    width: auto;
-  }
+	.clet-table__page-results .clet-table__page-size {
+		flex: 0 0 auto;
+		width: auto;
+	}
 
-  .clet-table__pagination-pages {
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-  }
+	.clet-table__pagination-pages {
+		flex-wrap: wrap;
+		justify-content: center;
+		width: 100%;
+	}
 
-  /* Bulk actions bar: left (count/clear) and right (actions) groups wrap
+	/* Bulk actions bar: left (count/clear) and right (actions) groups wrap
      instead of clipping inside the fixed 80% width. */
-  .clet-table__bulk-actions-bar {
-    flex-wrap: wrap;
-    width: calc(100% - 24px);
-  }
+	.clet-table__bulk-actions-bar {
+		flex-wrap: wrap;
+		width: calc(100% - 24px);
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .clet-table__skeleton {
-    animation: none;
-  }
+	.clet-table__skeleton {
+		animation: none;
+	}
 
-  .clet-table__search,
-  .clet-table__filter-trigger,
-  .clet-table__filter-btn,
-  .clet-table__content .clet-table__checkbox-cell,
-  .clet-table__checkbox-cell > * {
-    transition: none;
-  }
+	.clet-table__search,
+	.clet-table__filter-trigger,
+	.clet-table__filter-btn,
+	.clet-table__content .clet-table__checkbox-cell,
+	.clet-table__checkbox-cell > * {
+		transition: none;
+	}
 }
 
 /* ── Virtualization ── */
 
 .clet-table__viewport {
-  border: 1px solid var(--gsl-border, var(--clet-border));
-  border-radius: var(--gsl-radius, var(--clet-radius));
+	border: 1px solid var(--gsl-border, var(--clet-border));
+	border-radius: var(--gsl-radius, var(--clet-radius));
 }
 
 .clet-bulk-import__match-colum-dropdown-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .clet-bulk-import__mapping-status {
-  color: var(--gsl-main-bg, var(--clet-main-bg));
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	color: var(--gsl-main-bg, var(--clet-main-bg));
+	width: 20px;
+	height: 20px;
+	border-radius: 999px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 .clet-bulk-import__mapping-status--complete {
-  background: var(--gsl-success, var(--clet-success));
+	background: var(--gsl-success, var(--clet-success));
 }
 .clet-bulk-import__mapping-status--pending {
-  border: 1px solid var(--gsl-border, var(--clet-border));
+	border: 1px solid var(--gsl-border, var(--clet-border));
 }

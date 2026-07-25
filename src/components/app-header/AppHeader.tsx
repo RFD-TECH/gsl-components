@@ -15,9 +15,11 @@ import "./styles/app-header.css";
  * props.children) and returns the first element whose component type carries
  * the given componentId. Used to pluck AppSwitcher/ProfilePopover out of
  * AppHeader's children for the collapsed mobile layout, wherever they're
- * nested (e.g. inside AppHeaderActions).
+ * nested (e.g. inside AppHeaderActions). Also exported so `AppLayout` can
+ * reuse the same walker to extract `AppHeaderBranding` for the plain
+ * `Sidebar`'s mobile-only header.
  */
-function findByComponentId(
+export function findByComponentId(
   children: ReactNode,
   id: string,
 ): ReactElement | null {

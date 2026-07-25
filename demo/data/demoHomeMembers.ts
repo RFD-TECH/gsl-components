@@ -7,6 +7,29 @@ export interface GslMember {
   joined: string;
 }
 
+export const gslStatuses: { value: string; label: string }[] = [
+  { value: "Active", label: "Active" },
+  { value: "Pending", label: "Pending" },
+  { value: "Inactive", label: "Inactive" },
+  { value: "Suspended", label: "Suspended" },
+  { value: "Terminated", label: "Terminated" },
+  { value: "On Leave", label: "On Leave" },
+  { value: "Probation", label: "Probation" },
+  { value: "Verified", label: "Verified" },
+  { value: "Banned", label: "Banned" },
+  { value: "Locked", label: "Locked" },
+  { value: "Archived", label: "Archived" },
+  { value: "Trial", label: "Trial" },
+  { value: "Expired", label: "Expired" },
+  { value: "Awaiting Review", label: "Awaiting Review" },
+  { value: "Approved", label: "Approved" },
+  { value: "Rejected", label: "Rejected" },
+  { value: "Manual Review", label: "Manual Review" },
+  { value: "Flagged", label: "Flagged" },
+  { value: "Soft Deleted", label: "Soft Deleted" },
+  { value: "Converted", label: "Converted" },
+];
+
 export const gslMembers: GslMember[] = [
   { id: 1, name: "Kwame Asante", email: "kwame.asante@gsl.edu.gh", role: "Admin", status: "Active", joined: "2024-01-15" },
   { id: 2, name: "Abena Mensah", email: "abena.mensah@gsl.edu.gh", role: "Editor", status: "Active", joined: "2024-02-03" },
