@@ -47,8 +47,9 @@ Set `loading` to show shimmering skeleton placeholders instead of the label/valu
 | `description` | `string` | — | Subtitle shown below the value row |
 | `trend` | `"up" \| "down" \| "neutral"` | — | Trend direction; renders an arrow icon |
 | `trendValue` | `string` | — | Formatted trend text (e.g. `"+12.5%"`) |
-| `variant` | `"default" \| "outline"` | `"default"` | Card style — `"outline"` is a bordered, no-fill card with chevron trend icons |
-| `color` | `string` | — | Custom CSS color for the trend indicator; overrides variant |
+| `variant` | `"default" \| "outline" \| "bordered"` | `"default"` | Card style — `"outline"` is a bordered, no-fill card with chevron trend icons; `"bordered"` is the default layout with a 1px border added |
+| `animate` | `boolean` | `false` | Enable count-up animation from 0 to the target value on mount and value change |
+| `animationDuration` | `number` | `1500` | Duration of the count-up animation in ms |
 | `loading` | `boolean` | `false` | Show shimmering skeleton placeholders instead of the label/value/trend/description |
 | `loadingLabel` | `string` | `"Loading metric"` | Accessible label announced while loading |
 | `classNames` | `MetricCardClassNames` | — | Part-level class overrides |
@@ -63,12 +64,8 @@ Variants only affect the **trend indicator color**, not the background or text o
 | Variant | Trend color |
 |---------|-------------|
 | `"default"` | `--clet-success` (up), `--clet-error` (down), `--clet-text-muted` (neutral) |
-| `"primary"` | `--clet-primary` |
-| `"success"` | `--clet-success` |
-| `"warning"` | `--clet-warning` |
-| `"error"` | `--clet-error` |
-
-Override with the `color` prop (any CSS value) for custom accent colors.
+| `"outline"` | Same as `"default"` — uses chevron icons instead of arrows, no `+`/`-` prefix |
+| `"bordered"` | Same as `"default"` — adds a 1px border to the card |
 
 ### Outline variant
 

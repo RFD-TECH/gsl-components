@@ -15,7 +15,7 @@ import dateSelectorSource from "../previews/examples/date-selector.example.tsx?r
 
 # DateSelector
 
-Date picker for choosing a single date from a calendar grid. Built on `@radix-ui/react-popover` with CLET styling, month/year navigation arrows, weekday headers, and native `Date.toLocaleDateString` formatting.
+Date picker for choosing a single date from a calendar grid. Built on `@radix-ui/react-popover` with CLET styling, 3-level picker (day / month / year) with clickable header navigation, weekday headers, and native `Date.toLocaleDateString` formatting.
 
 ## Example
 
@@ -93,6 +93,10 @@ See the props table above.
 | `calendarWeekday` | Individual weekday label (`.clet-date-selector__calendar-weekday`) |
 | `calendarGrid` | Day grid (`.clet-date-selector__calendar-grid`) |
 | `calendarDay` | Day cell (`.clet-date-selector__calendar-day`) |
+| `calendarMonthGrid` | Month grid (`.clet-date-selector__calendar-month-grid`) |
+| `calendarMonth` | Month cell (`.clet-date-selector__calendar-month`) |
+| `calendarYearGrid` | Year grid (`.clet-date-selector__calendar-year-grid`) |
+| `calendarYear` | Year cell (`.clet-date-selector__calendar-year`) |
 
 ## Design tokens
 
@@ -113,9 +117,11 @@ See the props table above.
 ## Notes
 
 - Formatting uses `Date.toLocaleDateString()` — locale-aware and does not require a date library.
-- Navigation arrows move by month. Clicking the month/year text resets to today.
+- Title button cycles through a 3-level picker: click the header in day view to open the month grid, click again for the year grid. Click a month or year to return to the previous level. In year view the header shows a decade range (e.g. `2017 – 2028`) and arrows navigate by 12 years.
+- Navigation arrows adapt to the current view: month step in day view, year step in month view, decade step in year view.
 - Days from adjacent months are shown muted and selectable.
 - The popover calendar uses `--clet-shadow-md` and matches the trigger width.
+- The popover always re-opens in day view, reset to the selected date's period (or today).
 
 ## Don't
 

@@ -35,9 +35,9 @@ const DocsHeader = ({
         setheaderHidden(false);
       } else {
         if (diff < -SCROLL_THRESHOLD) {
-          setheaderHidden(true);
-        } else if (diff > SCROLL_THRESHOLD) {
           setheaderHidden(false);
+        } else if (diff > SCROLL_THRESHOLD) {
+          setheaderHidden(true);
         }
       }
 

@@ -18,6 +18,7 @@ export interface ComboboxClassNames {
   itemIcon?: string;
   itemCheck?: string;
   empty?: string;
+  loading?: string;
 }
 
 interface ComboboxBaseProps {
@@ -27,6 +28,8 @@ interface ComboboxBaseProps {
   disabled?: boolean;
   invalid?: boolean;
   clearable?: boolean;
+  loading?: boolean;
+  loadingLabel?: string;
   emptyMessage?: ReactNode;
   "aria-label"?: string;
   classNames?: ComboboxClassNames;

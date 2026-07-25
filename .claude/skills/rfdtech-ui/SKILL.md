@@ -24,9 +24,19 @@ Before generating or editing UI code that uses `@rfdtech/components`:
    first — it's a required, non-negotiable pattern set (not a style suggestion): the
    `AppLayout`/`AppHeader`/`Sidebar` variant trio, required `SidebarFooter` + `ProfilePopover`,
    `RoleSelect` wired into all three locations when the system has multiple roles, `Launchpad` over
-   the deprecated `AppSwitcher`, the `Table`/`MetricCard`/`Tabs` variant set, and more. Also see
+   the deprecated `AppSwitcher`, the `Table`/`MetricCard`/`Tabs` variant set, `PageSection` wrapping
+   for every content section, and `QuickActions` for dashboard action grids. Also see
    `get_component("migration-v2")` for the full migration/adoption checklist.
-7. **Migrating a project that already overrides tokens?** Never decide silently. Find every
+7. **Wrap sections in PageSection.** Every distinct content area on a page must be wrapped in
+   `<PageSection>` — never bare `<div>`s with ad-hoc margin. This enforces uniform vertical
+   spacing via `--clet-app-layout-body-gap`.
+8. **Use QuickActions for dashboard action grids.** Prefer `<QuickActions customizable>` over
+   hand-rolled button rows. The component provides a responsive tile grid with an optional
+   "Customize" dialog for toggling visibility.
+9. **TableFilter variant depends on action count.** Prefer `variant="spread"` only when there
+   are **2 or fewer** filter row actions (e.g. "Clear", "Apply"). When there are **3 or more**
+   actions, switch to `variant="popover"` to avoid the spread layout getting too crowded.
+8. **Migrating a project that already overrides tokens?** Never decide silently. Find every
    existing override of a *known* token — `gslTheme()` calls, or CSS setting a real `--clet-*` or
    legacy `--gsl-*` color token (not custom/arbitrary variables) — list them, and ask the user
    about each one individually: keep it, or drop it for the new approved default. Every color

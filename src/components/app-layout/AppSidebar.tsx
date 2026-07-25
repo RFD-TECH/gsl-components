@@ -6,7 +6,7 @@ export interface AppSidebarProps {
 }
 
 export const AppSidebar = ({ children }: AppSidebarProps) => {
-  return children as ReactNode;
+  return <>{children}</>;
 };
 
 (AppSidebar as unknown as { componentId: string }).componentId = "AppSidebar";

@@ -9,6 +9,10 @@ export interface DateSelectorClassNames {
   calendarWeekday?: string;
   calendarGrid?: string;
   calendarDay?: string;
+  calendarMonthGrid?: string;
+  calendarMonth?: string;
+  calendarYearGrid?: string;
+  calendarYear?: string;
 }
 
 export interface DateSelectorProps {

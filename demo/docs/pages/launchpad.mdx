@@ -1,6 +1,6 @@
 export const meta = {
   title: "Launchpad",
-  description: "Constrained 9-app launcher with a built-in expand button + required role switcher",
+  description: "Constrained 9-app launcher with a top-right expand button + a See more line under the grid + required role switcher",
   category: "Components",
   keywords: ["launchpad", "app switcher", "9-dot menu", "app launcher", "product switcher", "grid menu"],
   since: "2.1.0",
@@ -17,14 +17,14 @@ import launchpadLoadingSource from "../previews/examples/launchpad-loading.examp
 
 # Launchpad
 
-A purpose-built "app directory" launcher for switching between CLET systems — a 3×3 grid of up to 9 apps, with a small ghost expand button at the top right of the panel and a required role switcher below the grid. The expand button's icon is always visible; its "See more" label only appears once `apps` overflows the 9-app cap. Clicking it opens a scaled-up expanded view of the same tile system — a borderless, `--clet-radius-2xl` modal with a 5-column grid of every app in `apps` (uncapped). It grew out of the same underlying popover/grid idea as [`AppSwitcher`](/docs/app-switcher), with a much smaller, more opinionated API and every icon rendered on a fixed brand tile system with no escape hatch.
+A purpose-built "app directory" launcher for switching between CLET systems — a 3×3 grid of up to 9 apps, with a small ghost expand button at the top right of the panel (always rendered, opens a scaled-up "See all" modal showing every app uncapped), a muted "See more" line under the grid (rendered only when `apps.length` exceeds the 9-app cap, styled as plain text but clickable — opens the same modal as the top-right button), and a required role switcher below. It grew out of the same underlying popover/grid idea as [`AppSwitcher`](/docs/app-switcher), with a much smaller, more opinionated API and every icon rendered on a fixed brand tile system with no escape hatch.
 
 Prefer `Launchpad` for all new work — `AppSwitcher` is deprecated and no longer maintained. `Launchpad` doesn't (yet) cover every `AppSwitcher` capability (flexible column count, an uncapped or differently-capped grid, a fully custom `footer`); if your case genuinely needs one of those, check with the team before reaching for the deprecated component.
 
 ## Examples
 
 <ExampleTabs
-  title="With apps, expand button, and a role switcher"
+  title="With apps, expand button, See more under the grid, and a role switcher"
   preview={<LaunchpadPreview />}
   code={launchpadSource}
   canvasClassName="demo-docs__preview-canvas--launchpad"
@@ -50,8 +50,9 @@ Prefer `Launchpad` for all new work — `AppSwitcher` is deprecated and no longe
 | `trigger` | `ReactNode` | round 9-dot icon | Custom trigger element — still wrapped with the "Open Launchpad" tooltip/accessible name |
 | `className` | `string` | — | Root CSS class |
 | `style` | `CSSProperties` | — | Root inline styles |
+| `showBrandStrip` | `boolean` | `true` | Shows the decorative brand strip along the bottom of the expanded "See all" modal |
 
-Fixed, not configurable (no prop, no override): the popover title and the expanded modal's title both always read **"Launchpad"** (both `--clet-font-header`), the trigger's accessible name / hover tooltip always reads **"Open Launchpad"**, and the top-right expand button (always rendered, no prop to hide it) always opens the expanded modal — its icon always shows; its "See more" label only shows once `apps.length` exceeds the 9-app cap. Dropped relative to `AppSwitcher`: `columns` (fixed at 3, or 5 in the expanded modal), `maxItems` (fixed at 9 for the popover, uncapped in the modal), `placement` (fixed `bottom-end`), `closeOnSelect` (always closes on select), `title`/`triggerLabel`/`loadingLabel`/`onSeeAll`/`seeAllLabel` (fixed copy/behavior, no prop), and the generic `footer` slot (replaced by the built-in expand button + required `children`).
+Fixed, not configurable (no prop, no override): the popover title and the expanded modal's title both always read **"Launchpad"** (both `--clet-font-header`), the trigger's accessible name / hover tooltip always reads **"Open Launchpad"**, and the top-right expand button (always rendered, no prop to hide it) always opens the expanded modal — its expand icon always shows; its "See more" label is only available as the muted line under the grid (rendered only when `apps.length` exceeds the 9-app cap) or via the expand button's `aria-label`. Dropped relative to `AppSwitcher`: `columns` (fixed at 3, or 5 in the expanded modal), `maxItems` (fixed at 9 for the popover, uncapped in the modal), `placement` (fixed `bottom-end`), `closeOnSelect` (always closes on select), `title`/`triggerLabel`/`loadingLabel`/`onSeeAll`/`seeAllLabel` (fixed copy/behavior, no prop), and the generic `footer` slot (replaced by the built-in expand button + required `children`).
 
 ## Types
 
@@ -97,8 +98,8 @@ const { open, toggle, close, triggerRef, panelRef } = useLaunchpad();
 - **`icon` is a closed set — every app renders on the shared tile system, no exceptions.** `LaunchpadApp.icon` only type-checks as a `SystemLaunchpadIcon` or `LaunchpadIconTile` element. This is deliberate: CLET is a component library for building a family of systems, and per-app custom icons (logos, image URLs, emoji) would let individual apps opt out of the shared visual language. Pass `icon={<SystemLaunchpadIcon name="System Name" />}` — it renders a rounded-square tile (`--clet-radius-base`) with the system's initials on top of a fixed brand gradient (one of 9) and a decorative overlay shape (one of 9), each picked by an independent hash of `name` — same name always produces the same tile, and the gradient/overlay combination varies independently (up to 81 distinct looks). Need a custom glyph instead of initials? Use `<LaunchpadIconTile name="System Name"><YourIcon /></LaunchpadIconTile>` — same tile, same gradient/overlay rules, just a different glyph on top.
 - Fetch apps in your application and pass `apps` + `loading`; Launchpad does not call APIs internally.
 - Also exported: `LaunchpadItem`, `LaunchpadGridIcon`, `SystemLaunchpadIcon`, `LaunchpadIconTile`.
-- **The expand button opens a scaled-up modal, not a callback.** There's no `onSeeAll` prop — the small ghost `sm` button at the top right of the panel is always rendered (its expand icon always visible, its "See more" text only once `apps.length` exceeds 9) and always opens a borderless, `--clet-radius-2xl`, 50px-padded modal (built on `Modal`/`DialogPrimitive`) showing every app in `apps` in a 5-column, 120px-icon grid, with a top-right close button. It's the same tile system as the popover, just bigger — selecting an app there calls the same `onAppSelect` and closes both the modal and the popover.
-- Only the app grid scrolls and fades at the top/bottom edge (a `mask-image` gradient on `.clet-launchpad__grid-scroll`) to hint there's more to scroll. The `children` role switcher and the divider above it sit outside that scrollable/masked area, so they stay fully visible and undimmed while the grid scrolls. The expanded modal's scrollable grid wrapper fades the same way.
+- **The "See more" line under the grid is a clickable button styled as muted text.** Rendered only when `apps.length > 9` (it lives outside the popover grid, between the grid-scroll area and the role-switcher footer), it opens the same expanded modal as the top-right expand button. Both controls share one `handleSeeAll` callback — there's no separate "static indicator" and "trigger", just two visible affordances for the same expand action. If a system genuinely needs to expose more than 9 apps, the modal is the only path — there's no `onSeeAll` prop or per-app "show more here" override.
+- Only the app grid scrolls and fades at the top/bottom edge (a `mask-image` gradient on `.clet-launchpad__grid-scroll`) to hint there's more to scroll. The "See more" line and the `children` role switcher and the divider above it sit outside that scrollable/masked area, so they stay fully visible and undimmed while the grid scrolls. The expanded modal's scrollable grid wrapper fades the same way.
 - Decorative tile overlays render at 5% opacity (`.clet-launchpad__tile-overlay`).
 - Each app's name label reserves a fixed 2-line height regardless of actual text length, so short and long names don't produce uneven grid row heights — true in both the popover and the expanded modal.
 - The panel scrolls (`max-height` + `overflow-y: auto`) once the grid + footer content grows tall.

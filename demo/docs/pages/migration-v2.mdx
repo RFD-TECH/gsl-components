@@ -240,7 +240,7 @@ Adopt as a set, not individually:
 +<AppLayout variant="stacked">
    <AppHeader variant="plain">...</AppHeader>
    <AppSidebar>
-     <SidebarOverlay />
+-    <SidebarOverlay />
 -    <Sidebar>
 +    <Sidebar variant="plain">
        ...
@@ -254,6 +254,8 @@ Adopt as a set, not individually:
 - **`AppHeader variant="plain"`**: square corners, `--clet-primary` background, on-primary text. Continuous top bar with branding.
 - **`Sidebar variant="plain"`**: transparent bg + right border instead of panel surface. Removes boxed-in panel-inside-panel look.
 
+**`<SidebarOverlay />` is now optional and rendered internally by `Sidebar` on mobile.** The old default shell required you to remember to drop `<SidebarOverlay />` into `<AppSidebar>` — forgetting it left the drawer with no backdrop. `Sidebar` now renders its own mobile overlay as a sibling of the `<aside>` (still null on desktop), so a missing explicit `<SidebarOverlay />` is harmless. If you do render one, two overlays stack — both close the drawer on click, no visual artifact — so existing code keeps working unchanged.
+
 **`SidebarGroup collapsible`:** All nav groups use accordion sections, not flat lists. Initialize with `Main` group expanded, others collapsed.
 
 **`SidebarFooter` must host a `ProfilePopover`:** Use `fullName`/`email` mode (not `user`/`variant`). Full name, email, role get stable real-estate-rich home here. Never omit sidebar footer — this is new relative to the old default layout shell (`DemoLayout`), which never required one.
@@ -262,7 +264,7 @@ Adopt as a set, not individually:
 
 **`SidebarBadge` — numeric counts only, not decorative text:** Compose it inside a `SidebarLink`'s children (`{link.badge && <SidebarBadge>{link.badge}</SidebarBadge>}`). Reserve it for a live count of actionable items on that nav destination (e.g. `8` unread alerts) — the number should reflect real pending/important items, not a static placeholder. The one exception is a short text badge like `"New"` for a feature callout (e.g. on a newly-added "Documentation" link) — don't invent other text badges beyond that pattern.
 
-**Branding lives in `AppHeader` via `AppHeaderBranding`, NOT in sidebar (with one mobile-only exception):**
+**Branding lives in `AppHeader` via `AppHeaderBranding`; the sidebar mirrors it to mobile via a `mobileHeader` prop:**
 
 ```tsx
 <AppHeader variant="plain">
@@ -275,34 +277,28 @@ Adopt as a set, not individually:
 </AppHeader>
 ```
 
-On desktop, `Sidebar` has NO `SidebarHeader`/`SidebarBrand` — same logo must not appear twice on screen.
+On desktop, the plain `Sidebar` has NO `SidebarHeader`/`SidebarBrand` — same logo must not appear twice on screen.
 
-**On mobile the sidebar becomes a full-overlay drawer and the `AppHeader` is hidden behind it.** Add a mobile-only `SidebarHeader` with `SidebarBrand` inside the sidebar so the brand is visible when the drawer opens:
+On mobile the sidebar becomes a full-overlay drawer and the `AppHeader` collapses to just the hamburger. Pass the brand content to the plain `Sidebar` via `mobileHeader` and the library wraps it in a mobile-only `SidebarHeader` (hidden on desktop via the built-in `clet-sidebar__header--mobile-only` class):
 
 ```tsx
-<Sidebar variant="plain">
-  <SidebarHeader className="clet-sidebar__header--mobile-only">
+<Sidebar
+  variant="plain"
+  mobileHeader={
     <SidebarBrand>
       <img src="/clet-logo.png" alt="" width={28} height={28} />
       <span>YOUR PORTAL</span>
     </SidebarBrand>
-  </SidebarHeader>
+  }
+>
   <SidebarContent>...</SidebarContent>
   <SidebarFooter>...</SidebarFooter>
 </Sidebar>
 ```
 
-The class `clet-sidebar__header--mobile-only` is not built into the library — add it to your own CSS:
-
-```css
-@media (width > 768px) {
-  .clet-sidebar__header--mobile-only {
-    display: none;
-  }
-}
-```
-
-This keeps the one-brand-per-screen rule on desktop while ensuring the brand is visible in the mobile drawer.
+- The `mobileHeader` prop only renders when `Sidebar variant="plain"` and the consumer hasn't already supplied their own `<SidebarHeader>` child — add your own `<SidebarHeader>` to fully own the mobile header content.
+- The `clet-sidebar__header--mobile-only` class is now a built-in library class. No consumer CSS is required — the library hides it on desktop via the existing `@media (width >= 769px)` block in `src/components/sidebar/styles/sidebar.css`. The older migration recipe that required a hand-written `@media` rule no longer applies.
+- The `AppLayout` does **not** auto-extract the `AppHeaderBranding` and forward it to the sidebar. The two brand blocks (`AppHeaderBranding` for the header, `SidebarBrand` for the mobile drawer) are intentionally separate — they live in different visual contexts with different styling. Compose both, with the same logo/title content.
 
 **Use the current brand logo (`clet-logo.png`) for any new system** — `gsl-logo.png` is the older mark used only by the legacy default layout shell (`DemoLayout`); don't reuse it for new work.
 
@@ -400,6 +396,46 @@ Neither `ProfilePopover` above passes `items` — both render the default "My Pr
 
 Use `SectionHeader` (with `SectionTitle`/`SectionDescription`/`SectionActions`) for page headers — never hand-rolled `<div>`s.
 
+## PageSection — consistent section spacing
+
+Every distinct content section on a page must be wrapped in `<PageSection>` instead of a
+hand-rolled `<div>` with margin:
+
+```diff
+-<div style={{ marginBottom: 24 }}>
++<PageSection>
+   <MetricCard variant="outline" ... />
+-</div>
++</PageSection>
+```
+
+`PageSection` applies `gap: var(--clet-app-layout-body-gap)` — no new token, no hardcoded
+value. All sections get uniform spacing automatically.
+
+## QuickActions — dashboard action grids
+
+Use `<QuickActions>` for quick-action grids on dashboards. It replaces any hand-rolled
+"action buttons" row with a responsive tile grid (1/2/3 columns) and an optional "Customize"
+dialog for toggling visibility:
+
+```diff
+-<div className="flex gap-4">
+-  <Button>Add Member</Button>
+-  <Button variant="secondary">Export</Button>
+-</div>
++<QuickActions
++  actions={[
++    { id: "add", label: "Add Member", icon: <UserPlus size={18} />, onClick: ... },
++    { id: "export", label: "Export Data", icon: <Download size={18} />, onClick: ... },
++  ]}
++  customizable
++/>
+```
+
+The customize feature is fully controlled — pass `hiddenIds` and `onToggleVisibility` to
+manage which actions are visible. Persist the state however you like (localStorage, zustand,
+etc.).
+
 All variants above are additive — no deadline to migrate old screens. But any screen built fresh or substantially touched must use these variants.
 
 ## Checklist
@@ -421,8 +457,9 @@ All variants above are additive — no deadline to migrate old screens. But any 
 - [ ] New/rebuilt layout shells use `AppLayout variant="stacked"` + `AppHeader variant="plain"` + `Sidebar variant="plain"` + collapsible `SidebarGroup`s together ("Layout shell")
 - [ ] Every layout has `SidebarFooter` with `ProfilePopover` in `fullName`/`email` mode — never omit it ("Layout shell")
 - [ ] No `SidebarTrigger` in new layouts — that's an old default-layout-shell-only pattern ("Layout shell")
+- [ ] `<SidebarOverlay />` is no longer required — `Sidebar` renders its own mobile overlay internally ("Layout shell")
 - [ ] `SidebarBadge` shows a real numeric count of actionable items, not decorative text (`"New"` is the one exception) ("Layout shell")
-- [ ] Branding in `AppHeader` via `AppHeaderBranding` using the current logo (`clet-logo.png`), never duplicated in desktop sidebar — add mobile-only `SidebarHeader`/`SidebarBrand` with `clet-sidebar__header--mobile-only` class so brand is visible in the mobile drawer ("Layout shell")
+- [ ] Branding in `AppHeader` via `AppHeaderBranding` using the current logo (`clet-logo.png`), never duplicated in desktop sidebar — pass `mobileHeader` (a `SidebarBrand` with the same logo/title) to the plain `Sidebar` so the brand is visible in the mobile drawer; no consumer CSS needed for the hide-on-desktop rule ("Layout shell")
 - [ ] Every loading-props table component uses its real `loading` prop — never hand-rolled `"..."` or spinner ("Use built-in loading states")
 - [ ] `RoleSelect` wired into all three locations (`Launchpad`, header `ProfilePopover`, sidebar footer `ProfilePopover`) from the same state, whenever the system allows more than one role — not just one or two of the three ("One role switcher")
 - [ ] Header `ProfilePopover` uses `variant="avatar"` when sidebar footer exists ("One role switcher")
@@ -430,4 +467,6 @@ All variants above are additive — no deadline to migrate old screens. But any 
 - [ ] New/touched `Table`s use all three: `TableContent variant="panel"`, `TableFilter variant="spread"`, `TableFooter noBorder`
 - [ ] `MetricCard variant="outline"`, `Tabs variant="pill"` on new usage
 - [ ] New page headers use `SectionHeader`/`SectionTitle`/`SectionDescription`/`SectionActions`
+- [ ] Every page section is wrapped in `<PageSection>` — no bare `<div>`s with margin ("PageSection")
+- [ ] Quick-action rows use `<QuickActions>` with customizable visibility ("QuickActions")
 - [ ] `Launchpad`'s expand button shows its icon always, its "See more" label only once `apps.length` exceeds 9 — never the old bordered "See all" button

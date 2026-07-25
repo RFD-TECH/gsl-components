@@ -1,0 +1,80 @@
+export const meta = {
+  title: "QuickActions",
+  description: "Quick action grid with optional customize dialog",
+  category: "Components",
+  keywords: ["quick actions", "action grid", "shortcuts", "customize", "dashboard actions"],
+  since: "2.1.0",
+  status: "stable",
+  related: ["page-section", "dashboard-patterns", "button", "dialog", "checkbox"],
+  import: "@rfdtech/components",
+};
+
+import { ExampleTabs } from "../components/ExampleTabs";
+import { QuickActionsPreview } from "../previews/code/QuickActionsPreview";
+import quickActionsSource from "../previews/examples/quick-actions.example.tsx?raw";
+
+# QuickActions
+
+A responsive grid of quick-action tiles with an optional "Customize" dialog for toggling visibility. Designed for dashboard sections where users need one-click access to common tasks.
+
+## Example
+
+<ExampleTabs
+  title="Quick actions"
+  preview={<QuickActionsPreview />}
+  code={quickActionsSource}
+/>
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `actions` | `QuickActionItem[]` | — | Array of action items to display (required) |
+| `title` | `string` | `"Quick actions"` | Section heading text |
+| `customizable` | `boolean` | `false` | Shows a "Customize" button and dialog |
+| `hiddenIds` | `Set<string>` | — | Currently hidden action IDs (for customize mode) |
+| `onToggleVisibility` | `(id: string) => void` | — | Called when user toggles an action in the customize dialog |
+| `onAction` | `(id: string) => void` | — | Called when a visible action tile is clicked |
+| `customizeLabel` | `string` | `"Customize"` | Text for the customize button |
+| `emptyMessage` | `string` | `"No quick actions available."` | Text shown when no actions are visible |
+| `classNames` | `QuickActionsClassNames` | — | Part-level class overrides |
+| `className` | `string` | — | Merged onto the root |
+
+Also accepts standard native `<div>` attributes.
+
+## Types
+
+### `QuickActionItem`
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `id` | `string` | Unique identifier |
+| `label` | `string` | Display text |
+| `icon` | `ReactNode` | Icon element (typically a lucide-react icon at `size={18}`) |
+| `description` | `string` (optional) | Secondary text |
+
+### `QuickActionsClassNames`
+
+| Key | Applied to |
+|-----|------------|
+| `root` | Root wrapper |
+| `header` | Header row (title + customize button) |
+| `title` | Section title text |
+| `customizeButton` | Customize button |
+| `grid` | Action tile grid |
+| `item` | Individual action tile |
+| `itemIcon` | Icon circle inside each tile |
+| `itemContent` | Text content wrapper |
+| `itemLabel` | Action label text |
+| `itemDescription` | Action description text |
+| `dialog` | Customize dialog content |
+| `dialogCheckbox` | Checkbox list in the customize dialog |
+| `empty` | Empty state message |
+
+## Notes
+
+- The grid is responsive: 1 column on mobile, 2 on tablet (640px), 3 on desktop (1024px).
+- The "Customize" button opens a `Dialog` with `Checkbox` for each action — visibility state is fully controlled by the consumer via `hiddenIds` / `onToggleVisibility`.
+- Each tile has a primary-colored icon circle, action label, and optional description.
+- Tiles are `<button>` elements, so they participate in keyboard navigation by default.
+- Store the `hiddenIds` state in localStorage, zustand, or any state mechanism — the component is agnostic.

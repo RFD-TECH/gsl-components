@@ -107,18 +107,19 @@ describe("Launchpad", () => {
 		expect(screen.getByText("No systems available.")).toBeInTheDocument();
 	});
 
-	it("shows the expand button when apps fit within the cap", async () => {
+	it("renders the top-right expand button (always, regardless of app count)", async () => {
 		const user = userEvent.setup();
 
 		render(<Launchpad apps={staticApps}>{roleSelect()}</Launchpad>);
 
 		await user.click(screen.getByRole("button", { name: "Open Launchpad" }));
 
-		const expandButton = screen.getByRole("button", { name: "See more" });
-		expect(expandButton).toBeInTheDocument();
+		expect(
+			document.querySelector(".clet-launchpad__see-more-btn"),
+		).toBeInTheDocument();
 	});
 
-	it("opens the expanded Launchpad modal, showing every app uncapped, when the expand button is clicked", async () => {
+	it("opens the expanded Launchpad modal, showing every app uncapped, when the top-right expand button is clicked", async () => {
 		const user = userEvent.setup();
 		const apps: LaunchpadApp[] = Array.from({ length: 12 }, (_, i) => ({
 			id: `app-${i}`,
@@ -129,7 +130,102 @@ describe("Launchpad", () => {
 		render(<Launchpad apps={apps}>{roleSelect()}</Launchpad>);
 
 		await user.click(screen.getByRole("button", { name: "Open Launchpad" }));
-		await user.click(screen.getByRole("button", { name: "See more" }));
+
+		// Two "See more" controls now exist: the top-right expand button and
+		// the text under the grid. Use the top-right one (the expand button)
+		// for this test.
+		await user.click(
+			document.querySelector(".clet-launchpad__see-more-btn") as HTMLElement,
+		);
+
+		expect(
+			screen.getByRole("heading", { name: "Launchpad" }),
+		).toBeInTheDocument();
+		expect(
+			document.querySelectorAll(
+				".clet-launchpad__expand-grid .clet-launchpad__tile",
+			),
+		).toHaveLength(12);
+	});
+
+	it("does not render the See more text under the grid when apps fit within the cap", async () => {
+		const user = userEvent.setup();
+
+		render(<Launchpad apps={staticApps}>{roleSelect()}</Launchpad>);
+
+		await user.click(screen.getByRole("button", { name: "Open Launchpad" }));
+
+		expect(
+			document.querySelector(".clet-launchpad__see-more"),
+		).not.toBeInTheDocument();
+	});
+
+	it("renders a muted See more text under the grid when there are more items to be seen", async () => {
+		const user = userEvent.setup();
+		const apps: LaunchpadApp[] = Array.from({ length: 12 }, (_, i) => ({
+			id: `app-${i}`,
+			name: `App ${i}`,
+			icon: <SystemLaunchpadIcon name={`App ${i}`} />,
+		}));
+
+		render(<Launchpad apps={apps}>{roleSelect()}</Launchpad>);
+
+		await user.click(screen.getByRole("button", { name: "Open Launchpad" }));
+
+		const seeMore = document.querySelector(".clet-launchpad__see-more");
+		expect(seeMore).toBeInTheDocument();
+		expect(seeMore).toHaveTextContent("See more");
+	});
+
+	it("places the See more text between the grid and the role switcher", async () => {
+		const user = userEvent.setup();
+		const apps: LaunchpadApp[] = Array.from({ length: 12 }, (_, i) => ({
+			id: `app-${i}`,
+			name: `App ${i}`,
+			icon: <SystemLaunchpadIcon name={`App ${i}`} />,
+		}));
+
+		render(<Launchpad apps={apps}>{roleSelect()}</Launchpad>);
+
+		await user.click(screen.getByRole("button", { name: "Open Launchpad" }));
+
+		const grid = document.querySelector(".clet-launchpad__grid");
+		const seeMore = document.querySelector(".clet-launchpad__see-more");
+		const footer = document.querySelector(".clet-launchpad__footer");
+		expect(grid).not.toBeNull();
+		expect(seeMore).not.toBeNull();
+		expect(footer).not.toBeNull();
+		// DOM order: grid → see-more → footer
+		const gridPosition = Array.from(grid!.parentElement!.children).indexOf(grid!);
+		const seeMorePosition = Array.from(seeMore!.parentElement!.children).indexOf(
+			seeMore!,
+		);
+		const footerPosition = Array.from(footer!.parentElement!.children).indexOf(
+			footer!,
+		);
+		expect(gridPosition).toBeLessThan(seeMorePosition);
+		expect(seeMorePosition).toBeLessThan(footerPosition);
+	});
+
+	it("opens the expanded modal when the See more text under the grid is clicked", async () => {
+		const user = userEvent.setup();
+		const apps: LaunchpadApp[] = Array.from({ length: 12 }, (_, i) => ({
+			id: `app-${i}`,
+			name: `App ${i}`,
+			icon: <SystemLaunchpadIcon name={`App ${i}`} />,
+		}));
+
+		render(<Launchpad apps={apps}>{roleSelect()}</Launchpad>);
+
+		await user.click(screen.getByRole("button", { name: "Open Launchpad" }));
+
+		// The See more under the grid is a separate button from the top-right
+		// expand button — they both open the same modal.
+		const seeMoreUnderGrid = document.querySelector(
+			".clet-launchpad__see-more",
+		);
+		expect(seeMoreUnderGrid).toBeInstanceOf(HTMLButtonElement);
+		await user.click(seeMoreUnderGrid as HTMLButtonElement);
 
 		expect(
 			screen.getByRole("heading", { name: "Launchpad" }),
@@ -152,7 +248,11 @@ describe("Launchpad", () => {
 		);
 
 		await user.click(screen.getByRole("button", { name: "Open Launchpad" }));
-		await user.click(screen.getByRole("button", { name: "See more" }));
+
+		// Two "See more" controls now exist; use the top-right expand button.
+		await user.click(
+			document.querySelector(".clet-launchpad__see-more-btn") as HTMLElement,
+		);
 		await user.click(screen.getByRole("link", { name: /Mail/i }));
 
 		expect(onAppSelect).toHaveBeenCalledWith(

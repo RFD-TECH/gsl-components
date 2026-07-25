@@ -9,6 +9,42 @@ Upgrading from `1.22.0`? See [`demo/docs/pages/migration-v2.mdx`](demo/docs/page
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-07-25
+
+### Added
+
+- **PageSection**: new wrapper component that applies consistent vertical spacing between page sections via `--clet-app-layout-body-gap`. Replaces ad-hoc `margin-bottom` on section divs. `forwardRef`, `classNames.root`, `className`.
+- **QuickActions**: new dashboard component featuring a responsive tile grid (1/2/3 columns) and an optional "Customize" dialog for toggling action visibility. Each tile shows a primary-colored icon circle, label, and optional description. Fully controlled via `actions`, `customizable`, `hiddenIds`, and `onToggleVisibility` props.
+- **Demo**: enhanced `Dashboard2Page` with QuickActions, Tabs (pill variant), Timeline audit trail, and PageSection-wrapped sections. Added `UserCreatePage` (multi-step stepper form with zod validation) and `UserDetailPage` (profile card + timeline + quick actions). Updated `DemoLayout2` sidebar nav with Users links. New docs pages: `page-section.mdx`, `quick-actions.mdx`, `dashboard-patterns.mdx`.
+
+### Changed
+
+- **Card**: new `bordered` prop — when set, adds a 1px solid border using the `--clet-border` token. Header margin-bottom reduced from 24px to 16px for tighter spacing.
+- **Sidebar**: plain variant background now defaults to `--clet-surface-card` instead of `--clet-bg`, so the sidebar reads flush with the adjacent card surface. Overlay z-index now references `--clet-sidebar-z` instead of `--clet-z-overlay`, matching the mobile drawer's own stacking token.
+- **Sidebar**: new `mobileHeader` prop — when `variant="plain"` and the consumer hasn't already added a `<SidebarHeader>` child, the library auto-wraps the provided content in a `SidebarHeader` with the built-in `clet-sidebar__header--mobile-only` class (hidden on desktop via the existing `@media (width >= 769px)` block in `src/components/sidebar/styles/sidebar.css`). The consumer is responsible for providing the brand content (typically a `SidebarBrand` with the same logo/title as the sibling `AppHeader`'s `AppHeaderBranding`) — `AppLayout` does not auto-extract it, since the header and sidebar are intentionally separate visual contexts with different styling. The previous migration recipe that required a hand-written `@media` rule to hide the consumer-supplied `SidebarHeader` no longer applies; the class is library-native.
+- **Sidebar**: the mobile backdrop is now rendered internally by `Sidebar` as a sibling of the `<aside>`, so explicit `<SidebarOverlay />` usage is no longer required (still exported for backward compatibility; harmless if duplicated — two stacked overlays both close the drawer on click, no visual artifact).
+- **Launchpad**: the top-right expand button (always rendered, `Maximize2` icon) is back, and a new muted "See more" line lives under the grid (between the grid and the role switcher, rendered only when `apps.length > 9`) — both controls open the same scaled-up expanded modal showing every app in `apps` uncapped. The under-grid "See more" is a real button (keyboard-focusable, click opens the modal) styled as plain muted text (full-width, centered, no border/background) so it reads as a hint rather than a primary action. Dropped the previous `MoreHorizontal` "More" tile that took the 9th grid slot — the cap is now a clean 9 apps, and the under-grid "See more" line is the overflow indicator.
+- **DateSelector**: the calendar header title is now clickable and opens a 3-level picker (day / month / year) inspired by iOS and Material patterns. Click the title in day view for a 3×4 month grid; click again for a 3×4 year grid. Month and year cells use the same selected/today/disabled styling as day cells. Navigation arrows adapt per level (month, year, or decade step). The popover re-opens at the selected date's period. Added `calendarMonthGrid`, `calendarMonth`, `calendarYearGrid`, `calendarYear` to `DateSelectorClassNames`.
+- **MetricCard**: label color tokens swapped between `default` and `outline` variants — the `default` variant label now reads `--clet-secondary` (gold) and the `outline` variant reads `--clet-text-secondary`, making visual hierarchy consistent across both variants.
+- **Demo**: `Dashboard2Page` table wrapped in `<Card bordered>` for a contained card-style layout. `DemoLayout2` sidebar now includes a mobile-only `SidebarHeader` with `SidebarBrand` for the app logo and title on small viewports.
+- **Demo**: migration guide updated with the new Card bordered and sidebar mobile-header patterns.
+
+### Fixed
+
+- **Sidebar**: removed the `document` click-outside listener that was racing the `AppHeader`'s mobile hamburger trigger — when the user clicked the hamburger to open the drawer, the document-level `click` handler fired on the same event and immediately re-closed it. The `SidebarOverlay` (now rendered internally on mobile) remains the close path. Clicking the hamburger in the `AppHeader` on a mobile viewport now reliably opens the drawer.
+- **Combobox**: mouse-wheel scrolling now works on the option list. An `onWheel` handler manually manages `scrollTop` to work around `cmdk`'s non-intercepted scroll behavior.
+
+## [2.0.2] - 2026-07-23
+
+### Changed
+
+- **Sidebar**: mobile drawer now uses a dedicated `--clet-sidebar-z` token defaulting to `10000` so it layers above headers, command popovers, and table bulk-action bars in responsive layouts.
+- **Table**: header bar stacks into a column below `1024px`, with actions wrapping beneath the search/filter row for smaller screens.
+
+### Fixed
+
+- **Lottie animations**: `BulkImportModal` and `ProgressModal` now load `lottie-react` only on the client, preventing `lottie-web` canvas initialization crashes during SSR/static builds and test imports.
+
 ## [2.0.1] - 2026-07-16
 
 ### Added

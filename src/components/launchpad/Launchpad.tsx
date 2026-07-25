@@ -18,9 +18,11 @@ import adinkraSymbolStrip from "./assets/adinkra-symbol.png";
 import "./styles/launchpad.css";
 
 /**
- * Max apps shown in the popover grid — fixed, not configurable. The
- * built-in expand button opens a modal showing every app in `apps`
- * (uncapped) on the same tile system, scaled up.
+ * Max apps shown in the popover grid — fixed, not configurable. When
+ * `apps.length` exceeds this cap, the extras are not rendered (the grid
+ * shows the first `MAX_APPS`) and a muted "See more" line appears under
+ * the grid, above the role switcher. Clicking the line — or the top-right
+ * expand button — opens a scaled-up modal showing every app in `apps`.
  */
 const MAX_APPS = 9;
 
@@ -54,7 +56,10 @@ export function Launchpad({
 	const [tooltipOpen, setTooltipOpen] = useState(false);
 	const [expandOpen, setExpandOpen] = useState(false);
 
-	const visibleApps = apps.slice(0, MAX_APPS);
+	const handleSeeAll = useCallback(() => {
+		close();
+		setExpandOpen(true);
+	}, [close]);
 
 	const handleAppSelect = useCallback(
 		(app: LaunchpadApp) => {
@@ -71,10 +76,8 @@ export function Launchpad({
 		[onAppSelect, close],
 	);
 
-	const handleSeeAll = useCallback(() => {
-		close();
-		setExpandOpen(true);
-	}, [close]);
+	const visibleApps = apps.slice(0, MAX_APPS);
+	const hasMore = apps.length > MAX_APPS;
 
 	return (
 		<>
@@ -117,7 +120,7 @@ export function Launchpad({
 									type="button"
 									variant="ghost"
 									size="sm"
-									className="clet-launchpad__see-more gsl-launchpad__see-more"
+									className="clet-launchpad__see-more-btn gsl-launchpad__see-more-btn"
 									onClick={handleSeeAll}
 									aria-label={SEE_MORE_LABEL}
 								>
@@ -159,6 +162,17 @@ export function Launchpad({
 									</div>
 								) : null}
 							</div>
+
+							{!loading && hasMore ? (
+								<button
+									type="button"
+									className="clet-launchpad__see-more gsl-launchpad__see-more"
+									onClick={handleSeeAll}
+									aria-label={SEE_MORE_LABEL}
+								>
+									{SEE_MORE_LABEL}
+								</button>
+							) : null}
 
 							<div className="clet-launchpad__footer gsl-launchpad__footer">{children}</div>
 						</Popover.Content>

@@ -514,6 +514,14 @@
 		border-right: 1px solid var(--gsl-border, var(--clet-border));
 		border-radius: 0;
 	}
+
+	/* Hide the auto-injected brand row on desktop. The plain `Sidebar`
+     mirrors the sibling `AppHeader`'s `AppHeaderBranding` into this row on
+     mobile (where the sidebar becomes a drawer); on desktop the brand is
+     already in `AppHeaderBranding`, so this stays hidden. */
+	.clet-sidebar__header--mobile-only {
+		display: none;
+	}
 }
 
 @media (width <= 768px) {

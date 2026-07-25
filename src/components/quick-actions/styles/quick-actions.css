@@ -1,0 +1,114 @@
+.clet-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clet-quick-actions__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clet-quick-actions__title {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
+}
+
+.clet-quick-actions__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (width >= 640px) {
+  .clet-quick-actions__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width >= 1024px) {
+  .clet-quick-actions__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.clet-quick-actions__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--gsl-radius-xl, var(--clet-radius-xl));
+  background: color-mix(in srgb, var(--gsl-primary, var(--clet-primary)) 10%, transparent);
+  text-align: left;
+  font-family: var(--gsl-font-body, var(--clet-font-body));
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.clet-quick-actions__item:hover {
+  background: color-mix(in srgb, var(--gsl-primary, var(--clet-primary)) 30%, transparent);
+}
+
+.clet-quick-actions__item:focus-visible {
+  outline: 2px solid var(--gsl-primary, var(--clet-primary));
+  outline-offset: 2px;
+}
+
+.clet-quick-actions__item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+  background: var(--gsl-primary, var(--clet-primary));
+  color: var(--gsl-on-primary, var(--clet-on-primary));
+}
+
+.clet-quick-actions__item-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+.clet-quick-actions__item-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gsl-text, var(--clet-text));
+  line-height: 1.3;
+}
+
+.clet-quick-actions__item-description {
+  font-size: 12px;
+  color: var(--gsl-text-muted, var(--clet-text-muted));
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clet-quick-actions__empty {
+  font-size: 14px;
+  color: var(--gsl-text-muted, var(--clet-text-muted));
+  padding: 12px 0;
+}
+
+.clet-quick-actions__dialog-checkbox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clet-quick-actions__item {
+    transition: none;
+  }
+}

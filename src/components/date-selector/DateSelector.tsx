@@ -20,6 +20,10 @@ const WEEKDAYS = [
   { short: "S", full: "Sunday" },
 ] as const;
 
+const MONTH_LABELS = Array.from({ length: 12 }, (_, i) =>
+  new Date(2000, i, 1).toLocaleDateString("en-US", { month: "short" }),
+);
+
 const DEFAULT_FORMAT: Intl.DateTimeFormatOptions = {
   year: "numeric",
   month: "short",
@@ -44,6 +48,30 @@ function isDateInRange(date: Date, min?: Date, max?: Date): boolean {
     if (date > maxDay) return false;
   }
   return true;
+}
+
+function isMonthDisabled(year: number, month: number, min?: Date, max?: Date): boolean {
+  if (min) {
+    const minDay = new Date(min.getFullYear(), min.getMonth(), min.getDate());
+    if (new Date(year, month + 1, 0) < minDay) return true;
+  }
+  if (max) {
+    const maxDay = new Date(max.getFullYear(), max.getMonth(), max.getDate());
+    if (new Date(year, month, 1) > maxDay) return true;
+  }
+  return false;
+}
+
+function isYearDisabled(year: number, min?: Date, max?: Date): boolean {
+  if (min) {
+    const minDay = new Date(min.getFullYear(), min.getMonth(), min.getDate());
+    if (new Date(year, 11, 31) < minDay) return true;
+  }
+  if (max) {
+    const maxDay = new Date(max.getFullYear(), max.getMonth(), max.getDate());
+    if (new Date(year, 0, 1) > maxDay) return true;
+  }
+  return false;
 }
 
 function computeCalendarDays(year: number, month: number): Date[] {
@@ -114,10 +142,21 @@ export const DateSelector = forwardRef<HTMLDivElement, DateSelectorProps>(
     const [viewMonth, setViewMonth] = useState(() =>
       selected ? selected.getMonth() : today.getMonth(),
     );
+    const [viewMode, setViewMode] = useState<"day" | "month" | "year">("day");
 
     const calendarDays = useMemo(
       () => computeCalendarDays(viewYear, viewMonth),
       [viewYear, viewMonth],
+    );
+
+    const yearPageStart = useMemo(
+      () => Math.floor((viewYear - 1) / 12) * 12 + 1,
+      [viewYear],
+    );
+
+    const yearGrid = useMemo(
+      () => Array.from({ length: 12 }, (_, i) => yearPageStart + i),
+      [yearPageStart],
     );
 
     const monthLabel = useMemo(() => {
@@ -127,6 +166,13 @@ export const DateSelector = forwardRef<HTMLDivElement, DateSelectorProps>(
         year: "numeric",
       });
     }, [viewYear, viewMonth]);
+
+    const headerTitle = useMemo(() => {
+      if (viewMode === "day") return monthLabel;
+      if (viewMode === "month") return String(viewYear);
+      const start = Math.floor((viewYear - 1) / 12) * 12 + 1;
+      return `${start} \u2013 ${start + 11}`;
+    }, [viewMode, monthLabel, viewYear]);
 
     const displayText = useMemo(() => {
       if (!selected) return "";
@@ -165,22 +211,48 @@ export const DateSelector = forwardRef<HTMLDivElement, DateSelectorProps>(
       (next: boolean) => {
         if (disabled) return;
         setOpen(next);
-        if (!next) {
+        if (next) {
+          setViewMode("day");
+          if (selected) {
+            setViewYear(selected.getFullYear());
+            setViewMonth(selected.getMonth());
+          }
+        } else {
           onBlur?.();
         }
       },
-      [disabled, onBlur],
+      [disabled, onBlur, selected],
     );
 
-    const prevMonth = useCallback(() => {
-      setViewMonth((m) => (m === 0 ? 11 : m - 1));
-      if (viewMonth === 0) setViewYear((y) => y - 1);
-    }, [viewMonth]);
+    const handlePrev = useCallback(() => {
+      if (viewMode === "day") {
+        setViewMonth((m) => (m === 0 ? 11 : m - 1));
+        if (viewMonth === 0) setViewYear((y) => y - 1);
+      } else if (viewMode === "month") {
+        setViewYear((y) => y - 1);
+      } else {
+        setViewYear((y) => y - 12);
+      }
+    }, [viewMode, viewMonth]);
 
-    const nextMonth = useCallback(() => {
-      setViewMonth((m) => (m === 11 ? 0 : m + 1));
-      if (viewMonth === 11) setViewYear((y) => y + 1);
-    }, [viewMonth]);
+    const handleNext = useCallback(() => {
+      if (viewMode === "day") {
+        setViewMonth((m) => (m === 11 ? 0 : m + 1));
+        if (viewMonth === 11) setViewYear((y) => y + 1);
+      } else if (viewMode === "month") {
+        setViewYear((y) => y + 1);
+      } else {
+        setViewYear((y) => y + 12);
+      }
+    }, [viewMode, viewMonth]);
+
+    const handleTitleClick = useCallback(() => {
+      setViewMode((mode) => {
+        if (mode === "day") return "month";
+        if (mode === "month") return "year";
+        return "month";
+      });
+    }, []);
 
     return (
       <div
@@ -244,20 +316,35 @@ export const DateSelector = forwardRef<HTMLDivElement, DateSelectorProps>(
                     "clet-date-selector__calendar-nav gsl-date-selector__calendar-nav",
                     classNames?.calendarNav,
                   )}
-                  onClick={prevMonth}
-                  aria-label="Previous month"
+                  onClick={handlePrev}
+                  aria-label={
+                    viewMode === "day"
+                      ? "Previous month"
+                      : viewMode === "month"
+                        ? "Previous year"
+                        : "Previous 12 years"
+                  }
                 >
                   <ChevronLeft size={16} strokeWidth={2} aria-hidden />
                 </button>
 
-                <span
+                <button
+                  type="button"
                   className={cn(
                     "clet-date-selector__calendar-title gsl-date-selector__calendar-title",
                     classNames?.calendarTitle,
                   )}
+                  onClick={handleTitleClick}
+                  aria-label={
+                    viewMode === "day"
+                      ? "Switch to month picker"
+                      : viewMode === "month"
+                        ? "Switch to year picker"
+                        : "Switch to month picker"
+                  }
                 >
-                  {monthLabel}
-                </span>
+                  {headerTitle}
+                </button>
 
                 <button
                   type="button"
@@ -265,79 +352,176 @@ export const DateSelector = forwardRef<HTMLDivElement, DateSelectorProps>(
                     "clet-date-selector__calendar-nav gsl-date-selector__calendar-nav",
                     classNames?.calendarNav,
                   )}
-                  onClick={nextMonth}
-                  aria-label="Next month"
+                  onClick={handleNext}
+                  aria-label={
+                    viewMode === "day"
+                      ? "Next month"
+                      : viewMode === "month"
+                        ? "Next year"
+                        : "Next 12 years"
+                  }
                 >
                   <ChevronRight size={16} strokeWidth={2} aria-hidden />
                 </button>
               </div>
 
-              {/* Weekday labels */}
-              <div
-                className={cn(
-                  "clet-date-selector__calendar-weekdays gsl-date-selector__calendar-weekdays",
-                  classNames?.calendarWeekdays,
-                )}
-                role="row"
-              >
-                {WEEKDAYS.map((day) => (
+              {viewMode === "day" && (
+                <>
+                  {/* Weekday labels */}
                   <div
-                    key={day.full}
                     className={cn(
-                      "clet-date-selector__calendar-weekday gsl-date-selector__calendar-weekday",
-                      classNames?.calendarWeekday,
+                      "clet-date-selector__calendar-weekdays gsl-date-selector__calendar-weekdays",
+                      classNames?.calendarWeekdays,
                     )}
-                    role="columnheader"
-                    aria-label={day.full}
+                    role="row"
                   >
-                    {day.short}
+                    {WEEKDAYS.map((day) => (
+                      <div
+                        key={day.full}
+                        className={cn(
+                          "clet-date-selector__calendar-weekday gsl-date-selector__calendar-weekday",
+                          classNames?.calendarWeekday,
+                        )}
+                        role="columnheader"
+                        aria-label={day.full}
+                      >
+                        {day.short}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              {/* Day grid */}
-              <div
-                className={cn(
-                  "clet-date-selector__calendar-grid gsl-date-selector__calendar-grid",
-                  classNames?.calendarGrid,
-                )}
-                role="grid"
-              >
-                {calendarDays.map((day, i) => {
-                  const isCurrentMonth = day.getMonth() === viewMonth;
-                  const isToday = isSameDay(day, today);
-                  const isSelected = selected ? isSameDay(day, selected) : false;
-                  const isDisabled = !isDateInRange(day, min, max);
+                  {/* Day grid */}
+                  <div
+                    className={cn(
+                      "clet-date-selector__calendar-grid gsl-date-selector__calendar-grid",
+                      classNames?.calendarGrid,
+                    )}
+                    role="grid"
+                  >
+                    {calendarDays.map((day, i) => {
+                      const isCurrentMonth = day.getMonth() === viewMonth;
+                      const isToday = isSameDay(day, today);
+                      const isSelected = selected ? isSameDay(day, selected) : false;
+                      const isDisabled = !isDateInRange(day, min, max);
 
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      role="gridcell"
-                      disabled={isDisabled || !isCurrentMonth}
-                      aria-selected={isSelected}
-                      aria-label={day.toLocaleDateString("en-US", {
-                        weekday: "long",
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                      className={cn(
-                        "clet-date-selector__calendar-day gsl-date-selector__calendar-day",
-                        !isCurrentMonth &&
-                          "clet-date-selector__calendar-day--outside gsl-date-selector__calendar-day--outside",
-                        isToday && "clet-date-selector__calendar-day--today gsl-date-selector__calendar-day--today",
-                        isSelected &&
-                          "clet-date-selector__calendar-day--selected gsl-date-selector__calendar-day--selected",
-                        classNames?.calendarDay,
-                      )}
-                      onClick={() => handleSelect(day)}
-                    >
-                      {day.getDate()}
-                    </button>
-                  );
-                })}
-              </div>
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          role="gridcell"
+                          disabled={isDisabled || !isCurrentMonth}
+                          aria-selected={isSelected}
+                          aria-label={day.toLocaleDateString("en-US", {
+                            weekday: "long",
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                          className={cn(
+                            "clet-date-selector__calendar-day gsl-date-selector__calendar-day",
+                            !isCurrentMonth &&
+                              "clet-date-selector__calendar-day--outside gsl-date-selector__calendar-day--outside",
+                            isToday && "clet-date-selector__calendar-day--today gsl-date-selector__calendar-day--today",
+                            isSelected &&
+                              "clet-date-selector__calendar-day--selected gsl-date-selector__calendar-day--selected",
+                            classNames?.calendarDay,
+                          )}
+                          onClick={() => handleSelect(day)}
+                        >
+                          {day.getDate()}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {viewMode === "month" && (
+                <div
+                  className={cn(
+                    "clet-date-selector__calendar-month-grid gsl-date-selector__calendar-month-grid",
+                    classNames?.calendarMonthGrid,
+                  )}
+                  role="grid"
+                >
+                  {MONTH_LABELS.map((label, i) => {
+                    const isCurrentMonth =
+                      viewYear === today.getFullYear() && i === today.getMonth();
+                    const isSelected =
+                      selected !== null &&
+                      selected.getFullYear() === viewYear &&
+                      selected.getMonth() === i;
+                    const isDisabled = isMonthDisabled(viewYear, i, min, max);
+
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        role="gridcell"
+                        disabled={isDisabled}
+                        aria-selected={isSelected}
+                        aria-label={`${label} ${viewYear}`}
+                        className={cn(
+                          "clet-date-selector__calendar-month gsl-date-selector__calendar-month",
+                          isCurrentMonth &&
+                            "clet-date-selector__calendar-month--today gsl-date-selector__calendar-month--today",
+                          isSelected &&
+                            "clet-date-selector__calendar-month--selected gsl-date-selector__calendar-month--selected",
+                          classNames?.calendarMonth,
+                        )}
+                        onClick={() => {
+                          setViewMonth(i);
+                          setViewMode("day");
+                        }}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {viewMode === "year" && (
+                <div
+                  className={cn(
+                    "clet-date-selector__calendar-year-grid gsl-date-selector__calendar-year-grid",
+                    classNames?.calendarYearGrid,
+                  )}
+                  role="grid"
+                >
+                  {yearGrid.map((year) => {
+                    const isCurrentYear = year === today.getFullYear();
+                    const isSelected =
+                      selected !== null && selected.getFullYear() === year;
+                    const isDisabled = isYearDisabled(year, min, max);
+
+                    return (
+                      <button
+                        key={year}
+                        type="button"
+                        role="gridcell"
+                        disabled={isDisabled}
+                        aria-selected={isSelected}
+                        aria-label={String(year)}
+                        className={cn(
+                          "clet-date-selector__calendar-year gsl-date-selector__calendar-year",
+                          isCurrentYear &&
+                            "clet-date-selector__calendar-year--today gsl-date-selector__calendar-year--today",
+                          isSelected &&
+                            "clet-date-selector__calendar-year--selected gsl-date-selector__calendar-year--selected",
+                          classNames?.calendarYear,
+                        )}
+                        onClick={() => {
+                          setViewYear(year);
+                          setViewMode("month");
+                        }}
+                      >
+                        {year}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </Popover.Content>
           </Popover.Portal>
         </Popover.Root>

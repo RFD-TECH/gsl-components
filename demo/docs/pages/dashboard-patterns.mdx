@@ -1,0 +1,135 @@
+export const meta = {
+  title: "Dashboard patterns",
+  description: "Composing a dashboard with PageSection, QuickActions, Tabs, Timeline, and Stepper",
+  category: "Guide",
+  keywords: ["dashboard", "page composition", "page section", "quick actions", "tabs", "timeline", "stepper", "multi-step"],
+  since: "2.1.0",
+  status: "guide",
+  related: ["page-section", "quick-actions", "section-header", "tabs", "timeline", "stepper", "metric-card"],
+};
+
+# Dashboard patterns
+
+How to compose a modern dashboard page using `@rfdtech/components`.
+
+## Section layout with PageSection
+
+Every distinct content area on a page is wrapped in `<PageSection>`, which applies a uniform
+`gap: var(--clet-app-layout-body-gap)` between sections. This replaces hand-rolled `<div>`s
+with ad-hoc margins.
+
+```tsx
+<>
+  <PageSection>
+    <SectionHeader>...</SectionHeader>
+  </PageSection>
+
+  <PageSection>
+    <QuickActions actions={[...]} customizable />
+  </PageSection>
+
+  <PageSection>
+    <MetricCardsGrid />
+  </PageSection>
+
+  <PageSection>
+    <Card bordered>
+      <Tabs variant="pill">...</Tabs>
+    </Card>
+  </PageSection>
+</>
+```
+
+## Quick actions
+
+Place a `QuickActions` section between the page header and the main content. Each action tile
+shows an icon, label, and optional description. The "Customize" button lets users toggle
+visibility — manage the hidden IDs externally and persist them however you like.
+
+```tsx
+<QuickActions
+  title="Quick actions"
+  actions={allActions}
+  customizable
+  hiddenIds={hiddenIds}
+  onToggleVisibility={handleToggle}
+  onAction={handleAction}
+/>
+```
+
+## Tabbed content with pill tabs
+
+Use `Tabs variant="pill"` (the new design system preferred variant) inside a bordered `Card`
+to organize related tables and views:
+
+```tsx
+<Card bordered>
+  <Tabs variant="pill" defaultValue="members">
+    <TabsList>
+      <TabsTrigger value="members">Members</TabsTrigger>
+      <TabsTrigger value="audit">Audit Trail</TabsTrigger>
+    </TabsList>
+
+    <TabsContent value="members">
+      <Table>
+        <TableHeader>...</TableHeader>
+        <TableContent variant="panel" ... />
+        <TableFooter noBorder>...</TableFooter>
+      </Table>
+    </TabsContent>
+
+    <TabsContent value="audit">
+      <Timeline>
+        <TimelineItem mode="success">
+          <TimelineTitle>Event title</TimelineTitle>
+          <TimelineData>Date</TimelineData>
+          <TimelineFooter>Description</TimelineFooter>
+        </TimelineItem>
+      </Timeline>
+    </TabsContent>
+  </Tabs>
+</Card>
+```
+
+## Audit trail with Timeline
+
+The `Timeline` component renders a vertical event log with colored dots and animated connecting
+lines. Use it inside a TabsContent or standalone:
+
+| Mode | Use when |
+|------|----------|
+| `success` | Completed actions (user created, account reinstated) |
+| `primary` | Informational updates (profile changed, permissions modified) |
+| `warning` | Anomalies or pending items (login anomaly, access revoked) |
+| `error` | Critical events (account suspended) |
+| `muted` | Routine system events (scheduled maintenance) |
+
+## Multi-step form with Stepper
+
+For flows like user creation, use `Stepper` with per-step zod validation. Each step validates
+its own fields before allowing navigation forward. Completed steps are clickable for navigation
+back.
+
+```tsx
+<Stepper value={step} clickable onValueChange={handleStepClick}>
+  <Step value={1}><StepLabel>Personal Info</StepLabel></Step>
+  <Step value={2}><StepLabel>Contact Details</StepLabel></Step>
+  <Step value={3}><StepLabel>Role & Permissions</StepLabel></Step>
+  <Step value={4}><StepLabel>Review</StepLabel></Step>
+</Stepper>
+```
+
+Use `form.trigger(fields)` per step to validate only the current step's fields before advancing.
+
+## Checklist
+
+When building a new dashboard page:
+
+- [ ] Wrap every section in `<PageSection>` — no bare `<div>`s with margin
+- [ ] Use `SectionHeader`/`SectionTitle`/`SectionDescription` for the page header
+- [ ] Add a `QuickActions` section after the header with relevant actions
+- [ ] Use `MetricCard variant="outline"` for metric grids
+- [ ] Wrap tabbed content in `Card bordered` + `Tabs variant="pill"`
+- [ ] Inside tabs: `TableContent variant="panel"` + `TableFilter variant="spread"` + `TableFooter noBorder`
+- [ ] Use `Timeline` for audit trail / activity logs
+- [ ] Use `Stepper` with zod per-step validation for multi-step forms
