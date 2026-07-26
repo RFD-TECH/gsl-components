@@ -9,6 +9,17 @@ Upgrading from `1.22.0`? See [`demo/docs/pages/migration-v2.mdx`](demo/docs/page
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-07-25
+
+### Added
+
+- **MetricCards**: new grid wrapper component that lays out `MetricCard` children in a responsive grid (4 columns → 2 columns at 1200px → 1 column at 768px). `forwardRef`, `classNames.root`, `className`.
+- **ProfilePopover**: `hideThemeAction` and `themeAction` props — the theme toggle in the popover header can now be hidden (with `hideThemeAction`) or replaced with a custom element (with `themeAction`). Pass `null` as `themeAction` to render nothing in that slot.
+
+### Fixed
+
+- **Tabs**: minor CSS refinement for pill variant spacing.
+
 ## [2.1.0] - 2026-07-25
 
 ### Added
