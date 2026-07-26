@@ -25,6 +25,7 @@ import {
   Dropdown,
   ExportButton,
   MetricCard,
+  MetricCards,
   Modal,
   ModalBody,
   ModalContent,
@@ -298,46 +299,44 @@ export function Dashboard2Page() {
       </PageSection>
 
       <PageSection>
-        <Card bordered>
-          <div className="demo-home__metrics">
-            <MetricCard
-              variant="outline"
-              loading={metricsLoading}
-              label="Total Members"
-              value={members.length}
-              description="Across all departments"
-              trend="up"
-              trendValue="+12%"
-            />
-            <MetricCard
-              variant="outline"
-              loading={metricsLoading}
-              label="Active Members"
-              value={members.filter((m) => m.status === "Active").length}
-              description="Currently active"
-              trend="up"
-              trendValue="+5%"
-            />
-            <MetricCard
-              variant="outline"
-              loading={metricsLoading}
-              label="New This Month"
-              value={members.filter((m) => m.joined >= "2025-01-01").length}
-              description="Joined this year"
-              trend="down"
-              trendValue="-3%"
-            />
-            <MetricCard
-              variant="outline"
-              loading={metricsLoading}
-              label="Engagement Rate"
-              value="94.2%"
-              description="Average daily activity"
-              trend="up"
-              trendValue="+1.2%"
-            />
-          </div>
-        </Card>
+        <MetricCards>
+          <MetricCard
+            variant="outline"
+            loading={metricsLoading}
+            label="Total Members"
+            value={members.length}
+            description="Across all departments"
+            trend="up"
+            trendValue="+12%"
+          />
+          <MetricCard
+            variant="outline"
+            loading={metricsLoading}
+            label="Active Members"
+            value={members.filter((m) => m.status === "Active").length}
+            description="Currently active"
+            trend="up"
+            trendValue="+5%"
+          />
+          <MetricCard
+            variant="outline"
+            loading={metricsLoading}
+            label="New This Month"
+            value={members.filter((m) => m.joined >= "2025-01-01").length}
+            description="Joined this year"
+            trend="down"
+            trendValue="-3%"
+          />
+          <MetricCard
+            variant="outline"
+            loading={metricsLoading}
+            label="Engagement Rate"
+            value="94.2%"
+            description="Average daily activity"
+            trend="up"
+            trendValue="+1.2%"
+          />
+        </MetricCards>
       </PageSection>
 
       <PageSection>

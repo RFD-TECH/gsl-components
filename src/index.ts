@@ -34,6 +34,7 @@ export * from "./components/draggable";
 export * from "./components/dropdown";
 export * from "./components/export-button";
 export * from "./components/metric-card";
+export * from "./components/metric-cards";
 export * from "./components/modal";
 export * from "./components/network-operator";
 export * from "./components/notice";

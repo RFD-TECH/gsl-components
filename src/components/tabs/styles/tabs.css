@@ -121,6 +121,7 @@
 .clet-tabs--pill .clet-tabs__list {
   --clet-tabs-pill-gap: 6px;
   gap: var(--gsl-tabs-pill-gap, var(--clet-tabs-pill-gap));
+  margin-bottom: 16px;
   position: relative;
   background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
   padding: var(--gsl-tabs-pill-gap, var(--clet-tabs-pill-gap));
