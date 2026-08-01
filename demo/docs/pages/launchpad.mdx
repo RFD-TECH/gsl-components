@@ -1,6 +1,6 @@
 export const meta = {
   title: "Launchpad",
-  description: "Constrained 9-app launcher with a top-right expand button + a See more line under the grid + required role switcher",
+  description: "Constrained 9-app launcher with a top-right expand button + a See more line under the grid + optional role switcher",
   category: "Components",
   keywords: ["launchpad", "app switcher", "9-dot menu", "app launcher", "product switcher", "grid menu"],
   since: "2.1.0",
@@ -17,7 +17,7 @@ import launchpadLoadingSource from "../previews/examples/launchpad-loading.examp
 
 # Launchpad
 
-A purpose-built "app directory" launcher for switching between CLET systems — a 3×3 grid of up to 9 apps, with a small ghost expand button at the top right of the panel (always rendered, opens a scaled-up "See all" modal showing every app uncapped), a muted "See more" line under the grid (rendered only when `apps.length` exceeds the 9-app cap, styled as plain text but clickable — opens the same modal as the top-right button), and a required role switcher below. It grew out of the same underlying popover/grid idea as [`AppSwitcher`](/docs/app-switcher), with a much smaller, more opinionated API and every icon rendered on a fixed brand tile system with no escape hatch.
+A purpose-built "app directory" launcher for switching between CLET systems — a 3×3 grid of up to 9 apps, with a small ghost expand button at the top right of the panel (always rendered, opens a scaled-up "See all" modal showing every app uncapped), a muted "See more" line under the grid (rendered only when `apps.length` exceeds the 9-app cap, styled as plain text but clickable — opens the same modal as the top-right button), and an optional role switcher below. It grew out of the same underlying popover/grid idea as [`AppSwitcher`](/docs/app-switcher), with a much smaller, more opinionated API and every icon rendered on a fixed brand tile system with no escape hatch.
 
 Prefer `Launchpad` for all new work — `AppSwitcher` is deprecated and no longer maintained. `Launchpad` doesn't (yet) cover every `AppSwitcher` capability (flexible column count, an uncapped or differently-capped grid, a fully custom `footer`); if your case genuinely needs one of those, check with the team before reaching for the deprecated component.
 
@@ -44,7 +44,7 @@ Prefer `Launchpad` for all new work — `AppSwitcher` is deprecated and no longe
 | `apps` | `LaunchpadApp[]` | — | Apps to show. Popover grid is capped at 9 — not configurable; the built-in expand modal shows every app in `apps`, uncapped. |
 | `loading` | `boolean` | `false` | Shows a spinner (only — no text) in the panel instead of the grid |
 | `onAppSelect` | `(app: LaunchpadApp) => void` | — | Called when an app is selected, from either the popover grid or the expanded modal |
-| `children` | `ReactElement<RoleSelectProps>` | — (required) | A [`RoleSelect`](/docs/role-select) rendered below the grid, outside the scrollable/masked grid area and separated by a divider — only a `RoleSelect` element is accepted, and omitting it is a type error |
+| `children` | `ReactElement<RoleSelectProps>` | — | An optional [`RoleSelect`](/docs/role-select) rendered below the grid, outside the scrollable/masked grid area and separated by a divider — only a `RoleSelect` element is accepted. Omit it and the footer and its divider are not rendered |
 | `open` | `boolean` | — | Controlled open state (the popover; the expand modal manages its own state internally) |
 | `onOpenChange` | `(open: boolean) => void` | — | Open state callback |
 | `trigger` | `ReactNode` | round 9-dot icon | Custom trigger element — still wrapped with the "Open Launchpad" tooltip/accessible name |
@@ -52,7 +52,7 @@ Prefer `Launchpad` for all new work — `AppSwitcher` is deprecated and no longe
 | `style` | `CSSProperties` | — | Root inline styles |
 | `showBrandStrip` | `boolean` | `true` | Shows the decorative brand strip along the bottom of the expanded "See all" modal |
 
-Fixed, not configurable (no prop, no override): the popover title and the expanded modal's title both always read **"Launchpad"** (both `--clet-font-header`), the trigger's accessible name / hover tooltip always reads **"Open Launchpad"**, and the top-right expand button (always rendered, no prop to hide it) always opens the expanded modal — its expand icon always shows; its "See more" label is only available as the muted line under the grid (rendered only when `apps.length` exceeds the 9-app cap) or via the expand button's `aria-label`. Dropped relative to `AppSwitcher`: `columns` (fixed at 3, or 5 in the expanded modal), `maxItems` (fixed at 9 for the popover, uncapped in the modal), `placement` (fixed `bottom-end`), `closeOnSelect` (always closes on select), `title`/`triggerLabel`/`loadingLabel`/`onSeeAll`/`seeAllLabel` (fixed copy/behavior, no prop), and the generic `footer` slot (replaced by the built-in expand button + required `children`).
+Fixed, not configurable (no prop, no override): the popover title and the expanded modal's title both always read **"Launchpad"** (both `--clet-font-header`), the trigger's accessible name / hover tooltip always reads **"Open Launchpad"**, and the top-right expand button (always rendered, no prop to hide it) always opens the expanded modal — its expand icon always shows; its "See more" label is only available as the muted line under the grid (rendered only when `apps.length` exceeds the 9-app cap) or via the expand button's `aria-label`. Dropped relative to `AppSwitcher`: `columns` (fixed at 3, or 5 in the expanded modal), `maxItems` (fixed at 9 for the popover, uncapped in the modal), `placement` (fixed `bottom-end`), `closeOnSelect` (always closes on select), `title`/`triggerLabel`/`loadingLabel`/`onSeeAll`/`seeAllLabel` (fixed copy/behavior, no prop), and the generic `footer` slot (replaced by the built-in expand button + optional `children`).
 
 ## Types
 

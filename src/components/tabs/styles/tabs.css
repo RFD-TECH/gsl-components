@@ -184,7 +184,7 @@
 }
 
 .clet-tabs__content {
-  background: var(--gsl-bg, var(--clet-bg));
+  background: transparent;
   outline: none;
 }
 

@@ -96,28 +96,28 @@ via a passed-in `items` array — only pass `items` when the system genuinely ne
 the three defaults, since a passed-in array fully replaces them rather than merging.
 
 ===RULE===
-id: page-composition-role-select-three-locations
-title: Wire the same RoleSelect state into Launchpad, header ProfilePopover, and sidebar footer ProfilePopover
+id: page-composition-role-select-placement
+title: Put RoleSelect wherever the system needs it, with shared state
 severity: do
 components: role-select, launchpad, profile-popover
 
-Whenever a system allows a user to have more than one role — true for most systems — wire the same
-`RoleSelect` state (`roles`/`selectedRole`/`onClickRole`) into all three locations: `Launchpad`,
-the header `ProfilePopover`, and the sidebar footer `ProfilePopover`. Don't add it to only one or
-two of the three. The header `ProfilePopover` uses `variant="avatar"` when a sidebar footer
-popover also exists; reserve `variant="full"` for headers with no sidebar footer.
+`RoleSelect` can sit in `Launchpad`, the header `ProfilePopover`, and the sidebar footer
+`ProfilePopover`. None of these placements is mandatory — put it where the system actually needs
+it. When it does appear in more than one place, wire the *same* state
+(`roles`/`selectedRole`/`onClickRole`) into each, so switching a role in one location updates the
+others. The header `ProfilePopover` uses `variant="avatar"` when a sidebar footer popover also
+exists; reserve `variant="full"` for headers with no sidebar footer.
 
 ===RULE===
-id: page-composition-launchpad-required-role-select
-title: Launchpad's children (RoleSelect) is required, not optional
+id: page-composition-launchpad-expand-button
+title: Launchpad's expand button replaces the old "See all" footer button
 severity: do
 components: launchpad
 
-`Launchpad`'s `children` prop is required at the type level and only accepts a single `RoleSelect`
-element — omitting it is a type error, not a lint warning. There is no bordered "See all" footer
-button anymore: a small ghost `sm` expand button sits at the top right of the panel next to the
-title, its expand icon always visible, its "See more" text label appearing only once `apps.length`
-exceeds the 9-app cap.
+There is no bordered "See all" footer button anymore: a small ghost `sm` expand button sits at the
+top right of the panel next to the title, its expand icon always visible, its "See more" text label
+appearing only once `apps.length` exceeds the 9-app cap. `Launchpad`'s `children` is optional and
+accepts a single `RoleSelect` element — omit it and the footer and its divider are not rendered.
 
 ===RULE===
 id: page-composition-launchpad-over-app-switcher

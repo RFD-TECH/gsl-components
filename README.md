@@ -1411,6 +1411,22 @@ import { Check, AlertTriangle } from "lucide-react";
 
 Exports: `Timeline`, `TimelineItem`, `TimelineTitle`, `TimelineData`, `TimelineFooter`. Exported types: `TimelineProps`, `TimelineItemProps`, `TimelineTitleProps`, `TimelineDataProps`, `TimelineFooterProps`, `TimelineClassNames`, `TimelineItemClassNames`, `TimelineTitleClassNames`, `TimelineDataClassNames`, `TimelineFooterClassNames`, `TimelineItemMode`.
 
+## TimeSelector
+
+Time picker for choosing an hour and minute, sharing `DateSelector`'s trigger, spacing, and token set. Two panel layouts via `variant`: `wheel` (three scroll-snapping columns behind a centred selection band) and `clock` (editable hour/minute fields above an analog dial that advances from hours to minutes on its own). Supports 12- and 24-hour scales, and holds edits pending until Save/Apply so `onChange` fires once with a confirmed time. See the [TimeSelector](/docs/time-selector) docs page for props and exported types.
+
+```tsx
+import { TimeSelector } from "@rfdtech/components";
+
+<TimeSelector
+  variant="clock"
+  defaultValue={{ hours: 14, minutes: 30 }}
+  onChange={(time) => console.log(time)}
+/>
+```
+
+Exports: `TimeSelector`. Exported types: `TimeSelectorProps`, `TimeSelectorClassNames`, `TimeSelectorVariant`, `TimeSelectorMeridiem`, `TimeValue`.
+
 ## Toast
 
 Transient notifications with an imperative `useToast` hook, powered by Sonner. See the [Toast](/docs/toast) docs page for props and exported types.

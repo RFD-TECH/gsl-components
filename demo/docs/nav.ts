@@ -67,6 +67,7 @@ export const docNavSections: DocNavSection[] = [
 			{ slug: "switch", title: "Switch" },
 			{ slug: "table", title: "Table" },
 			{ slug: "tabs", title: "Tabs" },
+			{ slug: "time-selector", title: "TimeSelector" },
 			{ slug: "timeline", title: "Timeline" },
 			{ slug: "toast", title: "Toast" },
 			{ slug: "tooltip", title: "Tooltip" },

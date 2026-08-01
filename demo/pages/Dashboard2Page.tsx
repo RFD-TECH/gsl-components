@@ -22,8 +22,12 @@ import {
   Button,
   Card,
   Combobox,
+  DateSelector,
   Dropdown,
   ExportButton,
+  Field,
+  FieldControl,
+  FieldLabel,
   MetricCard,
   MetricCards,
   Modal,
@@ -50,6 +54,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
+  TimeSelector,
   Timeline,
   TimelineData,
   TimelineFooter,
@@ -57,7 +62,7 @@ import {
   TimelineTitle,
   useTableState,
 } from "@rfdtech/components";
-import type { ExportColumn } from "@rfdtech/components";
+import type { ExportColumn, TimeValue } from "@rfdtech/components";
 import { gslMembers, gslStatuses, type GslMember } from "demo/data/demoHomeMembers";
 import { auditTrail } from "demo/data/auditTrail";
 import { useMockQuery } from "demo/hooks/useMockQuery";
@@ -89,6 +94,15 @@ export function Dashboard2Page() {
   const [members, setMembers] = useState(gslMembers);
   const [selected, setSelected] = useState<Set<string | number>>(new Set());
   const [viewMember, setViewMember] = useState<GslMember | null>(null);
+  const [reportDate, setReportDate] = useState<Date | null>(null);
+  const [reportStart, setReportStart] = useState<TimeValue | null>({
+    hours: 9,
+    minutes: 0,
+  });
+  const [reportEnd, setReportEnd] = useState<TimeValue | null>({
+    hours: 17,
+    minutes: 30,
+  });
   const { loading: metricsLoading } = useMockQuery(null, 1200);
 
   const filtered = useMemo(
@@ -437,6 +451,41 @@ export function Dashboard2Page() {
               </div>
             </TabsContent>
           </Tabs>
+        </Card>
+      </PageSection>
+
+      <PageSection>
+        <Card bordered>
+          <SectionHeader>
+            <SectionTitle>Schedule a report</SectionTitle>
+            <SectionDescription>
+              Pick the day this report runs, then the window it covers.
+            </SectionDescription>
+          </SectionHeader>
+          <div className="demo-schedule">
+            <Field>
+              <FieldLabel>Run on</FieldLabel>
+              <FieldControl>
+                <DateSelector value={reportDate} onChange={setReportDate} />
+              </FieldControl>
+            </Field>
+            <Field>
+              <FieldLabel>Starts at</FieldLabel>
+              <FieldControl>
+                <TimeSelector value={reportStart} onChange={setReportStart} />
+              </FieldControl>
+            </Field>
+            <Field>
+              <FieldLabel>Ends at</FieldLabel>
+              <FieldControl>
+                <TimeSelector
+                  variant="clock"
+                  value={reportEnd}
+                  onChange={setReportEnd}
+                />
+              </FieldControl>
+            </Field>
+          </div>
         </Card>
       </PageSection>
 
