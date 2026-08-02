@@ -14,6 +14,7 @@ they are auto-discovered when you work from inside the org folder.
 | `ui-patterns` | Any component, page, layout, table, modal or form |
 | `portals` | Portal routing, the role model, or an app/package split |
 | `env-changes` | Changing ANY environment variable |
+| `zitadel-auth` | Wiring auth, changing a redirect/post-logout URI, debugging a login bounce or logout |
 | `swagger-api` | Generating endpoints from an OpenAPI spec |
 | `backend` | Running a backend locally, Zitadel wiring, backend review |
 | `canonical-sources` | **Copying any page/component/system between repos** |
