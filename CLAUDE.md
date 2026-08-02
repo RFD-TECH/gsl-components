@@ -15,6 +15,7 @@ they are auto-discovered when you work from inside the org folder.
 | `portals` | Portal routing, the role model, or an app/package split |
 | `env-changes` | Changing ANY environment variable |
 | `zitadel-auth` | Wiring auth, changing a redirect/post-logout URI, debugging a login bounce or logout |
+| `zitadel-admin` | Needing a REAL project id, client id or role key — look it up live, never guess |
 | `swagger-api` | Generating endpoints from an OpenAPI spec |
 | `backend` | Running a backend locally, Zitadel wiring, backend review |
 | `canonical-sources` | **Copying any page/component/system between repos** |
