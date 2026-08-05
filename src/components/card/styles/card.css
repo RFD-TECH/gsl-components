@@ -40,3 +40,10 @@
     --clet-card-padding: 16px;
   }
 }
+
+/* Loading state — the card centres the loader itself rather than the loader
+   forcing a viewport-relative height. */
+.clet-card--loading {
+  display: grid;
+  place-items: center;
+}

@@ -1,10 +1,20 @@
 import { forwardRef } from "react";
 import type { CardProps, CardHeaderProps, CardTitleProps, CardActionsProps } from "../../types/card";
 import { cn } from "../../utils/cn";
+import { LogoLoader } from "../logo-loader";
 import "./styles/card.css";
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
-  { className, bordered, children, ...props },
+  {
+    className,
+    bordered,
+    loading,
+    loadingLabel,
+    loadingMinHeight = "220px",
+    children,
+    style,
+    ...props
+  },
   ref,
 ) {
   return (
@@ -13,11 +23,23 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
       className={cn(
         "clet-card gsl-card",
         bordered && "clet-card--bordered gsl-card--bordered",
+        loading && "clet-card--loading gsl-card--loading",
         className,
       )}
+      style={
+        loading
+          ? {
+              minHeight:
+                typeof loadingMinHeight === "number"
+                  ? `${loadingMinHeight}px`
+                  : loadingMinHeight,
+              ...style,
+            }
+          : style
+      }
       {...props}
     >
-      {children}
+      {loading ? <LogoLoader label={loadingLabel} /> : children}
     </div>
   );
 });

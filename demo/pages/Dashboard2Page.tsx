@@ -63,7 +63,11 @@ import {
   useTableState,
 } from "@rfdtech/components";
 import type { ExportColumn, TimeValue } from "@rfdtech/components";
-import { gslMembers, gslStatuses, type GslMember } from "demo/data/demoHomeMembers";
+import {
+  gslMembers,
+  gslStatuses,
+  type GslMember,
+} from "demo/data/demoHomeMembers";
 import { auditTrail } from "demo/data/auditTrail";
 import { useMockQuery } from "demo/hooks/useMockQuery";
 
@@ -104,6 +108,7 @@ export function Dashboard2Page() {
     minutes: 30,
   });
   const { loading: metricsLoading } = useMockQuery(null, 1200);
+  const { loading: tableLoading } = useMockQuery(null, 1000);
 
   const filtered = useMemo(
     () =>
@@ -287,11 +292,23 @@ export function Dashboard2Page() {
 
   const recentActivityEvents = useMemo(
     () => [
-      { title: "Kwame Asante modified user permissions", date: "Today, 10:32 AM" },
+      {
+        title: "Kwame Asante modified user permissions",
+        date: "Today, 10:32 AM",
+      },
       { title: "System exported 245 member records", date: "Today, 09:15 AM" },
-      { title: "Abena Mensah published 3 content items", date: "Yesterday, 4:20 PM" },
-      { title: "Nana Yeboah deactivated 2 accounts", date: "Yesterday, 2:00 PM" },
-      { title: "Automated backup completed (1.2 GB)", date: "Yesterday, 1:00 AM" },
+      {
+        title: "Abena Mensah published 3 content items",
+        date: "Yesterday, 4:20 PM",
+      },
+      {
+        title: "Nana Yeboah deactivated 2 accounts",
+        date: "Yesterday, 2:00 PM",
+      },
+      {
+        title: "Automated backup completed (1.2 GB)",
+        date: "Yesterday, 1:00 AM",
+      },
     ],
     [],
   );
@@ -354,7 +371,12 @@ export function Dashboard2Page() {
       </PageSection>
 
       <PageSection>
-        <Card bordered>
+        <Card
+          bordered
+          loading={tableLoading}
+          loadingLabel="Loading members…"
+          loadingMinHeight={420}
+        >
           <Tabs variant="pill" defaultValue="members">
             <TabsList>
               <TabsTrigger value="members">Members</TabsTrigger>
@@ -414,10 +436,7 @@ export function Dashboard2Page() {
             <TabsContent value="audit">
               <Timeline>
                 {auditTrail.map((event) => (
-                  <TimelineItem
-                    key={event.id}
-                    mode={event.mode}
-                  >
+                  <TimelineItem key={event.id} mode={event.mode}>
                     <TimelineTitle>{event.title}</TimelineTitle>
                     <TimelineData>{event.date}</TimelineData>
                     <TimelineFooter>{event.description}</TimelineFooter>
@@ -450,7 +469,7 @@ export function Dashboard2Page() {
                 ))}
               </div>
             </TabsContent>
-          </Tabs>
+            </Tabs>
         </Card>
       </PageSection>
 
