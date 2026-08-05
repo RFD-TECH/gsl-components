@@ -173,14 +173,16 @@
 
 .clet-app-header-search.clet-app-header-search.clet-command {
   display: flex;
-  height: stretch;
+  /* Not `height: stretch` — Safari resolves it against the block containing
+     block rather than the header row and the field fills the page. */
+  align-self: stretch;
   max-width: 400px;
 }
 
 .clet-app-header-search.clet-app-header-search.clet-command
   .clet-command__input-wrapper {
   border-radius: var(--gsl-radius-xl, var(--clet-radius-xl));
-  height: stretch;
+  align-self: stretch;
   border: none;
 }
 
