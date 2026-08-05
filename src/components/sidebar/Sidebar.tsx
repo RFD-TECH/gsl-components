@@ -14,7 +14,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import { PanelLeftClose, PanelLeftOpen, ChevronDown } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen, ChevronDown } from "lucide-react";
 import { getRouterAdapter } from "../../adapters/registry";
 import { useHasMounted } from "../../hooks/useHasMounted";
 import { Tooltip } from "../tooltip/Tooltip";
@@ -161,6 +161,11 @@ export const SidebarTrigger = forwardRef<
     return null;
   }
 
+  // Icon-only, matching the AppHeader's mobile menu button: the drawer's own
+  // close affordance is a square icon button, not a labelled pill. The label
+  // children stay on the button as the accessible name.
+  const label = typeof children === "string" ? children.trim() : "";
+
   return (
     <button
       ref={ref}
@@ -168,6 +173,7 @@ export const SidebarTrigger = forwardRef<
       className={cn("clet-sidebar__trigger gsl-sidebar__trigger", classNames?.trigger, className)}
       aria-expanded={open}
       aria-controls={sidebarId}
+      aria-label={label || (open ? "Close menu" : "Open menu")}
       onClick={(event) => {
         onClick?.(event);
         if (!event.defaultPrevented) {
@@ -176,7 +182,7 @@ export const SidebarTrigger = forwardRef<
       }}
       {...props}
     >
-      {children}
+      <Menu size={20} strokeWidth={1.75} aria-hidden />
     </button>
   );
 });

@@ -1,5 +1,6 @@
 .clet-tabs {
   --clet-tabs-font: var(--gsl-font-body, var(--clet-font-body));
+  --clet-tabs-trigger-gap: 8px;
 
   display: flex;
   flex-direction: column;
@@ -57,6 +58,11 @@
   color: var(--gsl-on-primary, var(--clet-on-primary));
 }
 .clet-tabs__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gsl-tabs-trigger-gap, var(--clet-tabs-trigger-gap));
+  white-space: nowrap;
   padding: 8px 14px;
   border: 1px solid transparent;
   border-radius: var(--gsl-radius-base, var(--clet-radius-base))
@@ -172,6 +178,7 @@
 
 .clet-tabs[data-orientation="vertical"] .clet-tabs__trigger {
   width: 100%;
+  justify-content: flex-start;
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));
   margin-bottom: 0;
   text-align: left;
