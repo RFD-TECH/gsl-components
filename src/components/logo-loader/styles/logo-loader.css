@@ -26,6 +26,12 @@
     var(--gsl-primary, var(--clet-primary)) 12%,
     transparent
   );
+  /* Both derive from --clet-overlay, which is a dark tone in light *and* dark
+     themes, so the elevation reads correctly either way. */
+  --clet-logo-loader-logo-shadow: 0 2px 6px
+    color-mix(in srgb, var(--gsl-overlay, var(--clet-overlay)) 55%, transparent);
+  --clet-logo-loader-ring-shadow: 0 2px 10px
+    color-mix(in srgb, var(--gsl-overlay, var(--clet-overlay)) 32%, transparent);
   --clet-logo-loader-label-color: var(--gsl-text-muted, var(--clet-text-muted));
   --clet-logo-loader-label-font: var(--gsl-font-body, var(--clet-font-body));
 
@@ -227,6 +233,7 @@
     calc(var(--gsl-logo-loader-mark-size, var(--clet-logo-loader-mark-size)) * -0.78);
   border: 1px solid var(--gsl-logo-loader-track-color, var(--clet-logo-loader-track-color));
   border-radius: 50%;
+  box-shadow: var(--gsl-logo-loader-ring-shadow, var(--clet-logo-loader-ring-shadow));
 }
 
 /* The sweeping arc. The SVG turns at a steady rate; the dash cycle on top of it
@@ -273,6 +280,10 @@
   height: 100%;
   border-radius: 50%;
   object-fit: contain;
+
+  /* drop-shadow, not box-shadow: the emblem is a transparent PNG, so the
+     shadow has to follow the artwork rather than its square box. */
+  filter: drop-shadow(var(--gsl-logo-loader-logo-shadow, var(--clet-logo-loader-logo-shadow)));
 }
 
 .clet-logo-loader__label {
