@@ -68,6 +68,8 @@ Set `loading` to shimmer the default trigger and the header/menu rows inside the
 | `onHelpAndSupport` | `() => void` | — | Called when the default "Help and Support" row is clicked (ignored when `items` is passed) |
 | `onSignOut` | `() => void` | — | Called when "Sign Out" is confirmed (or clicked immediately, if `noConfirmSignOut` is set) |
 | `noConfirmSignOut` | `boolean` | `false` | Skip the "Confirm Sign Out" dialog and call `onSignOut` immediately |
+| `hideThemeAction` | `boolean` | `false` | Hides the theme toggle from the popover header. By default the toggle appears when a `ThemeProvider` ancestor is detected. |
+| `themeAction` | `ReactNode` | — | Replaces the theme toggle with a custom element. Ignored when `hideThemeAction` is `true`. Pass `null` to render nothing in that slot. |
 | `loading` | `boolean` | `false` | Shimmer the default trigger and the header/menu rows — see [Loading state](#loading-state) |
 | `loadingLabel` | `string` | `"Loading profile"` | Accessible label announced while loading |
 | `children` | `ReactElement<RoleSelectProps>` | — | Extra composable content rendered directly below `items`, no divider between them — only a `RoleSelect` element is accepted |
@@ -97,7 +99,7 @@ Set `loading` to shimmer the default trigger and the header/menu rows inside the
 
 ## Notes
 
-- The theme toggle in the popover header is **not** a configurable prop — there's nothing to pass to turn it off or replace it. It renders automatically whenever a `ThemeProvider` (`useTheme`) is present in the tree, and does nothing (renders no header action at all) when it isn't.
+- The theme toggle in the popover header renders automatically whenever a `ThemeProvider` (`useTheme`) is present in the tree, and renders nothing when it isn't. Use `hideThemeAction` to hide it, or `themeAction` to replace it with a custom element.
 - The trigger and popover header avatars use the shared `Avatar` component's `backgroundVar="--clet-profile-avatar-bg"` — `--clet-profile-avatar-bg` is unset by default, so avatars show their normal per-name gradient. Set that CSS custom property on an ancestor (e.g. `:root { --clet-profile-avatar-bg: var(--clet-primary); }`) to force a solid color for both the sidebar footer avatar and the app header profile avatar instead.
 - `children` renders flush, with no extra card/padding — the [`RoleSelect`](/role-select) dropdown reads as just another row in the same menu.
 - Styling (background, border, radius, shadow, z-index, font sizes) intentionally matches the rest of the popover-family components (`Popover`, `AppSwitcher`'s panel, `Dropdown`'s menu) — see [Popover](/popover) for the shared conventions.

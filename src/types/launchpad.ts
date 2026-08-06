@@ -50,10 +50,11 @@ export interface LaunchpadProps {
   onAppSelect?: (app: LaunchpadApp) => void;
   /**
    * Role switcher rendered below the grid, outside the scrollable/masked
-   * grid area and separated from it by a divider. Required — only a
-   * `RoleSelect` element is accepted, and passing none is a type error.
+   * grid area and separated from it by a divider. Optional — only a
+   * `RoleSelect` element is accepted. Omit it and the footer, along with
+   * its divider, is not rendered at all.
    */
-  children: ReactElement<RoleSelectProps, typeof RoleSelect>;
+  children?: ReactElement<RoleSelectProps, typeof RoleSelect>;
   /**
    * Custom trigger element — replaces the default square 9-dot icon.
    * Whatever you pass is still wrapped with the "Open Launchpad" tooltip

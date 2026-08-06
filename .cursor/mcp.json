@@ -3,8 +3,7 @@
     "rfdtech-ui": {
       "command": "npx",
       "args": [
-        "-y",
-        "@rfdtech/components-mcp"
+        "/Users/manuelashong/mm/CLET-GSL-DEV/gsl-components/dist/mcp/index.js"
       ]
     }
   }

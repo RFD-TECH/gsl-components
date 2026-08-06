@@ -74,6 +74,17 @@ export interface ProfilePopoverProps {
   /** Skip the "Confirm Sign Out" dialog and call onSignOut immediately */
   noConfirmSignOut?: boolean;
   /**
+   * Hides the theme toggle from the popover header. By default the theme
+   * toggle appears when a `ThemeProvider` ancestor is detected.
+   */
+  hideThemeAction?: boolean;
+  /**
+   * Replaces the theme toggle in the popover header with a custom element.
+   * Ignored when `hideThemeAction` is true. Pass `null` to explicitly render
+   * nothing in that slot.
+   */
+  themeAction?: ReactNode;
+  /**
    * Show shimmering skeleton placeholders instead of the header
    * (avatar/name/email) and menu rows. The default trigger (when no
    * custom `trigger` is passed) shimmers too. "Sign Out" stays interactive.

@@ -22,9 +22,14 @@ import {
   Button,
   Card,
   Combobox,
+  DateSelector,
   Dropdown,
   ExportButton,
+  Field,
+  FieldControl,
+  FieldLabel,
   MetricCard,
+  MetricCards,
   Modal,
   ModalBody,
   ModalContent,
@@ -49,6 +54,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
+  TimeSelector,
   Timeline,
   TimelineData,
   TimelineFooter,
@@ -56,8 +62,12 @@ import {
   TimelineTitle,
   useTableState,
 } from "@rfdtech/components";
-import type { ExportColumn } from "@rfdtech/components";
-import { gslMembers, gslStatuses, type GslMember } from "demo/data/demoHomeMembers";
+import type { ExportColumn, TimeValue } from "@rfdtech/components";
+import {
+  gslMembers,
+  gslStatuses,
+  type GslMember,
+} from "demo/data/demoHomeMembers";
 import { auditTrail } from "demo/data/auditTrail";
 import { useMockQuery } from "demo/hooks/useMockQuery";
 
@@ -88,7 +98,17 @@ export function Dashboard2Page() {
   const [members, setMembers] = useState(gslMembers);
   const [selected, setSelected] = useState<Set<string | number>>(new Set());
   const [viewMember, setViewMember] = useState<GslMember | null>(null);
+  const [reportDate, setReportDate] = useState<Date | null>(null);
+  const [reportStart, setReportStart] = useState<TimeValue | null>({
+    hours: 9,
+    minutes: 0,
+  });
+  const [reportEnd, setReportEnd] = useState<TimeValue | null>({
+    hours: 17,
+    minutes: 30,
+  });
   const { loading: metricsLoading } = useMockQuery(null, 1200);
+  const { loading: tableLoading } = useMockQuery(null, 1000);
 
   const filtered = useMemo(
     () =>
@@ -272,11 +292,23 @@ export function Dashboard2Page() {
 
   const recentActivityEvents = useMemo(
     () => [
-      { title: "Kwame Asante modified user permissions", date: "Today, 10:32 AM" },
+      {
+        title: "Kwame Asante modified user permissions",
+        date: "Today, 10:32 AM",
+      },
       { title: "System exported 245 member records", date: "Today, 09:15 AM" },
-      { title: "Abena Mensah published 3 content items", date: "Yesterday, 4:20 PM" },
-      { title: "Nana Yeboah deactivated 2 accounts", date: "Yesterday, 2:00 PM" },
-      { title: "Automated backup completed (1.2 GB)", date: "Yesterday, 1:00 AM" },
+      {
+        title: "Abena Mensah published 3 content items",
+        date: "Yesterday, 4:20 PM",
+      },
+      {
+        title: "Nana Yeboah deactivated 2 accounts",
+        date: "Yesterday, 2:00 PM",
+      },
+      {
+        title: "Automated backup completed (1.2 GB)",
+        date: "Yesterday, 1:00 AM",
+      },
     ],
     [],
   );
@@ -298,50 +330,53 @@ export function Dashboard2Page() {
       </PageSection>
 
       <PageSection>
-        <Card bordered>
-          <div className="demo-home__metrics">
-            <MetricCard
-              variant="outline"
-              loading={metricsLoading}
-              label="Total Members"
-              value={members.length}
-              description="Across all departments"
-              trend="up"
-              trendValue="+12%"
-            />
-            <MetricCard
-              variant="outline"
-              loading={metricsLoading}
-              label="Active Members"
-              value={members.filter((m) => m.status === "Active").length}
-              description="Currently active"
-              trend="up"
-              trendValue="+5%"
-            />
-            <MetricCard
-              variant="outline"
-              loading={metricsLoading}
-              label="New This Month"
-              value={members.filter((m) => m.joined >= "2025-01-01").length}
-              description="Joined this year"
-              trend="down"
-              trendValue="-3%"
-            />
-            <MetricCard
-              variant="outline"
-              loading={metricsLoading}
-              label="Engagement Rate"
-              value="94.2%"
-              description="Average daily activity"
-              trend="up"
-              trendValue="+1.2%"
-            />
-          </div>
-        </Card>
+        <MetricCards>
+          <MetricCard
+            variant="outline"
+            loading={metricsLoading}
+            label="Total Members"
+            value={members.length}
+            description="Across all departments"
+            trend="up"
+            trendValue="+12%"
+          />
+          <MetricCard
+            variant="outline"
+            loading={metricsLoading}
+            label="Active Members"
+            value={members.filter((m) => m.status === "Active").length}
+            description="Currently active"
+            trend="up"
+            trendValue="+5%"
+          />
+          <MetricCard
+            variant="outline"
+            loading={metricsLoading}
+            label="New This Month"
+            value={members.filter((m) => m.joined >= "2025-01-01").length}
+            description="Joined this year"
+            trend="down"
+            trendValue="-3%"
+          />
+          <MetricCard
+            variant="outline"
+            loading={metricsLoading}
+            label="Engagement Rate"
+            value="94.2%"
+            description="Average daily activity"
+            trend="up"
+            trendValue="+1.2%"
+          />
+        </MetricCards>
       </PageSection>
 
       <PageSection>
-        <Card bordered>
+        <Card
+          bordered
+          loading={tableLoading}
+          loadingLabel="Loading members…"
+          loadingMinHeight={420}
+        >
           <Tabs variant="pill" defaultValue="members">
             <TabsList>
               <TabsTrigger value="members">Members</TabsTrigger>
@@ -401,10 +436,7 @@ export function Dashboard2Page() {
             <TabsContent value="audit">
               <Timeline>
                 {auditTrail.map((event) => (
-                  <TimelineItem
-                    key={event.id}
-                    mode={event.mode}
-                  >
+                  <TimelineItem key={event.id} mode={event.mode}>
                     <TimelineTitle>{event.title}</TimelineTitle>
                     <TimelineData>{event.date}</TimelineData>
                     <TimelineFooter>{event.description}</TimelineFooter>
@@ -437,7 +469,42 @@ export function Dashboard2Page() {
                 ))}
               </div>
             </TabsContent>
-          </Tabs>
+            </Tabs>
+        </Card>
+      </PageSection>
+
+      <PageSection>
+        <Card bordered>
+          <SectionHeader>
+            <SectionTitle>Schedule a report</SectionTitle>
+            <SectionDescription>
+              Pick the day this report runs, then the window it covers.
+            </SectionDescription>
+          </SectionHeader>
+          <div className="demo-schedule">
+            <Field>
+              <FieldLabel>Run on</FieldLabel>
+              <FieldControl>
+                <DateSelector value={reportDate} onChange={setReportDate} />
+              </FieldControl>
+            </Field>
+            <Field>
+              <FieldLabel>Starts at</FieldLabel>
+              <FieldControl>
+                <TimeSelector value={reportStart} onChange={setReportStart} />
+              </FieldControl>
+            </Field>
+            <Field>
+              <FieldLabel>Ends at</FieldLabel>
+              <FieldControl>
+                <TimeSelector
+                  variant="clock"
+                  value={reportEnd}
+                  onChange={setReportEnd}
+                />
+              </FieldControl>
+            </Field>
+          </div>
         </Card>
       </PageSection>
 

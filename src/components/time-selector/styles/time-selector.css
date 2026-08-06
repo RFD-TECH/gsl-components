@@ -1,0 +1,495 @@
+/* ── Root ── */
+
+.clet-time-selector {
+  --clet-time-selector-font: var(--gsl-font-body, var(--clet-font-body));
+  --clet-time-selector-trigger-height: 40px;
+
+  display: inline-block;
+  min-width: 0;
+  position: relative;
+}
+
+/* ── Trigger ── */
+
+.clet-time-selector__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  height: var(--gsl-time-selector-trigger-height, var(--clet-time-selector-trigger-height));
+  padding: 0 12px;
+  border: 1px solid var(--gsl-border, var(--clet-border));
+  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+  background-color: var(--gsl-bg, var(--clet-bg));
+  font-family: var(--gsl-time-selector-font, var(--clet-time-selector-font));
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
+  line-height: 1.4;
+  color: var(--gsl-text, var(--clet-text));
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+  text-align: left;
+}
+
+.clet-time-selector__trigger-icon {
+  flex-shrink: 0;
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
+}
+
+.clet-time-selector__trigger-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clet-time-selector__trigger--placeholder .clet-time-selector__trigger-text {
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
+}
+
+.clet-time-selector__trigger:hover:not(:disabled) {
+  border-color: var(--gsl-border-strong, var(--clet-border-strong));
+}
+
+.clet-time-selector__trigger:focus-visible {
+  outline: none;
+  border-color: var(--gsl-primary, var(--clet-primary));
+  box-shadow: 0 0 0 1px var(--gsl-primary, var(--clet-primary));
+}
+
+/* ── Invalid ── */
+
+.clet-time-selector--invalid .clet-time-selector__trigger,
+.clet-time-selector__trigger[aria-invalid="true"] {
+  border-color: var(--gsl-error, var(--clet-error));
+}
+
+.clet-time-selector--invalid .clet-time-selector__trigger:focus-visible,
+.clet-time-selector__trigger[aria-invalid="true"]:focus-visible {
+  border-color: var(--gsl-error, var(--clet-error));
+  box-shadow: 0 0 0 1px var(--gsl-error, var(--clet-error));
+}
+
+/* ── Disabled ── */
+
+.clet-time-selector--disabled .clet-time-selector__trigger,
+.clet-time-selector__trigger:disabled {
+  background-color: var(--gsl-hover, var(--clet-hover));
+  color: var(--gsl-text-muted, var(--clet-text-muted));
+  cursor: not-allowed;
+}
+
+/* ── Panel ── */
+
+.clet-time-selector__panel {
+  --clet-time-selector-panel-font: var(--gsl-font-body, var(--clet-font-body));
+  --clet-time-selector-panel-min-width: 256px;
+  --clet-time-selector-panel-padding: 20px;
+  --clet-time-selector-wheel-item-height: 44px;
+  --clet-time-selector-wheel-visible-count: 5;
+  --clet-time-selector-dial-size: 232px;
+  --clet-time-selector-dial-dual-size: 276px;
+  --clet-time-selector-dial-number-size: 40px;
+  --clet-time-selector-dial-inner-number-size: 32px;
+  --clet-time-selector-field-width: 72px;
+  --clet-time-selector-field-height: 48px;
+
+  z-index: var(--gsl-z-dropdown, var(--clet-z-dropdown));
+  min-width: var(--gsl-time-selector-panel-min-width, var(--clet-time-selector-panel-min-width));
+  padding: var(--gsl-time-selector-panel-padding, var(--clet-time-selector-panel-padding));
+  border: 1px solid var(--gsl-border, var(--clet-border));
+  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+  background: var(--gsl-bg, var(--clet-bg));
+  box-shadow: var(--gsl-shadow-md, var(--clet-shadow-md));
+  font-family: var(--gsl-time-selector-panel-font, var(--clet-time-selector-panel-font));
+  color: var(--gsl-text, var(--clet-text));
+}
+
+.clet-time-selector__panel[data-state="open"] {
+  animation: clet-time-selector-panel-in 150ms ease forwards;
+}
+
+.clet-time-selector__panel[data-state="closed"] {
+  animation: clet-time-selector-panel-out 100ms ease forwards;
+}
+
+/* ── Title ── */
+
+.clet-time-selector__title {
+  margin-bottom: 16px;
+  font-size: var(--gsl-text-size-md, var(--clet-text-size-md));
+  font-weight: 600;
+  color: var(--gsl-text, var(--clet-text));
+  text-align: center;
+  user-select: none;
+}
+
+.clet-time-selector__panel--clock .clet-time-selector__title {
+  margin-bottom: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gsl-border, var(--clet-border));
+  text-align: left;
+}
+
+/* ── Shared hour/minute separator ── */
+
+.clet-time-selector__separator {
+  /* The wheel band is positioned, so the separator has to be too — otherwise
+     the band's opaque background paints straight over it. */
+  position: relative;
+  z-index: 1;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
+  font-weight: 500;
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
+  user-select: none;
+}
+
+/* ── Wheel variant ── */
+
+.clet-time-selector__wheels {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* Centred selection band, painted behind the columns. */
+.clet-time-selector__wheel-band {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: var(--gsl-time-selector-wheel-item-height, var(--clet-time-selector-wheel-item-height));
+  transform: translateY(-50%);
+
+  /* No border — the band already reads as a selection from its fill alone. */
+  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+  background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
+  pointer-events: none;
+  z-index: 0;
+}
+
+.clet-time-selector__wheel {
+  position: relative;
+  z-index: 1;
+  height: calc(
+    var(--gsl-time-selector-wheel-item-height, var(--clet-time-selector-wheel-item-height)) *
+      var(--gsl-time-selector-wheel-visible-count, var(--clet-time-selector-wheel-visible-count))
+  );
+  padding-block: calc(
+    var(--gsl-time-selector-wheel-item-height, var(--clet-time-selector-wheel-item-height)) * 2
+  );
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+
+  /* Fade the resting options out toward the top and bottom edges. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgb(0 0 0 / 25%) 18%,
+    rgb(0 0 0 / 100%) 42%,
+    rgb(0 0 0 / 100%) 58%,
+    rgb(0 0 0 / 25%) 82%,
+    transparent 100%
+  );
+}
+
+.clet-time-selector__wheel::-webkit-scrollbar {
+  display: none;
+}
+
+.clet-time-selector__wheel-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 56px;
+  height: var(--gsl-time-selector-wheel-item-height, var(--clet-time-selector-wheel-item-height));
+  padding: 0 12px;
+  border: none;
+  background: none;
+  scroll-snap-align: center;
+  font-family: inherit;
+
+  /* Matches the trigger/date-box text size — the wheel reads as an input, not
+     as display type. */
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
+  font-weight: 500;
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    font-weight 120ms ease;
+}
+
+.clet-time-selector__wheel-option--selected {
+  color: var(--gsl-text, var(--clet-text));
+  font-weight: 600;
+}
+
+.clet-time-selector__wheel-option:focus-visible {
+  outline: 2px solid var(--gsl-primary, var(--clet-primary));
+  outline-offset: -2px;
+  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+}
+
+/* ── Clock variant — fields ── */
+
+.clet-time-selector__fields {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.clet-time-selector__field {
+  box-sizing: border-box;
+  width: var(--gsl-time-selector-field-width, var(--clet-time-selector-field-width));
+  height: var(--gsl-time-selector-field-height, var(--clet-time-selector-field-height));
+  padding: 0 8px;
+  border: 1px solid var(--gsl-border, var(--clet-border));
+  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+  background: var(--gsl-bg, var(--clet-bg));
+  font-family: inherit;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
+  font-weight: 500;
+  color: var(--gsl-text, var(--clet-text));
+  text-align: center;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+/* The panel autofocuses the hour field and selects it so typing replaces the
+   value — without this the default highlight paints straight over the digits
+   in dark mode. */
+.clet-time-selector__field::selection {
+  background: var(--gsl-primary, var(--clet-primary));
+  color: var(--gsl-on-primary, var(--clet-on-primary));
+}
+
+.clet-time-selector__field--active {
+  border-color: var(--gsl-primary, var(--clet-primary));
+  background: var(--gsl-primary-light, var(--clet-primary-light));
+  color: var(--gsl-primary, var(--clet-primary));
+}
+
+.clet-time-selector__field:focus-visible {
+  outline: none;
+  border-color: var(--gsl-primary, var(--clet-primary));
+  box-shadow: 0 0 0 1px var(--gsl-primary, var(--clet-primary));
+}
+
+.clet-time-selector__meridiem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-inline-start: 8px;
+}
+
+.clet-time-selector__meridiem-option {
+  min-height: 40px;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
+  font-weight: 500;
+  color: var(--gsl-text-muted, var(--clet-text-muted));
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.clet-time-selector__meridiem-option--selected {
+  color: var(--gsl-primary, var(--clet-primary));
+  font-weight: 600;
+}
+
+.clet-time-selector__meridiem-option:focus-visible {
+  outline: 2px solid var(--gsl-primary, var(--clet-primary));
+  outline-offset: 2px;
+  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+}
+
+/* ── Clock variant — dial ── */
+
+.clet-time-selector__dial {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--gsl-time-selector-dial-size, var(--clet-time-selector-dial-size));
+  height: var(--gsl-time-selector-dial-size, var(--clet-time-selector-dial-size));
+  margin: 20px auto;
+  border: 1px solid var(--gsl-border, var(--clet-border));
+  border-radius: 50%;
+}
+
+/* The 24-hour scale packs two rings onto one face, so it needs more room. */
+.clet-time-selector__dial--dual {
+  width: var(--gsl-time-selector-dial-dual-size, var(--clet-time-selector-dial-dual-size));
+  height: var(--gsl-time-selector-dial-dual-size, var(--clet-time-selector-dial-dual-size));
+}
+
+.clet-time-selector__dial-hand {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  border-radius: 2px;
+  background: var(--gsl-primary, var(--clet-primary));
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* Pivot dot at the centre of the face. */
+.clet-time-selector__dial-hand::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gsl-primary, var(--clet-primary));
+  transform: translateY(-50%);
+}
+
+.clet-time-selector__dial-number {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--gsl-time-selector-dial-number-size, var(--clet-time-selector-dial-number-size));
+  height: var(--gsl-time-selector-dial-number-size, var(--clet-time-selector-dial-number-size));
+  transform: translate(-50%, -50%);
+  border: none;
+  border-radius: 50%;
+  background: none;
+  font-family: inherit;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
+  font-weight: 500;
+  color: var(--gsl-text, var(--clet-text));
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.clet-time-selector__dial-number--inner {
+  width: var(
+    --gsl-time-selector-dial-inner-number-size,
+    var(--clet-time-selector-dial-inner-number-size)
+  );
+  height: var(
+    --gsl-time-selector-dial-inner-number-size,
+    var(--clet-time-selector-dial-inner-number-size)
+  );
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
+}
+
+.clet-time-selector__dial-number:hover:not(
+    .clet-time-selector__dial-number--selected
+  ) {
+  background: var(--gsl-hover, var(--clet-hover));
+}
+
+.clet-time-selector__dial-number--selected {
+  background: var(--gsl-primary, var(--clet-primary));
+  color: var(--gsl-on-primary, var(--clet-on-primary));
+  font-weight: 600;
+}
+
+.clet-time-selector__dial-number:focus-visible {
+  outline: 2px solid var(--gsl-primary, var(--clet-primary));
+  outline-offset: 2px;
+}
+
+/* ── Footer ── */
+
+.clet-time-selector__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.clet-time-selector__panel--clock .clet-time-selector__footer {
+  margin-top: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--gsl-border, var(--clet-border));
+}
+
+/* ── Animations ── */
+
+@keyframes clet-time-selector-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes clet-time-selector-panel-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* ── Responsive ── */
+
+@media (width <= 768px) {
+  .clet-time-selector__panel {
+    --clet-time-selector-wheel-item-height: 40px;
+    --clet-time-selector-dial-size: 208px;
+    --clet-time-selector-dial-dual-size: 240px;
+    --clet-time-selector-field-width: 64px;
+
+    min-width: 264px;
+    padding: 16px;
+  }
+
+  .clet-time-selector__wheel-option {
+    min-width: 48px;
+    padding: 0 8px;
+  }
+}
+
+/* ── Reduced motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .clet-time-selector__trigger,
+  .clet-time-selector__wheel-option,
+  .clet-time-selector__field,
+  .clet-time-selector__meridiem-option,
+  .clet-time-selector__dial-number {
+    transition: none;
+  }
+
+  .clet-time-selector__wheel {
+    scroll-behavior: auto;
+  }
+
+  .clet-time-selector__panel[data-state="open"],
+  .clet-time-selector__panel[data-state="closed"] {
+    animation: none;
+  }
+}

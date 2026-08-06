@@ -261,6 +261,21 @@
   line-height: 1.2;
 }
 
+/* ── Schedule a report ── */
+
+.demo-schedule {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (width <= 768px) {
+  .demo-schedule {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Member detail modal ── */
 
 .demo-member-detail {

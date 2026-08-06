@@ -50,6 +50,8 @@ export const ProfilePopover = forwardRef<HTMLElement, ProfilePopoverProps>(
       align = "start",
       sideOffset = 8,
       className,
+      hideThemeAction = false,
+      themeAction,
       loading = false,
       loadingLabel = "Loading profile",
     },
@@ -98,28 +100,30 @@ export const ProfilePopover = forwardRef<HTMLElement, ProfilePopoverProps>(
     };
 
     const themeContext = useContext(ThemeContext);
-    const themeToggle = themeContext ? (
-      <button
-        type="button"
-        className="clet-profile-menu__header-action-btn gsl-profile-menu__header-action-btn"
-        aria-label={
-          themeContext.resolvedTheme === "dark"
-            ? "Switch to light mode"
-            : "Switch to dark mode"
-        }
-        onClick={() =>
-          themeContext.setTheme(
-            themeContext.resolvedTheme === "dark" ? "light" : "dark",
-          )
-        }
-      >
-        {themeContext.resolvedTheme === "dark" ? (
-          <Sun size={18} strokeWidth={1.5} aria-hidden />
-        ) : (
-          <Moon size={18} strokeWidth={1.5} aria-hidden />
-        )}
-      </button>
-    ) : null;
+    const themeToggle = !hideThemeAction && themeAction !== undefined ? themeAction : (
+      themeContext && !hideThemeAction ? (
+        <button
+          type="button"
+          className="clet-profile-menu__header-action-btn gsl-profile-menu__header-action-btn"
+          aria-label={
+            themeContext.resolvedTheme === "dark"
+              ? "Switch to light mode"
+              : "Switch to dark mode"
+          }
+          onClick={() =>
+            themeContext.setTheme(
+              themeContext.resolvedTheme === "dark" ? "light" : "dark",
+            )
+          }
+        >
+          {themeContext.resolvedTheme === "dark" ? (
+            <Sun size={18} strokeWidth={1.5} aria-hidden />
+          ) : (
+            <Moon size={18} strokeWidth={1.5} aria-hidden />
+          )}
+        </button>
+      ) : null
+    );
 
     const headerStyleTrigger = user ? (
       <div

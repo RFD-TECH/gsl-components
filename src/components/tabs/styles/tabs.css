@@ -1,10 +1,12 @@
 .clet-tabs {
   --clet-tabs-font: var(--gsl-font-body, var(--clet-font-body));
+  --clet-tabs-trigger-gap: 8px;
 
   display: flex;
   flex-direction: column;
   font-family: var(--gsl-tabs-font, var(--clet-tabs-font));
   color: var(--gsl-text, var(--clet-text));
+  gap: 15px;
 }
 
 .clet-tabs[data-orientation="vertical"] {
@@ -56,6 +58,11 @@
   color: var(--gsl-on-primary, var(--clet-on-primary));
 }
 .clet-tabs__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gsl-tabs-trigger-gap, var(--clet-tabs-trigger-gap));
+  white-space: nowrap;
   padding: 8px 14px;
   border: 1px solid transparent;
   border-radius: var(--gsl-radius-base, var(--clet-radius-base))
@@ -121,6 +128,7 @@
 .clet-tabs--pill .clet-tabs__list {
   --clet-tabs-pill-gap: 6px;
   gap: var(--gsl-tabs-pill-gap, var(--clet-tabs-pill-gap));
+  margin-bottom: 16px;
   position: relative;
   background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
   padding: var(--gsl-tabs-pill-gap, var(--clet-tabs-pill-gap));
@@ -170,6 +178,7 @@
 
 .clet-tabs[data-orientation="vertical"] .clet-tabs__trigger {
   width: 100%;
+  justify-content: flex-start;
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));
   margin-bottom: 0;
   text-align: left;
@@ -182,7 +191,7 @@
 }
 
 .clet-tabs__content {
-  background: var(--gsl-bg, var(--clet-bg));
+  background: transparent;
   outline: none;
 }
 

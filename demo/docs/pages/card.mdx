@@ -27,6 +27,9 @@ Surface card wrapper for grouping content. Uses `--clet-surface-card` for backgr
 |------|------|---------|-------------|
 | `children` | `ReactNode` | — | Card content |
 | `bordered` | `boolean` | `false` | Adds a 1px solid border using the `--clet-border` token |
+| `loading` | `boolean` | `false` | Swaps the card's contents for a centred `LogoLoader`. Children are not rendered at all |
+| `loadingLabel` | `ReactNode` | — | Caption shown under the loader while `loading` |
+| `loadingMinHeight` | `number \| string` | `220px` | Minimum height held while `loading`, so the card does not collapse |
 
 Also accepts remaining `HTMLAttributes<HTMLDivElement>`.
 

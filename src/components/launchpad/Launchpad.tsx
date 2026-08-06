@@ -174,7 +174,9 @@ export function Launchpad({
 								</button>
 							) : null}
 
-							<div className="clet-launchpad__footer gsl-launchpad__footer">{children}</div>
+							{children ? (
+								<div className="clet-launchpad__footer gsl-launchpad__footer">{children}</div>
+							) : null}
 						</Popover.Content>
 					</Popover.Portal>
 				</div>
