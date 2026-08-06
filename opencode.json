@@ -4,8 +4,9 @@
     "rfdtech-ui": {
       "type": "local",
       "command": [
-        "node",
-        "/Users/manuelashong/mm/gsl-components/dist/mcp/index.js"
+        "npx",
+        "-y",
+        "@rfdtech/components-mcp"
       ],
       "enabled": true
     }

@@ -1,9 +1,10 @@
 {
   "mcpServers": {
     "rfdtech-ui": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/Users/manuelashong/mm/gsl-components/dist/mcp/index.js"
+        "-y",
+        "@rfdtech/components-mcp"
       ]
     }
   }
