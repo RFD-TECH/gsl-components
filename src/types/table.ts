@@ -103,6 +103,7 @@ export interface TableActionsProps extends HTMLAttributes<HTMLDivElement> {
 
 export interface TableContentClassNames {
   root?: string;
+  detailRow?: string;
   empty?: string;
   emptyIcon?: string;
   emptyText?: string;
@@ -165,6 +166,13 @@ export interface TableContentProps<
   bulkActionsFooter?: boolean;
   /** Called when a row is clicked (in addition to selection toggling, when `selectable` is set) */
   onRowClick?: (row: T, event: MouseEvent<HTMLTableRowElement>) => void;
+  /**
+   * When provided, each row becomes expandable: clicking the row (or its
+   * chevron) slides open a full-width detail region beneath it with this
+   * content. Expansion is managed internally. Not compatible with
+   * `virtualRowHeight` (virtual rows have fixed heights).
+   */
+  getRowDetail?: (row: T) => ReactNode;
   /** Row height in px. Set this to enable virtual scrolling. Parent <Table> must have a height set. */
   virtualRowHeight?: number;
 }
