@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx stylelint *)",
+      "Bash(npx tsc *)",
+      "Bash(npx vitest *)",
+      "Bash(npm run *)",
+      "Bash(npx eslint *)",
+      "Bash(git stash *)",
+      "Bash(curl -s http://localhost:5180/dashboard2 -o /dev/null -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep *)",
+      "Bash(echo \"stylelint: $?\")",
+      "Bash(pnpm install *)",
+      "Bash(node -e \"const p=require\\('/Users/manuelashong/mm/gsl-components/package.json'\\); console.log\\(JSON.stringify\\(p.pnpm||'none',null,2\\)\\)\")",
+      "Bash(pnpm rebuild *)",
+      "Bash(echo \"install exit: $?\")",
+      "Bash(pnpm config *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('packageManager:',p.packageManager||'\\(none\\)'\\); console.log\\('scripts:',JSON.stringify\\(p.scripts,null,2\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('engines:',JSON.stringify\\(p.engines||'\\(none\\)'\\)\\)\")",
+      "Bash(npm install *)",
+      "Bash(echo \"npm exit: $?\")",
+      "Bash(node -e \"console.log\\('esbuild:', require\\('esbuild'\\).version\\)\")",
+      "Bash(node -e \"const s=require\\('sharp'\\); console.log\\('sharp: ok'\\)\")",
+      "Bash(node -e \"const p=require\\('./package.json'\\); const all={...p.dependencies,...p.devDependencies,...p.optionalDependencies}; console.log\\('sharp in package.json:', all.sharp||'NO \\(transitive/optional only\\)'\\)\")",
+      "Bash(node -e \"require\\('sharp'\\)\")",
+      "Bash(git *)"
+    ]
+  }
+}

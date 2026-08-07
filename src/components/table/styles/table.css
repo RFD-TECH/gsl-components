@@ -47,7 +47,11 @@
 	align-items: center;
 	gap: 6px;
 	padding: 8px 16px;
-	height: stretch;
+	/* Match the height of taller siblings in the header row. `align-self` is
+	   used instead of `height: stretch`, which Safari resolves against the
+	   block containing block and blows the field up to full page height. */
+	align-self: stretch;
+	min-height: 36px;
 	border: 1px solid var(--gsl-border, var(--clet-border));
 	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
 	background: var(--gsl-bg, var(--clet-bg));

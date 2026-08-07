@@ -1,6 +1,8 @@
 import {
+  Fragment,
   forwardRef,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -81,6 +83,39 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(function Table(
   );
 });
 
+/** A row's expandable detail. Rendered only when open, and slides itself down on
+ * mount (grid-template-rows 0fr -> 1fr) so collapsed rows add zero height. */
+function ExpandableDetailRow({
+  colSpan,
+  className,
+  children,
+}: {
+  colSpan: number;
+  className?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setOpen(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  return (
+    <tr className={className}>
+      <td colSpan={colSpan} style={{ padding: 0, border: 0 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateRows: open ? "1fr" : "0fr",
+            transition: "grid-template-rows 220ms ease",
+          }}
+        >
+          <div style={{ overflow: "hidden" }}>{children}</div>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 function TableContentRender<T>(
   props: TableContentProps<T>,
   ref: ForwardedRef<HTMLDivElement>,
@@ -101,6 +136,7 @@ function TableContentRender<T>(
     bulkActions,
     bulkActionsFooter = false,
     onRowClick,
+    getRowDetail,
     virtualRowHeight,
     emptyIcon,
     emptyText,
@@ -129,6 +165,19 @@ function TableContentRender<T>(
   const [openTrigger, setOpenTrigger] = useState<"kebab" | "context" | null>(
     null,
   );
+
+  // Expandable-row state (uncontrolled): keys of rows whose detail is open.
+  const [expandedKeys, setExpandedKeys] = useState<Set<string | number>>(
+    () => new Set(),
+  );
+  const toggleExpanded = useCallback((key: string | number) => {
+    setExpandedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
 
   // Right-clicking outside the (portaled) popover content closes it via
   // Radix's own pointerdown-outside handling — which fires on mousedown,
@@ -251,6 +300,12 @@ function TableContentRender<T>(
     const showBulkSection = hasBulkActions;
     const hasSelection = selectedIds.size > 0;
 
+    const expandable = !!getRowDetail;
+    const isExpanded = expandable && expandedKeys.has(key);
+    // colSpan spans every cell (checkbox + columns + actions); over-spanning is
+    // clamped by the browser, so columns.length + 2 safely fills the row.
+    const detailColSpan = columns.length + 2;
+
     const handleActionClick = (
       e: React.MouseEvent<HTMLButtonElement>,
       cb: () => void,
@@ -263,10 +318,11 @@ function TableContentRender<T>(
     };
 
     return (
+      <Fragment key={key}>
       <tr
-        key={key}
         onClick={(e) => {
           if (selectable) handleToggleRow(key);
+          if (expandable) toggleExpanded(key);
           onRowClick?.(row, e);
         }}
         onPointerDownCapture={(e) => {
@@ -290,7 +346,7 @@ function TableContentRender<T>(
           setOpenPopoverKey(key);
         }}
         className={cn(
-          (selectable || onRowClick) && "clet-table__row--clickable gsl-table__row--clickable",
+          (selectable || onRowClick || expandable) && "clet-table__row--clickable gsl-table__row--clickable",
         )}
       >
         <td
@@ -450,6 +506,18 @@ function TableContentRender<T>(
           </td>
         )}
       </tr>
+      {expandable && isExpanded && (
+        <ExpandableDetailRow
+          colSpan={detailColSpan}
+          className={cn(
+            "clet-table__detail-row gsl-table__detail-row",
+            classNames?.detailRow,
+          )}
+        >
+          {getRowDetail!(row)}
+        </ExpandableDetailRow>
+      )}
+      </Fragment>
     );
   }
 

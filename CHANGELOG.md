@@ -26,6 +26,13 @@ Upgrading from `1.22.0`? See [`demo/docs/pages/migration-v2.mdx`](demo/docs/page
 - **Launchpad**: `children` (the `RoleSelect`) is now optional instead of required. Omitting it renders the panel without the footer and its divider. Previously omitting it was a type error.
 - **Docs**: dropped the page-composition rule requiring `RoleSelect` in all three of `Launchpad`, the header `ProfilePopover`, and the sidebar footer `ProfilePopover`. Placement is now a per-system choice; the rule only asks that shared state be wired through when it does appear in more than one place.
 
+## [2.1.2] - 2026-08-05
+
+### Fixed
+
+- **TableSearch**: the search field rendered at full page height in Safari. `.clet-table__search` used `height: stretch`, which Safari resolves against the block containing block instead of the flex header row; replaced with `align-self: stretch` plus a `min-height: 36px` floor, so the field is the same height in Safari and Chromium.
+- **AppHeader**: same fix applied to the header search trigger (`.clet-app-header-search` and its inner input wrapper), which carried the same `height: stretch` declaration.
+
 ## [2.1.1] - 2026-07-25
 
 ### Added
