@@ -9,6 +9,23 @@ Upgrading from `1.22.0`? See [`demo/docs/pages/migration-v2.mdx`](demo/docs/page
 
 ## [Unreleased]
 
+### Added
+
+- **Card**: new `loading` state. `loading` swaps the card's children for a centred `LogoLoader` — children are not rendered at all, so partly-ready data never flashes — with `loadingLabel` for the caption and `loadingMinHeight` (default `220px`) holding the card's height so the layout does not jump when content lands.
+- **LogoLoader**: new branded loading indicator — a logo inside a spinning ring with a pulsing halo and a faint outer ring, ported from the CLET gov portal's shared `Loader` and generalised. The CLET emblem is bundled as the default `src`, so it works with no props, and any app can pass its own mark. Four variants: `inline` (default), `block` (centres in a 60vh region for a whole route), `fill` (absolutely covers a positioned parent behind a light scrim, for one section) and `fullscreen` (fixed over the viewport with a blurred backdrop and the mark on a floating panel). `size` presets `sm`/`md`/`lg` plus explicit `width`/`height` — the ring geometry derives from the mark, so dimensions scale the whole assembly, not just the image. The arc is velocity-coupled — an SVG circle rides a steady carrier rotation while an eased `stroke-dasharray` cycle lengthens it as the head whips round and trails it off short as it decelerates, so it reads as accelerating rather than turning at a constant rate. `speed` scales the sweep and the pulse together (values `<= 0` ignored); the pulse rides the arc's own clock so it always peaks on the squish — the beat where the arc is shortest, just before it stretches back to full length. `fadePulse` moves the pulse onto the logo's own opacity instead of a halo behind it; `noPulse` drops it entirely, leaving only the arc. `noBorder` drops the faint outer ring and tightens the footprint with it. `open` drives an enter/exit transition for `fullscreen` — the backdrop blur ramps `0 -> blur` and the panel fades and scales, reversing on close, and the closed loader leaves the accessibility tree so it stops announcing itself. `blur` tunes the backdrop behind the `fill` and `fullscreen` variants (`0` removes it). `forwardRef`, `classNames` for every part, `role="status"` with a visually hidden "Loading…", and under `prefers-reduced-motion` every animation stops with the arc pinned to a fixed segment.
+
+## [2.2.0] - 2026-08-01
+
+### Added
+
+- **TimeSelector**: new time picker for choosing an hour and minute, built on `@radix-ui/react-popover` and sharing `DateSelector`'s trigger, spacing, and token set. Two panel layouts via `variant`: `wheel` (three scroll-snapping columns — hour, minute, AM/PM — behind a centred selection band) and `clock` (editable hour/minute fields above an analog dial that advances from hours to minutes after an hour is picked). `hourCycle` switches between 12- and 24-hour scales (the `clock` dial splits 24 hours across two rings), `minuteStep` sets the `wheel` column's increment, and edits stay pending until Save/Apply so `onChange` fires once with a confirmed `TimeValue`. `forwardRef`, `classNames` for every part, `invalid`/`disabled`, responsive from 320px.
+
+### Changed
+
+- **Tabs**: the tab content panel is now transparent instead of painting the base background, so it inherits whatever surface it sits on (e.g. inside a `Card`).
+- **Launchpad**: `children` (the `RoleSelect`) is now optional instead of required. Omitting it renders the panel without the footer and its divider. Previously omitting it was a type error.
+- **Docs**: dropped the page-composition rule requiring `RoleSelect` in all three of `Launchpad`, the header `ProfilePopover`, and the sidebar footer `ProfilePopover`. Placement is now a per-system choice; the rule only asks that shared state be wired through when it does appear in more than one place.
+
 ## [2.1.2] - 2026-08-05
 
 ### Fixed

@@ -3,7 +3,12 @@
 .clet-sidebar {
 	--clet-sidebar-font: var(--gsl-font-body, var(--clet-font-body));
 	--clet-sidebar-bg: var(--gsl-bg, var(--clet-bg));
-	--clet-sidebar-z: 10000;
+	/* The mobile drawer stacks one level below the popover level (1000) on
+	   the shared stack scale in styles/theme/base.css. Portaled overlays
+	   opened FROM the drawer — the profile menu — render at the popover
+	   level, so they must outrank the drawer or they paint behind it. The
+	   drawer's own overlay sits one below the drawer, still above the page. */
+	--clet-sidebar-z: 900;
 	display: flex;
 	flex-direction: column;
 	width: 280px;
@@ -395,18 +400,15 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 40px;
-	min-height: 40px;
+	width: 40px;
+	height: 40px;
+	flex-shrink: 0;
 	margin-bottom: 16px;
-	padding: 8px 14px;
+	padding: 0;
 	border: 1px solid var(--gsl-border, var(--clet-border));
 	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
 	background: var(--gsl-bg, var(--clet-bg));
 	color: var(--gsl-text, var(--clet-text));
-	font-family: var(--gsl-sidebar-font, var(--clet-sidebar-font));
-	font-size: 14px;
-	font-weight: 500;
-	line-height: 1.4;
 	cursor: pointer;
 	transition:
 		background-color 150ms ease,

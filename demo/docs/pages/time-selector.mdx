@@ -1,0 +1,131 @@
+export const meta = {
+  title: "TimeSelector",
+  description: "Time picker with a scrolling wheel or an analog clock dial",
+  category: "Components",
+  keywords: ["time", "time picker", "clock", "hour", "minute", "wheel", "dial", "AM PM"],
+  since: "2.2.0",
+  status: "stable",
+  related: ["date-selector", "date-range-selector", "form-field"],
+  import: "@rfdtech/components",
+};
+
+import { ExampleTabs } from "../components/ExampleTabs";
+import { TimeSelectorPreview } from "../previews/code/TimeSelectorPreview";
+import { TimeSelector24hPreview } from "../previews/code/TimeSelector24hPreview";
+import timeSelectorSource from "../previews/examples/time-selector.example.tsx?raw";
+import timeSelector24hSource from "../previews/examples/time-selector-24h.example.tsx?raw";
+
+# TimeSelector
+
+Time picker for choosing an hour and minute. Built on `@radix-ui/react-popover` with the same trigger, spacing, and token set as [`DateSelector`](/docs/date-selector) — pair the two when you need a date and a time, rather than reaching for a combined date-time control.
+
+Edits inside the panel are pending until **Save** / **Apply**, so `onChange` fires once with the confirmed time. **Cancel** closes the panel and discards them.
+
+## Variants
+
+`variant` picks the panel layout. Both produce the same `TimeValue`, so they are interchangeable from the consumer's side.
+
+- **`wheel`** (default) — three scroll-snapping columns (hour, minute, AM/PM) behind a centred selection band. Best for quick, coarse selection on touch.
+- **`clock`** — editable hour and minute fields above an analog dial. Picking an hour advances the dial to minutes automatically. Best when precision matters or the value is usually typed.
+
+<ExampleTabs title="Variants" preview={<TimeSelectorPreview />} code={timeSelectorSource} />
+
+## 24-hour scale
+
+Set `hourCycle={24}` to drop the AM/PM control. The `wheel` variant then lists `00`–`23` in its hour column; the `clock` variant splits the hours across two rings — `12`–`23` on the outer ring, `00`–`11` on the inner one.
+
+<ExampleTabs title="24-hour" preview={<TimeSelector24hPreview />} code={timeSelector24hSource} />
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `TimeSelectorVariant` | `"wheel"` | Panel layout — `"wheel"` or `"clock"` |
+| `value` | `TimeValue \| null` | — | Controlled selected time |
+| `defaultValue` | `TimeValue` | — | Initial time (uncontrolled) |
+| `onChange` | `(value: TimeValue \| null) => void` | — | Called when a time is confirmed |
+| `hourCycle` | `12 \| 24` | `12` | 12-hour scale with AM/PM, or 24-hour |
+| `minuteStep` | `number` | `1` | Minute increment offered by the `wheel` column |
+| `placeholder` | `string` | `"Select time"` | Trigger text when no time is selected |
+| `title` | `string` | `"Select time"` | Heading at the top of the panel |
+| `cancelLabel` | `string` | `"Cancel"` | Label for the dismiss button |
+| `confirmLabel` | `string` | `"Save"` / `"Apply"` | Label for the confirm button — defaults to `"Apply"` for `variant="clock"`, `"Save"` otherwise |
+| `formatOptions` | `Intl.DateTimeFormatOptions` | — | Options for `Date.toLocaleTimeString()` formatting in the trigger |
+| `invalid` | `boolean` | `false` | Show error border styling |
+| `disabled` | `boolean` | `false` | Disable interaction |
+| `name` | `string` | — | Form field name (for react-hook-form) |
+| `onBlur` | `() => void` | — | Called when the panel closes |
+| `classNames` | `TimeSelectorClassNames` | — | Part-level class overrides |
+| `className` | `string` | — | Merged onto the root element |
+
+## Types
+
+### TimeValue
+
+A wall-clock time, always stored on a 24-hour scale regardless of `hourCycle` — so `{ hours: 15, minutes: 30 }` displays as `03:30 PM` at `hourCycle={12}` and `15:30` at `hourCycle={24}`.
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `hours` | `number` | `0`–`23` |
+| `minutes` | `number` | `0`–`59` |
+
+### TimeSelectorVariant
+
+`"wheel" | "clock"` — the panel layout.
+
+### TimeSelectorMeridiem
+
+`"AM" | "PM"` — which half of the day a 12-hour time falls in.
+
+### TimeSelectorClassNames
+
+| Key | Applied to |
+|-----|------------|
+| `root` | Root wrapper |
+| `trigger` | Trigger button |
+| `triggerIcon` | Clock icon inside the trigger |
+| `triggerText` | Text inside the trigger |
+| `panel` | Popover panel |
+| `title` | Panel heading |
+| `wheels` | Row holding all three columns (`wheel` only) |
+| `wheel` | A single scrolling column (`wheel` only) |
+| `wheelOption` | A single option inside a column (`wheel` only) |
+| `fields` | Row holding the fields and AM/PM toggle (`clock` only) |
+| `field` | An hour or minute field (`clock` only) |
+| `meridiem` | AM/PM toggle wrapper (`clock` only) |
+| `meridiemOption` | A single AM or PM button (`clock` only) |
+| `dial` | Dial face (`clock` only) |
+| `dialNumber` | A number on the dial face (`clock` only) |
+| `dialHand` | Hand pointing at the active number (`clock` only) |
+| `footer` | Footer holding the action buttons |
+| `cancelButton` | Cancel button |
+| `confirmButton` | Save / Apply button |
+
+## Usage with react-hook-form
+
+`TimeSelector` uses `forwardRef`, so it drops into a `FormField` the same way `DateSelector` does.
+
+```tsx
+<FormField
+  name="startsAt"
+  control={form.control}
+  render={({ field, fieldState }) => (
+    <Field invalid={!!fieldState.error}>
+      <FieldLabel>Starts at</FieldLabel>
+      <FieldControl>
+        <TimeSelector {...field} />
+      </FieldControl>
+      <FieldError />
+    </Field>
+  )}
+/>
+```
+
+## Notes
+
+- `onChange` fires on **Save** / **Apply**, not on every wheel scroll or dial click — the panel holds a pending value so a half-made selection never reaches the form.
+- The `clock` dial's face always offers 5-minute steps, but typing into the minute field accepts any value `0`–`59`. `minuteStep` only affects the `wheel` column.
+- Typed hours and minutes are clamped, not rejected — entering `99` in the minute field yields `59`.
+- The `wheel` columns are `role="listbox"` with `role="option"` children, so they are clickable and keyboard-reachable, not scroll-only.
+- Responsive from 320px: below 768px the panel narrows, the wheel rows shorten to 40px, and the dial drops to 208px.
+- `min` / `max` bounds are not supported yet — validate a time range in the consuming form for now.

@@ -1,0 +1,142 @@
+export const meta = {
+  title: "LogoLoader",
+  description: "Branded loading indicator",
+  category: "Components",
+  keywords: ["loader", "spinner", "loading", "logo spinner", "overlay", "branded loader"],
+  since: "2.3.0",
+  status: "stable",
+  related: ["progress-bar", "button"],
+  import: "@rfdtech/components",
+};
+
+import { ExampleTabs } from "../components/ExampleTabs";
+import { LogoLoaderPreview } from "../previews/code/LogoLoaderPreview";
+import logoLoaderSource from "../previews/examples/logo-loader.example.tsx?raw";
+
+# LogoLoader
+
+Branded loading indicator — a logo sitting inside a sweeping arc with a pulsing halo and a faint outer ring. The CLET emblem is baked into the package, so it works with no props at all, and any app can swap it for its own mark via `src`.
+
+The ring geometry is derived from the mark's size rather than fixed per preset, so `width` and `height` scale the whole assembly — arc included — not just the image. The rings are square boxes centred on the mark rather than inset from its edges, so passing only `width` still gives perfect circles.
+
+## When to use
+
+Scope the loader to what the user genuinely cannot use yet. Never block UI that still works.
+
+| Situation | Use | Why |
+|---|---|---|
+| **Initial app load** — whole UI blocked, shell not interactive yet | `variant="fullscreen"` (default blur) | Nothing is usable, so a full-viewport takeover is honest |
+| **Sidebar page change** — lazy route or chunk still fetching, shell already usable | `variant="block"` inside the content region | Sidebar and header stay live. **Not** `fullscreen` — it blurs out nav the user can still click |
+| **One pending section** — page painted, a table or panel still fetching | `<Card loading>`, or `variant="fill"` on a `position: relative` parent | The ready parts stay usable |
+| **A control or row inside a rendered view** | That component's own `loading` prop | `TableContent`, `MetricCard`, `SidebarLink` etc. render a skeleton in place; prefer it |
+
+```tsx
+// Whole app blocked
+<LogoLoader variant="fullscreen" label="Loading…" />
+
+// Route content only — sidebar stays live
+<main>{routeLoading ? <LogoLoader variant="block" label="Loading page…" /> : <Outlet />}</main>
+
+// One section
+<Card bordered loading={tableLoading} loadingLabel="Loading members…">
+  <MembersTable rows={rows} />
+</Card>
+```
+
+Failure mode: over-scoping. Reaching for `fullscreen` because it is the easiest to drop in.
+
+## Example
+
+<ExampleTabs
+  title="Sizes, dimensions, speed and variants"
+  preview={<LogoLoaderPreview />}
+  code={logoLoaderSource}
+/>
+
+## The sweep
+
+The arc is **velocity-coupled** rather than turning at a constant rate. An SVG circle rides a steady carrier rotation while its `stroke-dasharray` runs on an eased `cubic-bezier(0.35, 0, 0.25, 1)` cycle: the arc lengthens as the head whips round at its fastest, then trails off short as it decelerates. Longer arc reads as faster, which is what makes the motion feel like it has weight.
+
+`speed` scales both the sweep and the pulse together — `speed={2}` runs the whole thing twice as fast, `speed={0.5}` half as fast. It is applied as a divisor on the duration tokens, so a value of `0` or less is ignored rather than stalling the animation.
+
+The halo has four states:
+
+| | Behaviour |
+|---|---|
+| default | A **static disc** sits behind the logo. Always visible, never moving — the arc is the only motion |
+| `pulse` | That disc expands outward and fades on every sweep. The loudest option, opt-in |
+| `fadePulse` | The **logo's own opacity** breathes. Composes with the disc rather than replacing it |
+| `noHalo` | No disc at all; arc and logo only |
+
+`noHalo` wins over `pulse` — the component never animates something it is not rendering. None of them touch the arc; that always sweeps.
+
+**The pulse is locked to the sweep.** Both share one clock and peak on the same beat: the moment the arc is at its shortest — the squish — immediately before it stretches back to full length. They are deliberately not separately configurable, because any difference in duration makes the two drift and the pulse stops landing on the squish.
+
+## Entering and leaving
+
+By default the loader just mounts and unmounts. Pass `open` and keep it mounted to get a transition instead: the backdrop blur ramps `0 -> blur` and the panel fades and scales in, and both reverse on `open={false}`.
+
+```tsx
+// Stays mounted; animates both ways.
+<LogoLoader variant="fullscreen" open={isLoading} label="Loading…" />
+```
+
+While closed the loader is `visibility: hidden`, which also takes it out of the accessibility tree — a dismissed loader stops telling screen readers the page is still loading.
+
+## Variants
+
+| Variant | Use for |
+|---------|---------|
+| `inline` | Drops in wherever it sits — a button row, a small card, next to a heading. The default. |
+| `block` | A whole route or panel. Centres itself in a `60vh`-tall region. |
+| `fill` | One section. Absolutely fills its parent behind a light scrim — **the parent needs `position: relative`**. |
+| `fullscreen` | An initial page load. Fixed over the viewport with a blurred backdrop and the mark on a compact floating panel, so a single loader stands in for every section instead of a spinner per card. `label` takes any `ReactNode`, and `blur` tunes how much of the page reads through. |
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `LogoLoaderVariant` | `"inline"` | Layout behaviour |
+| `size` | `LogoLoaderSize` | `"md"` | Mark diameter preset (`sm` 36px, `md` 56px, `lg` 80px). Ignored when `width`/`height` are set |
+| `src` | `string` | baked-in CLET logo | Image rendered as the mark |
+| `alt` | `string` | `""` | Alt text. Empty marks the image decorative, which is usually right — the loading state is already announced |
+| `width` | `number \| string` | — | Explicit mark width; a number is treated as px. Overrides `size` |
+| `height` | `number \| string` | — | Explicit mark height. Defaults to `width`, keeping the mark square |
+| `label` | `ReactNode` | — | Caption beneath the mark |
+| `speed` | `number` | `1` | Animation speed multiplier. Scales the sweep and the pulse together. Values `<= 0` are ignored |
+| `pulse` | `boolean` | `false` | Animate the halo outward on every sweep. Off by default — the halo rests as a static disc |
+| `noHalo` | `boolean` | `false` | Hide the halo disc entirely, leaving arc and logo |
+| `fadePulse` | `boolean` | `false` | Pulse the logo's own opacity. Composes with the halo disc |
+| `blur` | `number \| string` | `4px` fullscreen, `2px` fill | Backdrop blur. A number is px; `0` removes the blur. Only `fill` and `fullscreen` paint a backdrop |
+| `noBorder` | `boolean` | `false` | Drop the faint outer ring. Also tightens the loader's footprint, since the mark stops reserving room for it |
+| `open` | `boolean` | — | Drives the `fullscreen` enter/exit transition. Omit for plain mount/unmount |
+| `classNames` | `LogoLoaderClassNames` | — | Part-level class overrides |
+| `className` | `string` | — | Merged onto the root (same as `classNames.root`) |
+
+Also accepts standard native `div` attributes (`id`, `aria-*`, etc.).
+
+## Accessibility
+
+The root is a `role="status"` / `aria-live="polite"` region containing a visually hidden "Loading…", so screen readers announce the state whether or not a `label` is given. The halo and rings are `aria-hidden`. Under `prefers-reduced-motion: reduce` every animation stops and the arc is pinned to a fixed segment, so it still reads as a ring rather than collapsing to a full circle.
+
+## Types
+
+### `LogoLoaderProps`
+
+Props for `LogoLoader`. Extends `HTMLAttributes<HTMLDivElement>` (minus `children`) with `variant`, `size`, `src`, `alt`, `width`, `height`, `label`, `speed`, `pulse`, `noHalo`, `fadePulse`, `blur`, `noBorder`, `open`, and `classNames`.
+
+### `LogoLoaderVariant`
+
+`"inline" | "block" | "fill" | "fullscreen"`
+
+### `LogoLoaderSize`
+
+`"sm" | "md" | "lg"`
+
+### `LogoLoaderClassNames`
+
+Part-level overrides: `root`, `panel`, `mark`, `halo`, `outerRing`, `ring`, `logo`, `label`.
+
+## Theming
+
+Every value is a `--clet-logo-loader-*` token, overridable through `cletTheme({ components: { LogoLoader: { ... } } })` — including `arcColor`, `arcStroke`, `trackColor`, `haloColor`, `haloScale`, `haloRestScale`, `speed`, `sweepDuration`, `rotateDuration`, `enterDuration`, `blur`, `backdropColor`, `scrimColor`, `panelBg`, `panelPaddingX`/`panelPaddingY`, `panelRadius`, `panelShadow` and `z`. Colours default off `--clet-primary`, so the loader matches each app's theme without configuration.
