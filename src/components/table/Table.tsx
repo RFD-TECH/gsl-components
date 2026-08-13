@@ -62,7 +62,7 @@ function colStyle(col: {
 }
 
 export const Table = forwardRef<HTMLDivElement, TableProps>(function Table(
-  { className, classNames, paramPrefix, height, children, ...props },
+  { className, classNames, paramPrefix, height, variant = "default", children, ...props },
   ref,
 ) {
   const style =
@@ -73,7 +73,12 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(function Table(
     <TableContext.Provider value={{ paramPrefix }}>
       <div
         ref={ref}
-        className={cn("clet-table gsl-table", classNames?.root, className)}
+        className={cn(
+          "clet-table gsl-table",
+          variant === "soft" && "clet-table--soft gsl-table--soft",
+          classNames?.root,
+          className,
+        )}
         style={style}
         {...props}
       >
@@ -586,6 +591,7 @@ function TableContentRender<T>(
         className={cn(
           "clet-table__content gsl-table__content",
           variant === "panel" && "clet-table__content--panel gsl-table__content--panel",
+          variant === "soft" && "clet-table__content--soft gsl-table__content--soft",
           selectable &&
             selectedIds.size > 0 &&
             "clet-table__content--has-selected gsl-table__content--has-selected",

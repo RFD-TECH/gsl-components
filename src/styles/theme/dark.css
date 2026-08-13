@@ -17,9 +17,12 @@
   --clet-main-bg: #141414;
   --clet-primary: #4a7fa8;
   --clet-primary-light: #16232e;
+  --clet-primary-surface: #0a2233;
   --clet-secondary: #c8a24b;
   --clet-focus: var(--gsl-primary, var(--clet-primary));
   --clet-on-primary: #fff;
+  --clet-info: #3ba3f0;
+  --clet-on-info: #06243b;
   --clet-error: #f87171;
   --clet-error-text: #fca5a5;
   --clet-error-bg: #3f1515;

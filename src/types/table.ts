@@ -81,7 +81,18 @@ export interface TableProps extends HTMLAttributes<HTMLDivElement> {
   /** URL param namespace shared by all child table components */
   paramPrefix: string;
   height?: number;
+  /**
+   * Visual style for the whole table, applied from the root down.
+   * `"soft"` rounds the header's filter and search controls into pills on a
+   * faint shadow, and turns the pagination into a solid `--clet-info` disc for
+   * the current page. It restyles the `Dropdown`, `Input` and `Button` the
+   * table already composes rather than swapping in different components, so
+   * every control keeps its own API and behaviour.
+   */
+  variant?: TableVariant;
 }
+
+export type TableVariant = "default" | "soft";
 
 export interface TableHeaderClassNames {
   root?: string;
@@ -129,8 +140,11 @@ export interface TableContentProps<
    * Visual style of the table content wrapper.
    * `"panel"` gives a faint recessed surface, subtle row dividers, and a
    * border all around — suited for embedding inside tabs or cards.
+   * `"soft"` drops the outer border for a tinted header band and hairline row
+   * dividers, so the rows read as a list rather than a boxed grid. Pairs with
+   * `Table variant="soft"`.
    */
-  variant?: "default" | "panel";
+  variant?: "default" | "panel" | "soft";
   columns?: TableColumn<T>[];
   data?: T[];
   rowKey?: (row: T) => string | number;

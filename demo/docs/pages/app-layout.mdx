@@ -11,8 +11,10 @@ export const meta = {
 
 import { ExampleTabs } from "../components/ExampleTabs";
 import { AppLayoutPreview } from "../previews/code/AppLayoutPreview";
+import { AppLayoutShellPreview } from "../previews/code/AppLayoutShellPreview";
 import { AppLayoutStackedPreview } from "../previews/code/AppLayoutStackedPreview";
 import appLayoutSource from "../previews/examples/app-layout.example.tsx?raw";
+import appLayoutShellSource from "../previews/examples/app-layout-shell.example.tsx?raw";
 import appLayoutStackedSource from "../previews/examples/app-layout-stacked.example.tsx?raw";
 
 # AppLayout
@@ -31,13 +33,22 @@ Application layout container that auto-positions `AppHeader`, `AppSidebar`, and 
 
 `AppLayout` accepts a `variant` prop that controls how the header, sidebar, and body are arranged.
 
-- **`"default"`** (default) — the sidebar spans the full height on the left, and the header sits above the content only.
-- **`"stacked"`** — the header spans the full width on top, with the sidebar and content side by side below it. No extra styling.
+- **`"default"`** (default): the sidebar runs the full height against the viewport edge, and the header sits flush across the top of the content column only. Nothing is inset and nothing is rounded.
+- **`"panel"`**: the same column order, but the sidebar, header and content float as inset rounded panels over the page background. This was the `"default"` arrangement before 2.3.
+- **`"stacked"`**: the header spans the full width on top, with the sidebar and content side by side below it.
 
-The example below is the dashboard shell combination: `variant="stacked"` on `AppLayout` paired with [`AppHeader`'s `"plain"` variant](/docs/app-header#variants) and [`Sidebar`'s `"plain"` variant](/docs/sidebar#variants), plus collapsible nav groups. Use this combo when the header and sidebar should read as one solid dashboard frame rather than floating panels.
+The default is one third of the layout shell, and the three parts are designed to be adopted together: `AppLayout` (no variant) with [`Sidebar variant="primary"`](/docs/sidebar#variants) for the brand rail and [`AppHeader variant="plain"`](/docs/app-header#variants) for the top bar. Branding lives at the top of the rail, not in the header.
 
 <ExampleTabs
-  title='variant="stacked" — full-width plain header on top, plain sidebar + content side by side'
+  title="The layout shell: full-height primary rail, plain header over the content column"
+  preview={<AppLayoutShellPreview />}
+  code={appLayoutShellSource}
+/>
+
+`variant="stacked"` remains a first-class arrangement for systems that want a single full-width bar across the top instead of a full-height rail.
+
+<ExampleTabs
+  title='variant="stacked": full-width header on top, sidebar + content side by side'
   preview={<AppLayoutStackedPreview />}
   code={appLayoutStackedSource}
 />
@@ -52,7 +63,7 @@ Root layout container. Scans direct children for `componentId` matching `"AppHea
 |------|------|-------------|
 | `children` | `ReactNode` | Direct children — `<AppHeader>`, `<AppSidebar>`, `<AppBody>` |
 | `className` | `string` | Merged onto the root element |
-| `variant` | `"default" \| "stacked"` | Layout arrangement. `"default"`: sidebar full-height on the left, header above content only. `"stacked"`: full-width header on top, sidebar + content side by side below. Defaults to `"default"`. |
+| `variant` | `"default" \| "panel" \| "stacked"` | Layout arrangement. `"default"`: flush full-height sidebar, header across the content column. `"panel"`: the same columns as inset rounded panels. `"stacked"`: full-width header on top, sidebar + content side by side below. Defaults to `"default"`. |
 
 ### `AppSidebar`
 
@@ -102,7 +113,7 @@ When `items` is empty, the breadcrumb section is hidden entirely.
 |-----|------|-------------|
 | `children` | `ReactNode` | Direct children for auto-positioning |
 | `className` | `string` | Root CSS class |
-| `variant` | `"default" \| "stacked"` | Layout arrangement — `"default"` or `"stacked"` (full-width header on top). Defaults to `"default"`. |
+| `variant` | `"default" \| "panel" \| "stacked"` | Layout arrangement: `"default"` (flush shell), `"panel"` (inset rounded panels) or `"stacked"` (full-width header on top). Defaults to `"default"`. |
 
 ### `AppSidebarProps`
 
@@ -122,12 +133,13 @@ When `items` is empty, the breadcrumb section is hidden entirely.
 
 | Token | Fallback | Used for |
 |-------|----------|----------|
-| `--clet-app-layout-body-gap` | `1rem` | Gap between layout sections |
-| `--clet-app-layout-gap` | `1rem` | Outer padding and flex gap |
-| `--clet-panel-bg` | `--clet-surface-subtle` | Content area background |
-| `--clet-panel-radius` | `--clet-radius-2xl` | Content area and body border radius |
+| `--clet-app-layout-body-gap` | `1rem` | Gap between layout sections in `"panel"` and `"stacked"` |
+| `--clet-app-layout-gap` | `1rem` | Outer padding and flex gap in `"panel"` and `"stacked"` |
+| `--clet-app-layout-padding` | `2rem` (`1rem` at 768px and below) | Content and header inset in the default arrangement: the line the page title and the header search both start on |
+| `--clet-panel-bg` | `--clet-surface-subtle` | Content area background in `"panel"` |
+| `--clet-panel-radius` | `--clet-radius-2xl` | Content area and body border radius in `"panel"` |
 | `--clet-app-layout-font` | `--clet-font-body` | Font family for the root layout element |
-| `--clet-scroll-fade` | `1` | Opacity multiplier for the top/bottom scroll fade overlays on the body |
+| `--clet-scroll-fade` | `1` | Opacity multiplier for the top/bottom scroll fade overlays on the `"panel"` body |
 | `--clet-scroll-fade-height` | `calc(var(--clet-app-layout-body-gap) * 3)` | Height of the bottom (and, unless overridden, top) scroll fade overlay |
 | `--clet-scroll-fade-width` | `100%` | Width of the top/bottom scroll fade overlays |
 
@@ -140,4 +152,6 @@ When `items` is empty, the breadcrumb section is hidden entirely.
 - Auto-positioning works by reading `componentId` from the child element's render function — only direct children are scanned.
 - Do NOT wrap children in Fragments, conditionals, or unknown elements — `AppLayout` only auto-positions components with `componentId` matching `"AppHeader"`, `"AppSidebar"`, or `"AppBody"`. Anything else is silently ignored and won't render.
 - Breadcrumbs are rendered from context. Call `useBreadcrumbs()` from any child, AppLayout handles the rest. When items is empty, breadcrumbs are hidden.
-- Content area background differs by variant: `"default"` fills the content area with `--clet-panel-bg` (a distinct panel card); `"stacked"` uses `--clet-main-bg` directly instead, so it reads flush with the page rather than as a separate panel.
+- Content area background differs by variant: `"panel"` fills the content area with `--clet-panel-bg` (a distinct panel card); `"default"` and `"stacked"` let `--clet-main-bg` show through, so the content reads flush with the page rather than as a separate panel.
+- The sidebar column sits one level above the header in the stacking order, so the mobile drawer and its backdrop cover the header when open rather than sliding out beneath it.
+- Upgrading from 2.2 or earlier: `variant="default"` used to mean the inset panel arrangement, which is now `variant="panel"`. `rfdui migrate --preserve` pins every existing `AppLayout` to `"panel"`; `rfdui migrate` leaves them on the new default. See the [migration guide](/docs/migration-v2).

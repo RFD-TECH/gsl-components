@@ -4,8 +4,10 @@ import { Navigate, Outlet } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeToggle";
 import { DemoLayout } from "./components/DemoLayout";
 import { DemoLayout2 } from "./components/DemoLayout2";
+import { DemoLayout3 } from "./components/DemoLayout3";
 import { DemoPage } from "./pages/DemoPage";
 import { Dashboard2Page } from "./pages/Dashboard2Page";
+import { Dashboard3Page } from "./pages/Dashboard3Page";
 import { UserCreatePage } from "./pages/UserCreatePage";
 import { UserDetailPage } from "./pages/UserDetailPage";
 import { DocsPage } from "./pages/DocsPage";
@@ -21,8 +23,18 @@ export const routes: RouteRecord[] = [
     ),
     children: [
       {
-        // Current (new design system) — the main dashboard
-        element: <DemoLayout2 />,
+        // 2.3, the current shell: primary Sidebar rail, plain AppHeader
+        element: <DemoLayout3 />,
+        children: [
+          { index: true, element: <Dashboard3Page /> },
+          { path: "users/new", element: <UserCreatePage /> },
+          { path: "users/:userId", element: <UserDetailPage /> },
+        ],
+      },
+      {
+        // 2.2, the previous shell, unchanged, reachable via the version switcher
+        path: "v2",
+        element: <DemoLayout2 basePath="/v2" />,
         children: [
           { index: true, element: <Dashboard2Page /> },
           { path: "users/new", element: <UserCreatePage /> },
@@ -30,7 +42,7 @@ export const routes: RouteRecord[] = [
         ],
       },
       {
-        // Previous version, unchanged, reachable via the version switcher
+        // 1.22, pre-rebrand panels, unchanged, reachable via the version switcher
         element: <DemoLayout />,
         children: [{ path: "legacy", element: <DemoPage /> }],
       },

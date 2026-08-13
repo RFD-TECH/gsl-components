@@ -257,7 +257,7 @@
 .demo-home__sidebar-title {
   font-size: 18px;
   font-weight: 700;
-  color: var(--clet-text);
+  color: inherit;
   line-height: 1.2;
 }
 

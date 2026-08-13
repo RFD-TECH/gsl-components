@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { launchpadApps } from "demo/data/launchpadApps";
 import { demoNotifications } from "demo/data/demoNotifications";
 import { useMockQuery } from "demo/hooks/useMockQuery";
+import type { AppHeaderSearchDataGroup } from "@rfdtech/components";
 import { VersionSwitcher } from "./VersionSwitcher";
 
 import {
@@ -22,21 +23,22 @@ import {
 import {
   Sidebar,
   SidebarBrand,
+  SidebarCollapse,
   SidebarContent,
   SidebarFooter,
+  SidebarHeader,
   SidebarNav,
   SidebarGroup,
   SidebarGroupLabel,
   SidebarLink,
   SidebarBadge,
-  SidebarOverlay,
   ProfilePopover,
   RoleSelect,
   AppHeader,
   AppHeaderActions,
-  AppHeaderBranding,
   AppHeaderNotifications,
   AppHeaderNotificationItem,
+  AppHeaderSearch,
   Launchpad,
   AppLayout,
   AppSidebar,
@@ -66,16 +68,13 @@ const demoUser = {
   email: "kwame@gsl.edu.gh",
 };
 
-interface DemoLayout2Props {
-  /**
-   * Route prefix this shell is mounted under. The 2.2 shell now lives at
-   * "/v2" so 2.3 can own "/", and prefixing keeps its nav inside itself
-   * instead of bouncing to the newer shell. Everything visual is untouched.
-   */
-  basePath?: string;
-}
-
-export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
+/**
+ * The 2.3 layout shell: a default `AppLayout`, a `variant="primary"` Sidebar
+ * rail carrying the brand, and a `variant="plain"` AppHeader over the content
+ * column. `DemoLayout2` (2.2) and `DemoLayout` (1.22) stay alongside it,
+ * reachable from the version switcher, so all three can be compared live.
+ */
+export function DemoLayout3() {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -101,19 +100,19 @@ export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
           {
             id: "dashboard",
             label: "Dashboard",
-            href: basePath || "/",
+            href: "/",
             icon: LayoutDashboard,
           },
           {
             id: "users",
             label: "Users",
-            href: `${basePath}/users/user-1`,
+            href: "/users/user-1",
             icon: User,
           },
           {
             id: "users-new",
             label: "Create User",
-            href: `${basePath}/users/new`,
+            href: "/users/new",
             icon: User,
           },
           {
@@ -135,7 +134,7 @@ export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
         ],
       },
     ],
-    [basePath],
+    [],
   );
 
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
@@ -165,30 +164,43 @@ export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
 
   const { loading: navLoading } = useMockQuery(navGroups, 900);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const handleSearch = useCallback((value: string) => setSearchQuery(value), []);
+
+  const searchGroups: AppHeaderSearchDataGroup[] = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return [];
+    return [
+      {
+        heading: "Pages",
+        items: navGroups
+          .flatMap((group) => group.links)
+          .filter((link) => link.label.toLowerCase().includes(query))
+          .map((link) => ({
+            value: link.id,
+            label: link.label,
+            onSelect: () => {
+              if (link.href !== "#") navigate(link.href);
+            },
+          })),
+      },
+    ];
+  }, [navGroups, navigate, searchQuery]);
+
   return (
     <SidebarProvider>
       <BreadcrumbProvider>
-        <AppLayout variant="stacked">
-          {/* 2.2 shipped this bar as variant="plain", which then meant the
-              brand-coloured header. That look is variant="primary" from 2.3 on,
-              so pinning it here is what keeps this snapshot looking like 2.2,
-              the same rewrite `rfdui migrate --preserve` performs. */}
-          <AppHeader variant="primary">
-            <AppHeaderBranding
-              logo={
-                <img
-                  src="/clet-logo.png"
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="demo-home__sidebar-logo"
-                />
-              }
-              title="CLET PORTAL"
-              subtitle="CLET Component Library"
+        <AppLayout>
+          <AppHeader variant="plain">
+            <AppHeaderSearch
+              placeholder="Search"
+              data={searchGroups}
+              onSearch={handleSearch}
+              showEmpty
+              emptyLabel="No matching pages"
             />
             <AppHeaderActions>
-              <VersionSwitcher active="v2_2" />
+              <VersionSwitcher active="v2_3" />
               <button
                 type="button"
                 className="clet-app-header__notif-btn"
@@ -220,7 +232,7 @@ export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
                 ))}
               </AppHeaderNotifications>
               <ProfilePopover
-                variant="avatar"
+                variant="full"
                 user={userData ?? demoUser}
                 loading={profileLoading}
                 loadingLabel="Loading profile..."
@@ -255,10 +267,8 @@ export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
             </AppHeaderActions>
           </AppHeader>
           <AppSidebar>
-            <SidebarOverlay />
-            <Sidebar
-              variant="plain"
-              mobileHeader={
+            <Sidebar variant="primary">
+              <SidebarHeader>
                 <SidebarBrand>
                   <img
                     src="/clet-logo.png"
@@ -267,10 +277,10 @@ export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
                     height={28}
                     className="demo-home__sidebar-logo"
                   />
-                  <span className="demo-home__sidebar-title">CLET Portal</span>
+                  <span className="clet-sidebar__header-title">CLET</span>
                 </SidebarBrand>
-              }
-            >
+                <SidebarCollapse />
+              </SidebarHeader>
               <SidebarContent>
                 <SidebarNav>
                   {navLoading ? (
@@ -316,43 +326,7 @@ export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
                   )}
                 </SidebarNav>
               </SidebarContent>
-              <SidebarFooter>
-                <ProfilePopover
-                  fullName={(userData ?? demoUser).name}
-                  email={(userData ?? demoUser).role}
-                  loading={profileLoading}
-                  loadingLabel="Loading profile..."
-                  items={[
-                    {
-                      icon: <User size={20} strokeWidth={1.5} aria-hidden />,
-                      label: "My Profile",
-                      onClick: () => navigate("/docs"),
-                    },
-                    {
-                      icon: (
-                        <Settings size={20} strokeWidth={1.5} aria-hidden />
-                      ),
-                      label: "Account Settings",
-                      onClick: () => navigate("/docs"),
-                    },
-                    {
-                      icon: (
-                        <HelpCircle size={20} strokeWidth={1.5} aria-hidden />
-                      ),
-                      label: "Help & Support",
-                      onClick: () => navigate("/docs"),
-                    },
-                  ]}
-                  onSignOut={() => navigate("/")}
-                >
-                  <RoleSelect
-                    title="View as"
-                    roles={demoRoles}
-                    selectedRole={selectedRole}
-                    onClickRole={(role) => setSelectedRole(role.id)}
-                  />
-                </ProfilePopover>
-              </SidebarFooter>
+              <SidebarFooter />
             </Sidebar>
           </AppSidebar>
           <AppBody>

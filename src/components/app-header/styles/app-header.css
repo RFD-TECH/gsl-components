@@ -17,38 +17,74 @@
   font-family: var(--gsl-app-header-font, var(--clet-app-header-font));
 }
 
-/* ── Plain variant: square edges, primary background, on-primary text ──
-   Background and foreground are overridable tokens — set --clet-app-header-bg
-   and --clet-app-header-color on .clet-app-header--plain (or an ancestor). */
+/* ── Plain variant: square edges, page surface, one hairline underneath ──
+   The top bar of the default AppLayout, where the brand colour lives on the
+   sidebar rail instead. Background and foreground are overridable tokens: set
+   --clet-app-header-bg and --clet-app-header-color on .clet-app-header--plain
+   (or an ancestor). */
 
 .clet-app-header--plain {
-  --clet-app-header-bg: var(--gsl-primary, var(--clet-primary));
-  --clet-app-header-color: var(--gsl-on-primary, var(--clet-on-primary));
+  --clet-app-header-bg: var(--gsl-bg, var(--clet-bg));
+  --clet-app-header-color: var(--gsl-text, var(--clet-text));
+  --clet-app-header-border: var(--gsl-border, var(--clet-border));
+  border-bottom: 1px solid
+    var(--gsl-app-header-border, var(--clet-app-header-border));
   border-radius: 0;
   background: var(--gsl-app-header-bg, var(--clet-app-header-bg));
   color: var(--gsl-app-header-color, var(--clet-app-header-color));
 }
 
-.clet-app-header--plain .clet-app-header__notif-btn {
+/* ── Primary variant: square edges, primary background, on-primary text ──
+   The continuous brand top bar. Same override points as the plain variant. */
+
+.clet-app-header--primary {
+  --clet-app-header-bg: var(--gsl-primary-surface, var(--clet-primary-surface));
+  --clet-app-header-color: var(--gsl-on-primary, var(--clet-on-primary));
+  --clet-app-header-hover-bg: color-mix(
+    in srgb,
+    var(--gsl-on-primary, var(--clet-on-primary)) 15%,
+    transparent
+  );
+  border-radius: 0;
+  background: var(--gsl-app-header-bg, var(--clet-app-header-bg));
   color: var(--gsl-app-header-color, var(--clet-app-header-color));
 }
 
-.clet-app-header--plain .clet-app-header__notif-btn:hover {
-  background: rgb(255 255 255 / 15%);
+.clet-app-header--primary .clet-app-header__notif-btn {
   color: var(--gsl-app-header-color, var(--clet-app-header-color));
 }
 
-.clet-app-header--plain .clet-app-header__profile:hover {
-  background: rgb(255 255 255 / 15%);
-}
-
-/* App switcher trigger inherits the on-primary foreground inside the plain header */
-.clet-app-header--plain .clet-app-switcher__trigger {
+.clet-app-header--primary .clet-app-header__notif-btn:hover {
+  background: var(--gsl-app-header-hover-bg, var(--clet-app-header-hover-bg));
   color: var(--gsl-app-header-color, var(--clet-app-header-color));
 }
 
-.clet-app-header--plain .clet-app-switcher__trigger:hover {
-  background-color: rgb(255 255 255 / 15%);
+.clet-app-header--primary .clet-app-header__profile:hover {
+  background: var(--gsl-app-header-hover-bg, var(--clet-app-header-hover-bg));
+}
+
+/* Launchpad and app switcher triggers pick up the on-primary foreground inside
+   the primary header; on every other surface they keep their own secondary text
+   colour. */
+.clet-app-header--primary .clet-launchpad__trigger,
+.clet-app-header--primary .clet-app-switcher__trigger {
+  color: var(--gsl-app-header-color, var(--clet-app-header-color));
+}
+
+.clet-app-header--primary .clet-launchpad__trigger:hover,
+.clet-app-header--primary .clet-app-switcher__trigger:hover {
+  background-color: var(
+    --gsl-app-header-hover-bg,
+    var(--clet-app-header-hover-bg)
+  );
+}
+
+/* The search icon sits on the same vertical line as the page content below it,
+   so the field's own left inset would push it out of alignment. */
+.clet-app-header--plain
+  .clet-app-header-search.clet-app-header-search
+  .clet-command__input-wrapper {
+  padding-left: 0;
 }
 
 /* ── Branding (logo + title/subtitle) ──
@@ -151,12 +187,12 @@
   outline-offset: 2px;
 }
 
-.clet-app-header--plain .clet-app-header__menu-btn {
+.clet-app-header--primary .clet-app-header__menu-btn {
   color: var(--gsl-app-header-color, var(--clet-app-header-color));
 }
 
-.clet-app-header--plain .clet-app-header__menu-btn:hover {
-  background: rgb(255 255 255 / 15%);
+.clet-app-header--primary .clet-app-header__menu-btn:hover {
+  background: var(--gsl-app-header-hover-bg, var(--clet-app-header-hover-bg));
   color: var(--gsl-app-header-color, var(--clet-app-header-color));
 }
 
@@ -311,8 +347,40 @@
   position: sticky;
   top: 0;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   padding: 14px 16px 10px;
   background: var(--gsl-bg, var(--clet-bg));
+}
+
+/* Tabs own the popover's column layout when they're present, so the list stays
+   pinned in the header and only the panel below it scrolls. */
+.clet-notif-popover__tabs {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* The shared pill list is sized for a page; inside a 340px popover it needs a
+   tighter scale and no trailing margin of its own, since the header supplies the gap.
+   Widths stay natural, matching pill tabs everywhere else in the kit. */
+.clet-notif-popover__tabs-list.clet-tabs__list {
+  margin-bottom: 0;
+}
+
+.clet-notif-popover__tabs-list.clet-tabs__list .clet-tabs__trigger {
+  padding: 5px 12px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
+}
+
+.clet-notif-popover__empty {
+  margin: 0;
+  padding: 28px 16px;
+  color: var(--gsl-text-muted, var(--clet-text-muted));
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
+  text-align: center;
 }
 
 .clet-notif-popover__body {
@@ -423,6 +491,14 @@
   border-radius: 4px;
   background: var(--gsl-hover, var(--clet-hover));
   animation: clet-skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.clet-notif-popover__skeleton-line--wide {
+  width: 85%;
+}
+
+.clet-notif-popover__skeleton-line--narrow {
+  width: 50%;
 }
 
 @keyframes clet-skeleton-pulse {

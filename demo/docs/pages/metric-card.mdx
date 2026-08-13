@@ -47,7 +47,8 @@ Set `loading` to show shimmering skeleton placeholders instead of the label/valu
 | `description` | `string` | — | Subtitle shown below the value row |
 | `trend` | `"up" \| "down" \| "neutral"` | — | Trend direction; renders an arrow icon |
 | `trendValue` | `string` | — | Formatted trend text (e.g. `"+12.5%"`) |
-| `variant` | `"default" \| "outline" \| "bordered"` | `"default"` | Card style — `"outline"` is a bordered, no-fill card with chevron trend icons; `"bordered"` is the default layout with a 1px border added |
+| `variant` | `"default" \| "outline" \| "bordered" \| "soft"` | `"default"` | Card style: `"soft"` is a borderless card on a shadow with a brand watermark; `"outline"` is a bordered, no-fill card with chevron trend icons; `"bordered"` is the default layout with a 1px border added |
+| `mark` | `MetricCardMark \| ReactNode \| false` | hashed from `label` | `"soft"` only: which bundled watermark to draw, your own node, or `false` for none |
 | `animate` | `boolean` | `false` | Enable count-up animation from 0 to the target value on mount and value change |
 | `animationDuration` | `number` | `1500` | Duration of the count-up animation in ms |
 | `loading` | `boolean` | `false` | Show shimmering skeleton placeholders instead of the label/value/trend/description |
@@ -66,6 +67,36 @@ Variants only affect the **trend indicator color**, not the background or text o
 | `"default"` | `--clet-success` (up), `--clet-error` (down), `--clet-text-muted` (neutral) |
 | `"outline"` | Same as `"default"` — uses chevron icons instead of arrows, no `+`/`-` prefix |
 | `"bordered"` | Same as `"default"` — adds a 1px border to the card |
+
+### Soft variant
+
+`variant="soft"` is the current preferred card: no border, a `--clet-shadow-md` lift, and the same
+`--clet-radius-xl` corner the `Card` component uses, so a row of metrics and a card below them
+share one radius. A brand watermark sits in the bottom-right, bleeding off both edges and clipped
+by the card's own `overflow: hidden`.
+
+```tsx
+<MetricCard
+  variant="soft"
+  label="Open Risks"
+  value={6}
+  description="0 critical - 1 high"
+/>
+```
+
+The watermark comes from a bundled set of five brand marks: `rings`, `lattice`, `quatrefoil`,
+`bird`, `crossed`. Omit `mark` and one is chosen by hashing `label` (FNV-1a), so the same label
+always draws the same mark and a row of differently-labelled cards spreads across the set without
+anyone picking. Pass an id to fix a specific one, a node to supply your own artwork, or `false` to
+draw none.
+
+```tsx
+<MetricCard variant="soft" mark="quatrefoil" label="Compliance Rate" value="60%" />
+<MetricCard variant="soft" mark={false} label="No watermark" value={12} />
+```
+
+Both of the mark's offsets derive from `--clet-metric-card-mark-size` at a fixed 3:1 right-to-bottom
+ratio, so scaling the mark keeps the crop identical: there is one number to change, not three.
 
 ### Outline variant
 
@@ -117,6 +148,8 @@ Also exported: `MetricCardVariant`, `MetricTrend`.
 | `--clet-metric-card-value-color` | `--clet-text` | Main value (header) color |
 | `--clet-metric-card-description-size` | `13px` | Description font size |
 | `--clet-default-metric-card-bg` | `--clet-surface-card` | Card background — `"default"`/color variants only |
+| `--clet-metric-card-mark-size` | `68px` | `"soft"` watermark size; its right/bottom bleed derive from this at 3:1 |
+| `--clet-metric-card-mark-opacity` | `0.22` | `"soft"` watermark opacity |
 | `--clet-metric-card-radius` | `--clet-radius-xl` | Card border-radius |
 | `--clet-metric-card-shadow` | `none` | Card box-shadow |
 

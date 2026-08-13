@@ -78,13 +78,15 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
 
   // When `mobileHeader` is provided and the consumer hasn't already rendered
   // a `SidebarHeader` child, auto-inject one wrapped in the built-in
-  // `clet-sidebar__header--mobile-only` class. Only applies to `variant="plain"`
-  // — the desktop-default sidebar has no need for a brand row.
+  // `clet-sidebar__header--mobile-only` class. Only applies to the shell
+  // variants (`plain`, `primary`): the panel sidebar has no need for a brand
+  // row, and a `primary` sidebar that already carries its own `SidebarHeader`
+  // (the usual composition) opts out by having one.
   const hasExistingHeader = Children.toArray(children).some(
     (child) => isValidElement(child) && child.type === SidebarHeader,
   );
   const showAutoMobileHeader =
-    variant === "plain" && mobileHeader != null && !hasExistingHeader;
+    variant !== "default" && mobileHeader != null && !hasExistingHeader;
   const autoHeader = showAutoMobileHeader ? (
     <SidebarHeader className="clet-sidebar__header--mobile-only">
       {mobileHeader}
@@ -99,6 +101,7 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
         className={cn(
           "clet-sidebar gsl-sidebar",
           variant === "plain" && "clet-sidebar--plain gsl-sidebar--plain",
+          variant === "primary" && "clet-sidebar--primary gsl-sidebar--primary",
           isMobile && "clet-sidebar--mobile gsl-sidebar--mobile",
           isMobile && open && "clet-sidebar--mobile-open gsl-sidebar--mobile-open",
           !isMobile && collapsed && "clet-sidebar--collapsed gsl-sidebar--collapsed",
@@ -156,8 +159,11 @@ export const SidebarTrigger = forwardRef<
   ref,
 ) {
   const { open, toggle, isMobile, sidebarId } = useSidebar();
+  // Null-vs-button is a structural branch, so it must wait a render past mount
+  // to match SSR/static-prerendered (always-desktop) markup. See useHasMounted.
+  const hasMounted = useHasMounted();
 
-  if (!isMobile) {
+  if (!hasMounted || !isMobile) {
     return null;
   }
 
@@ -192,8 +198,12 @@ export const SidebarCollapse = forwardRef<
   SidebarCollapseProps
 >(function SidebarCollapse({ classNames, className, onClick, ...props }, ref) {
   const { collapsed, toggleCollapsed, isMobile, sidebarId } = useSidebar();
+  // Same structural branch as SidebarTrigger, mirrored: the always-desktop
+  // SSR pass renders the button, so it has to survive the first client render
+  // and only drop out once the mobile breakpoint is known. See useHasMounted.
+  const hasMounted = useHasMounted();
 
-  if (isMobile) {
+  if (hasMounted && isMobile) {
     return null;
   }
 
@@ -313,7 +323,12 @@ export const SidebarFooter = forwardRef<HTMLDivElement, SidebarFooterProps>(
         ref={ref}
         className={cn("clet-sidebar__footer gsl-sidebar__footer", classNames?.footer, className)}
       >
-        {children}
+        {/* The rail needs a bottom anchor rather than trailing off into empty
+            space, so the footer is never empty: with no children it falls back
+            to the CLET wordmark. Any child replaces it outright. */}
+        {children ?? (
+          <span className="clet-sidebar__wordmark gsl-sidebar__wordmark">CLET</span>
+        )}
       </div>
     );
   },
