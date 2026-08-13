@@ -62,8 +62,6 @@ export function AppHeaderPlainExample() {
         background: "var(--clet-bg)",
       }}
     >
-      {/* No branding: on the layout shell the brand sits at the top of the
-          Sidebar rail, and repeating it here would show the same mark twice. */}
       <AppHeader variant="plain">
         <AppHeaderSearch placeholder="Search" />
         <AppHeaderActions>

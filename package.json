@@ -51,7 +51,7 @@
     "rfdui": "dist/mcp/cli.js"
   },
   "scripts": {
-    "prepare": "npm run generate:tokens",
+    "prepare": "npm run generate:tokens && node scripts/install-hooks.mjs",
     "postinstall": "node scripts/postinstall.mjs",
     "generate:tokens": "node scripts/generate-theme-tokens.mjs",
     "build": "npm run generate:tokens && BUILD_TARGET=default npx vite build && BUILD_TARGET=next npx vite build && mv dist/next-index.css dist/next.css && node -e \"var fs=require('fs');['dist/next.js','dist/next.cjs'].forEach(f=>fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace('./next-index.css','./next.css')))\" && tsc -p tsconfig.build.json && cp src/next.d.ts dist/next.d.ts && (cd mcp && npx tsc -p tsconfig.json) && node mcp/scripts/prepare-dist.mjs",

@@ -1,21 +1,12 @@
-// Codemod for the 2.3 layout shell: AppLayout's default arrangement went
-// flush, AppHeader's `plain` variant stopped being the brand-coloured bar, and
-// Sidebar gained `primary`. Rewrites a consuming app's JSX to land on one side
-// of that change or the other.
-//
-// Everything here is driven off the TypeScript AST, never text matching: a
-// `variant` prop can span lines, sit behind a spread, or hold an expression
-// instead of a literal, and only a parse can tell those apart. TypeScript is
-// resolved from the app being migrated rather than bundled, so this adds no
-// dependency to the library.
+// Codemod for the 2.3 layout shell. AST-driven; TypeScript is resolved from
+// the app being migrated rather than bundled.
 import { access, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-// Just the slice of the compiler API this codemod calls, declared locally so
-// the published CLI carries no build-time dependency on TypeScript's own types
-// and keeps working across compiler releases that reshuffle them.
+// The slice of the compiler API this codemod calls, declared locally so the
+// published CLI takes no build-time dependency on TypeScript's types.
 
 interface TsNode {
   getStart(source?: TsSourceFile): number;
@@ -112,11 +103,7 @@ const TRACKED = new Set([
   "TableContent",
 ]);
 
-/**
- * Exports renamed outright. Every reference is renamed together: the import
- * specifier, the JSX tags, and any bare identifier use all resolve to the same
- * binding.
- */
+/** Exports renamed outright, at every reference to the same binding. */
 interface ExportRename {
   to: string;
   /** Attribute renames applied to JSX elements of this component. */
@@ -159,11 +146,7 @@ const EXPORT_RENAMES: Record<string, ExportRename> = {
   GslZIndexValue: { to: "CletZIndexValue" },
 };
 
-/**
- * Migrations that need a decision the codemod is not entitled to make: a data
- * shape to re-author, a token override to keep or drop. Reported against the
- * JSX element or call that triggers them, never rewritten.
- */
+/** Migrations needing a human decision. Reported, never rewritten. */
 const ADVISORY: Record<string, string> = {
   AppSwitcher:
     "AppSwitcher is deprecated in favour of Launchpad, and is not a drop-in replacement " +
@@ -238,8 +221,7 @@ type VariantTarget = { kind: "set"; value: string } | { kind: "remove" } | null;
 
 function adoptTarget(component: string, current: string | null): VariantTarget {
   if (component === "AppHeader") {
-    // `plain` keeps its name and changes meaning, so it needs no edit; an
-    // unset or `default` header is what moves onto the new top bar.
+    // `plain` keeps its name and changes meaning, so it needs no edit.
     if (current === null || current === "default") {
       return { kind: "set", value: "plain" };
     }
@@ -247,16 +229,13 @@ function adoptTarget(component: string, current: string | null): VariantTarget {
   }
 
   if (component === "Sidebar") {
-    // The old shell's white rail becomes the brand rail. An unset or `default`
-    // sidebar is the panel-surface one, which only makes sense to convert if
-    // the layout went flush too, so it is reported rather than rewritten.
+    // An unset sidebar is the panel surface, which is reported instead.
     if (current === "plain") return { kind: "set", value: "primary" };
     return null;
   }
 
   if (component === "MetricCard") {
-    // `soft` supersedes the previously-preferred `outline`. `bordered` is a
-    // deliberate choice rather than a default, so it is left alone.
+    // `bordered` is a deliberate choice, not a default, so it is left alone.
     if (current === null || current === "default" || current === "outline") {
       return { kind: "set", value: "soft" };
     }
@@ -269,15 +248,12 @@ function adoptTarget(component: string, current: string | null): VariantTarget {
   }
 
   if (component === "TableContent") {
-    // Same reasoning as Sidebar: `panel` was the previously-preferred variant
-    // and moves over, but an unset TableContent may not be in a soft Table at
-    // all, so it is reported rather than rewritten.
+    // An unset TableContent may not be in a soft Table, so it is reported.
     if (current === "panel") return { kind: "set", value: "soft" };
     return null;
   }
 
-  // AppLayout: `default` now *is* the new arrangement, so an explicit
-  // `variant="default"` is redundant. `stacked` is left alone by design.
+  // `variant="default"` is now redundant. `stacked` is left alone by design.
   if (current === "default") return { kind: "remove" };
   return null;
 }
@@ -311,11 +287,9 @@ function describe(
 }
 
 /**
- * Loads the compiler API out of the app being migrated, so the library ships no
- * copy of it. Goes in through `lib/typescript.js` by absolute path rather than
- * the bare specifier: TypeScript 7's export map points `.` at a version stub
- * and files the real API under `unstable/*`, while `lib/typescript.js` is still
- * the classic API in both 5.x and 7.x.
+ * Loads the compiler API from the app being migrated. Enters through
+ * `lib/typescript.js` by absolute path: TypeScript 7's export map points `.` at
+ * a version stub, while `lib/typescript.js` is the classic API in both 5.x and 7.x.
  */
 async function loadTypeScript(root: string): Promise<TsApi> {
   const requireFrom = createRequire(path.join(root, "package.json"));
@@ -392,10 +366,7 @@ interface LibraryImports {
   namespaceImport: TsNode | null;
 }
 
-/**
- * Reads what the file pulls in from `@rfdtech/components`. Anything not
- * imported from there is left alone, so an app's own `Sidebar` is safe.
- */
+/** Anything not imported from the library is left alone. */
 function collectLibraryImports(ts: TsApi, source: TsSourceFile): LibraryImports {
   const locals = new Map<string, string>();
   const imported = new Set<string>();
@@ -458,8 +429,7 @@ function migrateSource(
   const { locals, imported, localToExported, namespaceImport } =
     collectLibraryImports(ts, source);
 
-  // Renames this file can actually take: the old name is imported here, and the
-  // new one isn't already, so renaming can't collide with an existing binding.
+  // Skip renames that would collide with a binding already imported here.
   const renames = new Map<string, ExportRename>();
   for (const [from, rename] of Object.entries(EXPORT_RENAMES)) {
     if (!imported.has(from)) continue;
@@ -467,7 +437,6 @@ function migrateSource(
     renames.set(from, rename);
   }
 
-  /** Local names bound to a renamed export, for the JSX attribute pass. */
   const renamedLocals = new Map<string, ExportRename>();
   for (const [local, exported] of localToExported) {
     const rename = renames.get(exported);
@@ -509,11 +478,7 @@ function migrateSource(
   const renameNoted = new Set<string>();
 
   const visit = (node: TsNode): void => {
-    // Rename every reference to a renamed export in one pass: the import
-    // specifier, the JSX opening and closing tags, and any bare use all appear
-    // here as identifiers carrying the old name. An aliased import
-    // (`gslTheme as t`) only matches its propertyName, so the local name, and
-    // every use of it, is correctly left alone.
+    // An aliased import only matches its propertyName, so the local name stays.
     if (ts.isIdentifier(node)) {
       const rename = renames.get(node.text);
       if (rename) {
@@ -540,8 +505,7 @@ function migrateSource(
         }
       }
 
-      // One advisory per kind per file: repeating it for all 40 call sites
-      // buries the rest of the report.
+      // One advisory per kind per file.
       const exported = localToExported.get(node.text);
       const advice = exported ? ADVISORY[exported] : undefined;
       if (advice && !advised.has(exported!)) {
@@ -557,8 +521,6 @@ function migrateSource(
     if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
       const tagName = node.tagName;
 
-      // Attribute renames for a renamed component, applied to the element the
-      // rename just retargeted.
       if (ts.isIdentifier(tagName)) {
         const rename = renamedLocals.get(tagName.text);
         if (rename) {
@@ -654,8 +616,7 @@ function migrateSource(
 
             if (target) {
               if (target.kind === "remove" && attribute) {
-                // Swallow the run of whitespace in front of the prop so
-                // removing it doesn't leave a double space in the tag.
+                // Swallow leading whitespace so no double space is left.
                 let start = attribute.getStart(source);
                 while (start > 0 && isWhitespace(text[start - 1])) start -= 1;
                 edits.push({ start, end: attribute.getEnd(), text: "" });
@@ -697,8 +658,6 @@ function migrateSource(
 
   visit(source);
 
-  // Only meaningful when adopting: in preserve mode nothing moved to the new
-  // shell, so a stacked layout sitting next to a rewritten header is expected.
   if (!options.preserve && sawStackedLayout !== null && changes.length > 0) {
     notes.push({
       file: filePath,
@@ -711,7 +670,7 @@ function migrateSource(
 
   if (edits.length === 0) return { text, changes, notes };
 
-  // Apply back to front so each edit's offsets stay valid.
+  // Back to front, so offsets stay valid.
   const ordered = [...edits].sort((a, b) => b.start - a.start);
   let next = text;
   for (const edit of ordered) {
@@ -722,8 +681,7 @@ function migrateSource(
 }
 
 export async function runMigrate(options: MigrateOptions): Promise<MigrateResult> {
-  // `--path demo` has to become an absolute path before anything touches it:
-  // createRequire rejects a relative filename outright.
+  // createRequire rejects a relative filename.
   const root = path.resolve(options.root);
   const ts = await loadTypeScript(root);
   const files = await collectSourceFiles(root);
@@ -734,7 +692,6 @@ export async function runMigrate(options: MigrateOptions): Promise<MigrateResult
 
   for (const file of files) {
     const text = await readFile(file, "utf8");
-    // Cheap gate: a file that never names the library cannot use its JSX.
     if (!text.includes(LIBRARY)) continue;
 
     const result = migrateSource(ts, file, text, options);

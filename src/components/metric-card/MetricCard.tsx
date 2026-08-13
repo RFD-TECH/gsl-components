@@ -72,10 +72,6 @@ export const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
   ) {
     const isOutline = variant === "outline";
 
-    // Only the soft variant carries a watermark. `mark` is either an id from
-    // the bundled set, a node of your own, or false to opt out; with none of
-    // those, the label picks one so a row of cards spreads across the set
-    // without anyone naming them.
     const markNode = useMemo(() => {
       if (variant !== "soft" || mark === false) return null;
       if (isValidElement(mark)) return mark;

@@ -8,15 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../tabs/Tabs";
 const NEW_TAB = "new";
 const HISTORY_TAB = "history";
 
-/**
- * Splits the popover's children into unread and read piles by reading the
- * `unread` prop off each `AppHeaderNotificationItem`.
- *
- * Returns `null` when nothing in `children` is an `AppHeaderNotificationItem`:
- * a consumer rendering its own markup can't be partitioned, and guessing would
- * hide half of it behind a tab it never asked for. That case falls through to
- * the untabbed list, so existing usage renders exactly as it did before.
- */
+/** Splits children by `unread`. Null when none are AppHeaderNotificationItems. */
 function partitionByUnread(
   children: ReactNode,
 ): { unread: ReactNode[]; read: ReactNode[] } | null {
@@ -35,8 +27,7 @@ function partitionByUnread(
       }
     }
 
-    // Anything unrecognised stays with the unread pile rather than vanishing:
-    // "New" is the tab that opens, so nothing is hidden on first paint.
+    // Unrecognised children go to the tab that opens, so nothing hides.
     unread.push(child);
   }
 

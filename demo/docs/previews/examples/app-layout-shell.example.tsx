@@ -111,7 +111,6 @@ export function AppLayoutShellExample() {
 
   return (
     <div style={{ height: 480, borderRadius: "var(--clet-radius-2xl)", overflow: "hidden" }}>
-      {/* The shell: a default AppLayout, a primary Sidebar rail, a plain AppHeader */}
       <AppLayout>
         <AppHeader variant="plain">
           <AppHeaderSearch placeholder="Search" />
@@ -175,7 +174,6 @@ export function AppLayoutShellExample() {
                 ))}
               </SidebarNav>
             </SidebarContent>
-            {/* No children: the footer falls back to the CLET wordmark */}
             <SidebarFooter />
           </Sidebar>
         </AppSidebar>

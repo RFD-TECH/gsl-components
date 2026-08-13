@@ -6,10 +6,7 @@
   --color-primary-foreground: var(--gsl-on-primary, var(--clet-on-primary));
   --color-primary-light: var(--gsl-primary-light, var(--clet-primary-light));
 
-  /* The brand-coloured chrome surface: the primary Sidebar rail and the
-     primary AppHeader bar. Equal to --color-primary in light, but deepened in
-     dark, where --clet-primary lightens for contrast against dark text
-     surfaces and would otherwise make the rail the brightest thing on screen. */
+  /* Brand chrome. Equal to --color-primary in light, deepened in dark. */
   --color-primary-surface: var(--gsl-primary-surface, var(--clet-primary-surface));
 
   /* NOTE: --color-secondary intentionally maps to the neutral surface-dark tone
@@ -42,9 +39,7 @@
   --color-success: var(--gsl-success, var(--clet-success));
   --color-success-foreground: var(--gsl-on-primary, var(--clet-on-primary));
 
-  /* Informational blue: the current page in a soft TablePagination, and any
-     other "you are here" marker. Deliberately not --clet-primary: the brand
-     navy reads as chrome, and a selected page needs to read as a live state. */
+  /* The "you are here" blue. Deliberately not --clet-primary. */
   --color-info: var(--gsl-info, var(--clet-info));
   --color-info-foreground: var(--gsl-on-info, var(--clet-on-info));
 

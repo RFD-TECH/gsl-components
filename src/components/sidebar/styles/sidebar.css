@@ -28,13 +28,8 @@
 	border-radius: 0;
 }
 
-/* ── Primary variant: full-bleed brand rail, no radius, no border ──
-   Every value here is one of the same --clet-sidebar-* override points the
-   other variants read, so a consumer re-themes the rail through the documented
-   token names rather than by writing new selectors. The foreground scale is
-   derived from --clet-on-primary at decreasing opacities instead of new global
-   tokens, so the rail follows whatever --clet-primary resolves to in each
-   theme. */
+/* ── Primary variant: full-bleed brand rail ──
+   Repaints the same --clet-sidebar-* override points the other variants read. */
 .clet-sidebar.clet-sidebar--primary {
 	--clet-sidebar-bg: var(--gsl-primary-surface, var(--clet-primary-surface));
 	--clet-sidebar-text: var(--gsl-on-primary, var(--clet-on-primary));
@@ -54,10 +49,6 @@
 		transparent
 	);
 	--clet-sidebar-link-hover-text: var(--gsl-on-primary, var(--clet-on-primary));
-	/* The active row inverts rather than brightening: a solid on-primary fill
-	   carrying the rail's own colour as its text. A translucent wash reads as
-	   "hovered" next to real hover states, where a full inversion reads as
-	   "this is the page you are on" at any distance. */
 	--clet-sidebar-link-active-bg: var(--gsl-on-primary, var(--clet-on-primary));
 	--clet-sidebar-link-active-text: var(
 		--gsl-primary-surface,
@@ -74,14 +65,11 @@
 	border-radius: 0;
 }
 
-/* Group labels read as section dividers on the rail, not as sentences. */
 .clet-sidebar--primary .clet-sidebar__group-label {
 	text-transform: uppercase;
 }
 
-/* The rail's groups fold up rather than sideways: the chevron points up while
-   the group is open and down while it is closed, so it always points at where
-   the rows will go. The other variants keep the sideways fold. */
+/* Chevron points up while open, down while closed. Other variants fold sideways. */
 .clet-sidebar--primary .clet-sidebar__group-toggle .clet-sidebar__group-label-icon {
 	transform: rotate(180deg);
 }
@@ -92,8 +80,6 @@
 	transform: rotate(0deg);
 }
 
-/* The badge inverts with the row it sits in: on a light active pill it takes
-   the rail's colour, not the base rule's grey-on-grey. */
 .clet-sidebar--primary .clet-sidebar__link--active .clet-sidebar__link-badge {
 	--clet-sidebar-badge-bg: var(--gsl-primary-surface, var(--clet-primary-surface));
 	--clet-sidebar-badge-color: var(--gsl-on-primary, var(--clet-on-primary));
@@ -112,8 +98,7 @@
 	color: var(--gsl-sidebar-link-hover-text, var(--clet-sidebar-link-hover-text));
 }
 
-/* --clet-focus resolves to --clet-primary, which is the rail's own background,
-   so a focus ring in it would be invisible. */
+/* --clet-focus is --clet-primary, the rail's own background, so it is invisible here. */
 .clet-sidebar--primary .clet-sidebar__link:focus-visible,
 .clet-sidebar--primary .clet-sidebar__group-toggle:focus-visible,
 .clet-sidebar--primary .clet-sidebar__collapse:focus-visible,
@@ -142,9 +127,6 @@
 	gap: 10px;
 }
 
-/* The brand row is a wordmark, not body copy: it takes the heading face by
-   default so any app dropping a title in here matches the footer wordmark
-   without setting a font of its own. */
 .clet-sidebar__header-title {
 	overflow: hidden;
 	font-family: var(--gsl-font-header, var(--clet-font-header));
@@ -636,8 +618,7 @@
 		border-radius: 0;
 	}
 
-	/* Same reason as plain above: the rail is flush with the viewport edges, so
-     it must beat the base desktop border-radius. */
+	/* Must beat the base desktop border-radius, as with plain above. */
 	.clet-sidebar.clet-sidebar--primary:not(.clet-sidebar--mobile) {
 		background: var(--gsl-sidebar-bg, var(--clet-sidebar-bg));
 		border-right: none;

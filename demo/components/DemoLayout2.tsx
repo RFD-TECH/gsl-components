@@ -169,10 +169,6 @@ export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
     <SidebarProvider>
       <BreadcrumbProvider>
         <AppLayout variant="stacked">
-          {/* 2.2 shipped this bar as variant="plain", which then meant the
-              brand-coloured header. That look is variant="primary" from 2.3 on,
-              so pinning it here is what keeps this snapshot looking like 2.2,
-              the same rewrite `rfdui migrate --preserve` performs. */}
           <AppHeader variant="primary">
             <AppHeaderBranding
               logo={

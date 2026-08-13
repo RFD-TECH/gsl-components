@@ -398,7 +398,7 @@
 	border-bottom: none;
 }
 
-/* ── Soft content: no outer box, a tinted header band, hairline row rules ── */
+/* ── Soft content ── */
 
 .clet-table__content--soft {
 	background: var(--gsl-bg, var(--clet-bg));
@@ -423,12 +423,7 @@
 	border-bottom: none;
 }
 
-/* ── Soft table: everything below is reached by drilling down from the root
-   class rather than by swapping in different components ──
-   The header's filter, the search field, the page-size dropdown and the
-   pagination buttons are the same Dropdown/Input/Button the default table
-   composes; the variant only restyles them, so each keeps its own API,
-   keyboard behaviour and state handling. */
+/* ── Soft table: restyles the controls the table already composes ── */
 
 .clet-table--soft {
 	--clet-table-control-radius: 999px;
@@ -436,10 +431,7 @@
 	--clet-table-page-size: 32px;
 }
 
-/* Filters lead on the left, inputs follow on the right. Reversing the row is
-   enough: the base bar already spaces its children apart, so the search (first
-   in the DOM) lands on the right and the filters on the left, without either
-   component needing to know it was reordered. */
+/* Filters left, inputs right. The base bar already spaces its children apart. */
 .clet-table--soft .clet-table__header-bar {
 	flex-direction: row-reverse;
 }
@@ -459,11 +451,7 @@
 	}
 }
 
-/* Every control the table composes becomes a pill on the shared soft shadow,
-   not just the Dropdown. A table's header can hold a combobox, a date range, a
-   plain input; if only some of them rounded, the row would read as a mistake.
-   Listed explicitly rather than by a blanket selector so the table's own
-   buttons, badges and menus are left alone. */
+/* Listed explicitly so the table's own buttons, badges and menus are left alone. */
 .clet-table--soft .clet-table__search,
 .clet-table--soft .clet-table__filter-trigger,
 .clet-table--soft .clet-dropdown__trigger,
@@ -484,8 +472,6 @@
 	);
 }
 
-/* A pill needs its text off the curve, so the horizontal padding grows with the
-   radius on anything that was drawn for square corners. */
 .clet-table--soft .clet-table__search,
 .clet-table--soft .clet-dropdown__trigger,
 .clet-table--soft .clet-combobox__trigger,
@@ -503,8 +489,6 @@
 	gap: 4px;
 }
 
-/* The current page is a filled disc rather than a tinted rectangle, so it
-   reads as a live state instead of chrome. */
 .clet-table--soft .clet-table__pagination-pages .clet-button[aria-current="page"] {
 	min-width: var(--gsl-table-page-size, var(--clet-table-page-size));
 	height: var(--gsl-table-page-size, var(--clet-table-page-size));
@@ -532,9 +516,7 @@
 	color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
-/* Prev/Next collapse to their chevrons. `font-size: 0` hides the bare text node
-   the Button renders beside the icon without needing a wrapper element around
-   it; the icons carry explicit dimensions, so they are unaffected. */
+/* `font-size: 0` hides the bare text node beside the icon. Icons are sized explicitly. */
 .clet-table--soft .clet-table__pagination-pages .clet-button[aria-label="Previous page"],
 .clet-table--soft .clet-table__pagination-pages .clet-button[aria-label="Next page"] {
 	min-width: var(--gsl-table-page-size, var(--clet-table-page-size));

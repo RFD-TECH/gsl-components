@@ -16,16 +16,9 @@
   overflow: hidden;
 }
 
-/* ── Default arrangement: everything flush ──
-   The sidebar runs the full height against the viewport edge and the header
-   spans the top of the content column only, so the brand colour lives on the
-   rail rather than on a top bar. Nothing is inset and nothing is rounded; the
-   only inset is the content's own padding. */
+/* ── Default arrangement: everything flush ── */
 
-/* Above the header: this wrapper is a stacking context, so it also caps the
-   mobile drawer and its backdrop that live inside it. At the header's own level
-   the header would win on DOM order, and the open drawer would slide out
-   underneath it. */
+/* Above the header: this wrapper caps the mobile drawer and backdrop inside it. */
 .clet-app-layout__sidebar {
   flex-shrink: 0;
   position: relative;
@@ -53,9 +46,7 @@
   display: none;
 }
 
-/* The header's horizontal inset is the layout's, so the search field and the
-   page title below it start on the same vertical line. --clet-header-px is
-   AppHeader's own documented override point. */
+/* Header inset matches the content's, so search and page title align. */
 .clet-app-layout__body > .clet-app-header {
   --clet-header-px: var(--gsl-app-layout-padding, var(--clet-app-layout-padding));
 }
@@ -80,9 +71,7 @@
   }
 }
 
-/* ── Panel arrangement: sidebar, header and content float as inset cards ──
-   The pre-2.3 default. Same DOM, same column order: only the insets, the
-   radii and the panel surface come back. */
+/* ── Panel arrangement: the pre-2.3 default, inset and rounded ── */
 
 .clet-app-layout--panel .clet-app-layout__sidebar {
   padding: var(--gsl-app-layout-gap, var(--clet-app-layout-gap, 1rem));

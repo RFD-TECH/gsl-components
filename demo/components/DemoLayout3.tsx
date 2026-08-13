@@ -68,12 +68,6 @@ const demoUser = {
   email: "kwame@gsl.edu.gh",
 };
 
-/**
- * The 2.3 layout shell: a default `AppLayout`, a `variant="primary"` Sidebar
- * rail carrying the brand, and a `variant="plain"` AppHeader over the content
- * column. `DemoLayout2` (2.2) and `DemoLayout` (1.22) stay alongside it,
- * reachable from the version switcher, so all three can be compared live.
- */
 export function DemoLayout3() {
   const location = useLocation();
   const navigate = useNavigate();
