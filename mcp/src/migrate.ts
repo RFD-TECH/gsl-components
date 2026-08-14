@@ -146,6 +146,14 @@ const EXPORT_RENAMES: Record<string, ExportRename> = {
   GslZIndexValue: { to: "CletZIndexValue" },
 };
 
+/** Advisories reported from the JSX element, so attributes can be inspected. */
+const JSX_ADVISORY = new Set([
+  "AppSwitcher",
+  "CountrySelector",
+  "NetworkOperator",
+  "TableContent",
+]);
+
 /** Migrations needing a human decision. Reported, never rewritten. */
 const ADVISORY: Record<string, string> = {
   AppSwitcher:
@@ -505,9 +513,10 @@ function migrateSource(
         }
       }
 
-      // One advisory per kind per file.
+      // One advisory per kind per file. JSX components are advised from their
+      // element below, where the attributes are visible; this covers the rest.
       const exported = localToExported.get(node.text);
-      const advice = exported ? ADVISORY[exported] : undefined;
+      const advice = exported && !JSX_ADVISORY.has(exported) ? ADVISORY[exported] : undefined;
       if (advice && !advised.has(exported!)) {
         advised.add(exported!);
         notes.push({
@@ -520,6 +529,32 @@ function migrateSource(
 
     if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
       const tagName = node.tagName;
+
+      // Advise from the element, not the import, so the line points at the
+      // usage and the condition can be checked against real attributes.
+      if (ts.isIdentifier(tagName)) {
+        const exported = localToExported.get(tagName.text);
+        if (exported && JSX_ADVISORY.has(exported) && !advised.has(exported)) {
+          const attributeNames = new Set(
+            node.attributes.properties
+              .filter((property) => ts.isJsxAttribute(property))
+              .map((property) => (property as TsJsxAttribute).name.getText()),
+          );
+          // The dropped kebab column only matters to a selectable table that
+          // never declared row actions.
+          const applies =
+            exported !== "TableContent" ||
+            (attributeNames.has("selectable") && !attributeNames.has("rowActions"));
+          if (applies) {
+            advised.add(exported);
+            notes.push({
+              file: filePath,
+              line: lineOf(node.getStart(source)),
+              message: ADVISORY[exported],
+            });
+          }
+        }
+      }
 
       if (ts.isIdentifier(tagName)) {
         const rename = renamedLocals.get(tagName.text);
