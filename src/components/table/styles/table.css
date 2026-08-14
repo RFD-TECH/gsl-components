@@ -472,15 +472,27 @@
 	);
 }
 
+/* Controls whose content sits in normal flow just take the wider inset. */
 .clet-table--soft .clet-table__search,
+.clet-table--soft .clet-input {
+	padding-inline: 20px;
+}
+
+/* Dropdown-style triggers park their chevron absolutely and reserve room for it
+   with asymmetric padding, so the inset has to grow on both sides together:
+   a plain padding-inline would drop the reserve and run the label under it. */
 .clet-table--soft .clet-dropdown__trigger,
 .clet-table--soft .clet-combobox__trigger,
 .clet-table--soft .clet-country-selector__trigger,
 .clet-table--soft .clet-date-selector__trigger,
 .clet-table--soft .clet-date-range-selector__trigger,
-.clet-table--soft .clet-time-selector__trigger,
-.clet-table--soft .clet-input {
-	padding-inline: 20px;
+.clet-table--soft .clet-time-selector__trigger {
+	padding: 0 40px 0 20px;
+}
+
+.clet-table--soft .clet-dropdown__trigger-icon,
+.clet-table--soft .clet-combobox__trigger-icon {
+	right: 20px;
 }
 
 /* ── Soft pagination ── */

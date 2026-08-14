@@ -367,21 +367,21 @@ export function Dashboard3Page() {
       </PageSection>
 
       <PageSection>
-        <Card
-          bordered
-          loading={tableLoading}
-          loadingLabel="Loading members…"
-          loadingMinHeight={420}
-        >
-          <Tabs variant="pill" defaultValue="members">
-            <TabsList>
-              <TabsTrigger value="members">Members</TabsTrigger>
-              <TabsTrigger value="audit">Audit Trail</TabsTrigger>
-              <TabsTrigger value="activity">Recent Activity</TabsTrigger>
-            </TabsList>
+        <Tabs variant="pill" defaultValue="members">
+          <TabsList>
+            <TabsTrigger value="members">Members</TabsTrigger>
+            <TabsTrigger value="audit">Audit Trail</TabsTrigger>
+            <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="members">
-              <Table paramPrefix="dash3-members" variant="soft">
+          <TabsContent value="members">
+            <Table paramPrefix="dash3-members" variant="soft">
+              <Card
+                bordered
+                loading={tableLoading}
+                loadingLabel="Loading members…"
+                loadingMinHeight={420}
+              >
                 <TableHeader>
                   <TableSearch placeholder="Search members..." />
                   <TableFilter variant="spread">
@@ -419,54 +419,54 @@ export function Dashboard3Page() {
                   bulkActions={bulkActions}
                   bulkActionsFooter
                 />
-                <TableFooter noBorder>
-                  <TablePagination
-                    totalPages={totalPages}
-                    totalItems={filtered.length}
-                    pageSizeOptions={pageSizeOptions}
-                  />
-                </TableFooter>
-              </Table>
-            </TabsContent>
+              </Card>
+              <TableFooter noBorder>
+                <TablePagination
+                  totalPages={totalPages}
+                  totalItems={filtered.length}
+                  pageSizeOptions={pageSizeOptions}
+                />
+              </TableFooter>
+            </Table>
+          </TabsContent>
 
-            <TabsContent value="audit">
-              <Timeline>
-                {auditTrail.map((event) => (
-                  <TimelineItem key={event.id} mode={event.mode}>
-                    <TimelineTitle>{event.title}</TimelineTitle>
-                    <TimelineData>{event.date}</TimelineData>
-                    <TimelineFooter>{event.description}</TimelineFooter>
-                  </TimelineItem>
-                ))}
-              </Timeline>
-            </TabsContent>
+          <TabsContent value="audit">
+            <Timeline>
+              {auditTrail.map((event) => (
+                <TimelineItem key={event.id} mode={event.mode}>
+                  <TimelineTitle>{event.title}</TimelineTitle>
+                  <TimelineData>{event.date}</TimelineData>
+                  <TimelineFooter>{event.description}</TimelineFooter>
+                </TimelineItem>
+              ))}
+            </Timeline>
+          </TabsContent>
 
-            <TabsContent value="activity">
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                  padding: "16px 0",
-                }}
-              >
-                {recentActivityEvents.map((event, i) => (
-                  <div key={i} className="demo-activity-row">
-                    <span className="demo-activity-row__dot" />
-                    <div className="demo-activity-row__content">
-                      <span className="demo-activity-row__title">
-                        {event.title}
-                      </span>
-                      <span className="demo-activity-row__date">
-                        {event.date}
-                      </span>
-                    </div>
+          <TabsContent value="activity">
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+                padding: "16px 0",
+              }}
+            >
+              {recentActivityEvents.map((event, i) => (
+                <div key={i} className="demo-activity-row">
+                  <span className="demo-activity-row__dot" />
+                  <div className="demo-activity-row__content">
+                    <span className="demo-activity-row__title">
+                      {event.title}
+                    </span>
+                    <span className="demo-activity-row__date">
+                      {event.date}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </TabsContent>
-            </Tabs>
-        </Card>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </PageSection>
 
       <PageSection>
