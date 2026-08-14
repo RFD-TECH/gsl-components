@@ -431,40 +431,44 @@ export function Dashboard3Page() {
           </TabsContent>
 
           <TabsContent value="audit">
-            <Timeline>
-              {auditTrail.map((event) => (
-                <TimelineItem key={event.id} mode={event.mode}>
-                  <TimelineTitle>{event.title}</TimelineTitle>
-                  <TimelineData>{event.date}</TimelineData>
-                  <TimelineFooter>{event.description}</TimelineFooter>
-                </TimelineItem>
-              ))}
-            </Timeline>
+            <Card bordered>
+              <Timeline>
+                {auditTrail.map((event) => (
+                  <TimelineItem key={event.id} mode={event.mode}>
+                    <TimelineTitle>{event.title}</TimelineTitle>
+                    <TimelineData>{event.date}</TimelineData>
+                    <TimelineFooter>{event.description}</TimelineFooter>
+                  </TimelineItem>
+                ))}
+              </Timeline>
+            </Card>
           </TabsContent>
 
           <TabsContent value="activity">
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 8,
-                padding: "16px 0",
-              }}
-            >
-              {recentActivityEvents.map((event, i) => (
-                <div key={i} className="demo-activity-row">
-                  <span className="demo-activity-row__dot" />
-                  <div className="demo-activity-row__content">
-                    <span className="demo-activity-row__title">
-                      {event.title}
-                    </span>
-                    <span className="demo-activity-row__date">
-                      {event.date}
-                    </span>
+            <Card bordered>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                  padding: "16px 0",
+                }}
+              >
+                {recentActivityEvents.map((event, i) => (
+                  <div key={i} className="demo-activity-row">
+                    <span className="demo-activity-row__dot" />
+                    <div className="demo-activity-row__content">
+                      <span className="demo-activity-row__title">
+                        {event.title}
+                      </span>
+                      <span className="demo-activity-row__date">
+                        {event.date}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </Card>
           </TabsContent>
         </Tabs>
       </PageSection>

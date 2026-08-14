@@ -36,6 +36,10 @@ interface TsJsxElement extends TsNode {
   attributes: TsJsxAttributes;
 }
 
+interface TsJsxElementWithChildren extends TsNode {
+  openingElement: TsJsxElement;
+}
+
 interface TsImportSpecifier extends TsNode {
   name: TsIdentifier;
   propertyName?: TsIdentifier;
@@ -74,6 +78,7 @@ interface TsApi {
   isNamedImports(node: TsNode): node is TsNamedImports;
   isNamespaceImport(node: TsNode): boolean;
   isStringLiteral(node: TsNode): node is TsStringLiteral;
+  isJsxElement(node: TsNode): node is TsJsxElementWithChildren;
 }
 
 const LIBRARY = "@rfdtech/components";
@@ -101,7 +106,28 @@ const TRACKED = new Set([
   "MetricCard",
   "Table",
   "TableContent",
+  "ProfilePopover",
 ]);
+
+/**
+ * Children the shell's header is expected to carry. The header lost its
+ * branding to the rail, so it gets a search field in that place, and the
+ * actions group gets a notifications bell if it has none.
+ */
+const HEADER_INSERTS = [
+  {
+    parent: "AppHeader",
+    child: "AppHeaderSearch",
+    markup: '<AppHeaderSearch placeholder="Search" />',
+    note: "AppHeaderSearch added where the branding used to sit. Wire its `data`/`onSearch` to your own search.",
+  },
+  {
+    parent: "AppHeaderActions",
+    child: "AppHeaderNotifications",
+    markup: "<AppHeaderNotifications />",
+    note: "AppHeaderNotifications added. Pass your notification items as children and drive `loading` from your query.",
+  },
+] as const;
 
 /** Exports renamed outright, at every reference to the same binding. */
 interface ExportRename {
@@ -144,6 +170,20 @@ const EXPORT_RENAMES: Record<string, ExportRename> = {
   GslShadowValue: { to: "CletShadowValue" },
   GslStringValue: { to: "CletStringValue" },
   GslZIndexValue: { to: "CletZIndexValue" },
+};
+
+/**
+ * Elements the shell no longer declares in the app. `SidebarFooter` is rendered
+ * by the rail itself, and branding moved from the header onto that rail, so
+ * both are deleted outright rather than rewritten.
+ */
+const REMOVED_ELEMENTS: Record<string, string> = {
+  SidebarFooter:
+    "SidebarFooter removed: the primary rail renders its own wordmark, so the app no longer declares one.",
+  AppHeaderBranding:
+    "AppHeaderBranding removed: branding belongs at the top of the rail now. Add a SidebarHeader " +
+    "with your logo and title if the rail does not have one, and check whether any props that fed " +
+    "the branding (logo/title/subtitle) are now unused on the surrounding component.",
 };
 
 /** Advisories reported from the JSX element, so attributes can be inspected. */
@@ -250,6 +290,13 @@ function adoptTarget(component: string, current: string | null): VariantTarget {
     return null;
   }
 
+  if (component === "ProfilePopover") {
+    // The rail no longer carries an identity block, so the header's trigger
+    // is the expanded one rather than the bare avatar.
+    if (current === "avatar") return { kind: "set", value: "full" };
+    return null;
+  }
+
   if (component === "Table") {
     if (current === null) return { kind: "set", value: "soft" };
     return null;
@@ -261,8 +308,9 @@ function adoptTarget(component: string, current: string | null): VariantTarget {
     return null;
   }
 
-  // `variant="default"` is now redundant. `stacked` is left alone by design.
-  if (current === "default") return { kind: "remove" };
+  // `variant="default"` is redundant now, and `stacked` moves to the shell:
+  // its full-width brand bar is what 2.3 replaces with the rail.
+  if (current === "default" || current === "stacked") return { kind: "remove" };
   return null;
 }
 
@@ -364,7 +412,17 @@ async function collectSourceFiles(root: string): Promise<string[]> {
   return found.sort();
 }
 
+interface ImportSpecifierRef {
+  /** The specifier node, for its own text range. */
+  node: TsNode;
+  /** Its siblings, so a removal can eat the right comma. */
+  siblings: readonly TsNode[];
+  index: number;
+}
+
 interface LibraryImports {
+  /** Local name -> its import specifier, for removing one that goes unused. */
+  specifiers: Map<string, ImportSpecifierRef>;
   /** Local JSX name -> exported name, for the components this codemod tracks. */
   locals: Map<string, string>;
   /** Every name imported from the library, by its exported name. */
@@ -379,6 +437,7 @@ function collectLibraryImports(ts: TsApi, source: TsSourceFile): LibraryImports 
   const locals = new Map<string, string>();
   const imported = new Set<string>();
   const localToExported = new Map<string, string>();
+  const specifiers = new Map<string, ImportSpecifierRef>();
   let namespaceImport: TsNode | null = null;
 
   for (const statement of source.statements) {
@@ -395,15 +454,20 @@ function collectLibraryImports(ts: TsApi, source: TsSourceFile): LibraryImports 
     }
 
     if (!ts.isNamedImports(bindings)) continue;
-    for (const element of bindings.elements) {
+    bindings.elements.forEach((element, index) => {
       const exported = (element.propertyName ?? element.name).text;
       imported.add(exported);
       localToExported.set(element.name.text, exported);
+      specifiers.set(element.name.text, {
+        node: element,
+        siblings: bindings.elements,
+        index,
+      });
       if (TRACKED.has(exported)) locals.set(element.name.text, exported);
-    }
+    });
   }
 
-  return { locals, imported, localToExported, namespaceImport };
+  return { locals, imported, localToExported, specifiers, namespaceImport };
 }
 
 function findVariantAttribute(
@@ -434,7 +498,7 @@ function migrateSource(
   const changes: MigrateChange[] = [];
   const notes: MigrateNote[] = [];
   const edits: Edit[] = [];
-  const { locals, imported, localToExported, namespaceImport } =
+  const { locals, imported, localToExported, specifiers, namespaceImport } =
     collectLibraryImports(ts, source);
 
   // Skip renames that would collide with a binding already imported here.
@@ -480,10 +544,15 @@ function migrateSource(
     return { text, changes, notes };
   }
 
-  let sawStackedLayout: number | null = null;
 
   const advised = new Set<string>();
   const renameNoted = new Set<string>();
+  const jsxUsage = new Map<string, number>();
+  const jsxRemoved = new Map<string, number>();
+  // Where a missing header child would go: just inside its parent's opening tag.
+  const insertPoints = new Map<string, { at: number; indent: string }>();
+  const bump = (counts: Map<string, number>, name: string) =>
+    counts.set(name, (counts.get(name) ?? 0) + 1);
 
   const visit = (node: TsNode): void => {
     // An aliased import only matches its propertyName, so the local name stays.
@@ -527,8 +596,61 @@ function migrateSource(
       }
     }
 
+    // Whole-element deletions, taken from the outermost node so the closing tag
+    // and children go with it. Adopt mode only: preserve keeps the old shell.
+    if (!options.preserve) {
+      const removable =
+        ts.isJsxElement(node)
+          ? node.openingElement
+          : ts.isJsxSelfClosingElement(node)
+            ? node
+            : null;
+      if (removable && ts.isIdentifier(removable.tagName)) {
+        const local = removable.tagName.text;
+        const exported = localToExported.get(local);
+        const reason = exported ? REMOVED_ELEMENTS[exported] : undefined;
+        if (reason) {
+          let start = node.getStart(source);
+          while (start > 0 && isWhitespace(text[start - 1]) && text[start - 1] !== "\n") {
+            start -= 1;
+          }
+          let end = node.getEnd();
+          if (start > 0 && text[start - 1] === "\n" && text[end] === "\n") end += 1;
+          edits.push({ start, end, text: "" });
+          // Counted as a usage too: this branch returns before the JSX pass
+          // that normally tallies them, and the two counts must line up for
+          // the import to be recognised as dead.
+          bump(jsxUsage, local);
+          bump(jsxRemoved, local);
+          const line = lineOf(node.getStart(source));
+          changes.push({
+            file: filePath,
+            line,
+            component: exported!,
+            description: `${exported} removed`,
+          });
+          notes.push({ file: filePath, line, message: reason });
+          return;
+        }
+      }
+    }
+
     if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
       const tagName = node.tagName;
+      if (ts.isIdentifier(tagName) && localToExported.has(tagName.text)) {
+        bump(jsxUsage, tagName.text);
+      }
+
+      if (!options.preserve && ts.isIdentifier(tagName) && ts.isJsxOpeningElement(node)) {
+        const exported = localToExported.get(tagName.text);
+        const insert = HEADER_INSERTS.find((entry) => entry.parent === exported);
+        if (insert && !insertPoints.has(insert.child)) {
+          const tagStart = node.getStart(source);
+          const lineStart = text.lastIndexOf("\n", tagStart) + 1;
+          const indent = text.slice(lineStart, tagStart);
+          insertPoints.set(insert.child, { at: node.getEnd(), indent });
+        }
+      }
 
       // Advise from the element, not the import, so the line points at the
       // usage and the condition can be checked against real attributes.
@@ -613,9 +735,6 @@ function migrateSource(
               ? initializer.text
               : null;
 
-            if (component === "AppLayout" && current === "stacked") {
-              sawStackedLayout = line;
-            }
 
             const target = options.preserve
               ? preserveTarget(component, current)
@@ -693,13 +812,66 @@ function migrateSource(
 
   visit(source);
 
-  if (!options.preserve && sawStackedLayout !== null && changes.length > 0) {
-    notes.push({
+
+  // The shell's header carries a search field and a notifications bell. Add
+  // whichever the file does not already render, and import it.
+  if (!options.preserve) {
+    const importable: string[] = [];
+    for (const entry of HEADER_INSERTS) {
+      const point = insertPoints.get(entry.child);
+      if (!point) continue;
+      if (text.includes(`<${entry.child}`)) continue;
+      edits.push({
+        start: point.at,
+        end: point.at,
+        text: `\n${point.indent}  ${entry.markup}`,
+      });
+      importable.push(entry.child);
+      const line = lineOf(point.at);
+      changes.push({
+        file: filePath,
+        line,
+        component: entry.child,
+        description: `${entry.child} added to ${entry.parent}`,
+      });
+      notes.push({ file: filePath, line, message: entry.note });
+    }
+
+    const missingImports = importable.filter((name) => !imported.has(name));
+    if (missingImports.length > 0) {
+      const anchor = [...specifiers.values()].sort(
+        (a, b) => b.node.getEnd() - a.node.getEnd(),
+      )[0];
+      if (anchor) {
+        edits.push({
+          start: anchor.node.getEnd(),
+          end: anchor.node.getEnd(),
+          text: missingImports.map((name) => `, ${name}`).join(""),
+        });
+      }
+    }
+  }
+
+  // An element deletion that took the last usage with it leaves an unused
+  // import, which fails a noUnusedLocals build. Take the specifier too.
+  for (const [local, removed] of jsxRemoved) {
+    if ((jsxUsage.get(local) ?? 0) !== removed) continue;
+    const specifier = specifiers.get(local);
+    if (!specifier) continue;
+    const { node, siblings, index } = specifier;
+    let start = node.getStart(source);
+    let end = node.getEnd();
+    if (index < siblings.length - 1) {
+      end = siblings[index + 1].getStart(source);
+    } else if (index > 0) {
+      start = siblings[index - 1].getEnd();
+    }
+    edits.push({ start, end, text: "" });
+    changes.push({
       file: filePath,
-      line: sawStackedLayout,
-      message:
-        'AppLayout variant="stacked" was left as-is while the header/sidebar in this file moved ' +
-        "to the new shell. Drop the variant to put the rail full-height under the new default.",
+      line: lineOf(node.getStart(source)),
+      component: local,
+      description: `${local} import removed (no longer used)`,
     });
   }
 

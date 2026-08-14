@@ -89,6 +89,15 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
     </SidebarHeader>
   ) : null;
 
+  // The rail carries its own bottom anchor. An app that declares no
+  // SidebarFooter still gets the wordmark, so migrating one is a deletion
+  // rather than a swap.
+  const hasExistingFooter = Children.toArray(children).some(
+    (child) => isValidElement(child) && child.type === SidebarFooter,
+  );
+  const autoFooter =
+    variant === "primary" && !hasExistingFooter ? <SidebarFooter /> : null;
+
   return (
     <>
       <aside
@@ -108,6 +117,7 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
       >
         {autoHeader}
         {children}
+        {autoFooter}
       </aside>
       {isMobile && <SidebarOverlay />}
     </>
