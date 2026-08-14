@@ -72,13 +72,6 @@
   );
 }
 
-/* Aligns the search icon with the content inset below it. */
-.clet-app-header--plain
-  .clet-app-header-search.clet-app-header-search
-  .clet-command__input-wrapper {
-  padding-left: 0;
-}
-
 /* ── Branding (logo + title/subtitle) ──
    All values are exposed as overridable custom properties; set them on
    .clet-app-header__branding (or an ancestor) to re-theme without extra CSS.
@@ -199,24 +192,53 @@
 
 /* ── Search trigger ── */
 
+/* Resting narrow, full width once focused. The border is drawn at rest rather
+   than on hover: a field with no bounds until you touch it reads as decoration,
+   and a border that only appears on hover also shifts the box by a pixel. */
 .clet-app-header-search.clet-app-header-search.clet-command {
+  --clet-app-header-search-width: 260px;
+  --clet-app-header-search-active-width: 400px;
+
   display: flex;
   /* Not `height: stretch` — Safari resolves it against the block containing
      block rather than the header row and the field fills the page. */
   align-self: stretch;
-  max-width: 400px;
+  width: var(--gsl-app-header-search-width, var(--clet-app-header-search-width));
+  max-width: 100%;
+  transition: width 200ms ease;
+}
+
+.clet-app-header-search.clet-app-header-search.clet-command:focus-within {
+  width: var(
+    --gsl-app-header-search-active-width,
+    var(--clet-app-header-search-active-width)
+  );
 }
 
 .clet-app-header-search.clet-app-header-search.clet-command
   .clet-command__input-wrapper {
   border-radius: var(--gsl-radius-xl, var(--clet-radius-xl));
   align-self: stretch;
-  border: none;
+  border: 1px solid var(--gsl-border, var(--clet-border));
+  transition: border-color 150ms ease;
 }
 
 .clet-app-header-search.clet-app-header-search.clet-command
   .clet-command__input-wrapper:hover {
-  border: 1px solid var(--gsl-border, var(--clet-border));
+  border-color: var(--gsl-border-strong, var(--clet-border-strong));
+}
+
+.clet-app-header-search.clet-app-header-search.clet-command:focus-within
+  .clet-command__input-wrapper {
+  border-color: var(--gsl-primary, var(--clet-primary));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clet-app-header-search.clet-app-header-search.clet-command,
+  .clet-app-header-search.clet-app-header-search.clet-command
+    .clet-command__input-wrapper {
+    transition: none;
+  }
 }
 
 .clet-app-header__search-btn {
