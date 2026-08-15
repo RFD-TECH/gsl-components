@@ -333,7 +333,7 @@ export function Dashboard3Page() {
         <MetricCards>
           <MetricCard
             variant="soft"
-            mark="rings"
+            mark="adinkra-hene"
             loading={metricsLoading}
             label="Total Members"
             value={members.length}
@@ -341,7 +341,7 @@ export function Dashboard3Page() {
           />
           <MetricCard
             variant="soft"
-            mark="lattice"
+            mark="nkyimu"
             loading={metricsLoading}
             label="Active Members"
             value={members.filter((m) => m.status === "Active").length}
@@ -349,7 +349,7 @@ export function Dashboard3Page() {
           />
           <MetricCard
             variant="soft"
-            mark="quatrefoil"
+            mark="mpuannum"
             loading={metricsLoading}
             label="New This Month"
             value={members.filter((m) => m.joined >= "2025-01-01").length}
@@ -357,7 +357,7 @@ export function Dashboard3Page() {
           />
           <MetricCard
             variant="soft"
-            mark="bird"
+            mark="okodee-mmowere"
             loading={metricsLoading}
             label="Engagement Rate"
             value="94.2%"

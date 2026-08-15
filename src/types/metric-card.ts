@@ -4,13 +4,27 @@ export type MetricTrend = "up" | "down" | "neutral";
 
 export type MetricCardVariant = "default" | "outline" | "bordered" | "soft";
 
-/** Ids of the watermarks bundled with `variant="soft"`. */
+/**
+ * Ids of the Adinkra watermarks bundled with `variant="soft"`, each named for
+ * the symbol it draws.
+ */
 export type MetricCardMark =
-  | "rings"
-  | "lattice"
-  | "quatrefoil"
-  | "bird"
-  | "crossed";
+  | "adinkra-hene"
+  | "akofena"
+  | "akoko-nan"
+  | "akoma-ntoaso"
+  | "epa"
+  | "hwemudua"
+  | "mate-masie"
+  | "mpuannum"
+  | "nkyimkyim"
+  | "nkyimu"
+  | "nyansapo"
+  | "ohene-adwa"
+  | "ohene-aniwa"
+  | "okodee-mmowere"
+  | "osram-ne-nsroma"
+  | "sepow";
 
 export interface MetricCardClassNames {
   root?: string;

@@ -84,14 +84,22 @@ by the card's own `overflow: hidden`.
 />
 ```
 
-The watermark comes from a bundled set of five brand marks: `rings`, `lattice`, `quatrefoil`,
-`bird`, `crossed`. Omit `mark` and one is chosen by hashing `label` (FNV-1a), so the same label
-always draws the same mark and a row of differently-labelled cards spreads across the set without
-anyone picking. Pass an id to fix a specific one, a node to supply your own artwork, or `false` to
-draw none.
+The watermark comes from a bundled set of sixteen Adinkra symbols, each id named for the symbol it
+draws:
+
+| | | | |
+|---|---|---|---|
+| `adinkra-hene` | `akofena` | `akoko-nan` | `akoma-ntoaso` |
+| `epa` | `hwemudua` | `mate-masie` | `mpuannum` |
+| `nkyimkyim` | `nkyimu` | `nyansapo` | `ohene-adwa` |
+| `ohene-aniwa` | `okodee-mmowere` | `osram-ne-nsroma` | `sepow` |
+
+Omit `mark` and one is chosen by hashing `label` (FNV-1a), so the same label always draws the same
+symbol and a row of differently-labelled cards spreads across the set without anyone picking. Pass
+an id to fix a specific one, a node to supply your own artwork, or `false` to draw none.
 
 ```tsx
-<MetricCard variant="soft" mark="quatrefoil" label="Compliance Rate" value="60%" />
+<MetricCard variant="soft" mark="nyansapo" label="Compliance Rate" value="60%" />
 <MetricCard variant="soft" mark={false} label="No watermark" value={12} />
 ```
 
