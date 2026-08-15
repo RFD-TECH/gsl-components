@@ -11,7 +11,45 @@ import { pathToFileURL } from "node:url";
 interface TsNode {
   getStart(source?: TsSourceFile): number;
   getEnd(): number;
+  getFullStart(): number;
   getText(source?: TsSourceFile): string;
+  parent?: TsNode;
+}
+
+/** `{ logo, title = "Acme" }` in a component's parameter list. */
+interface TsBindingElement extends TsNode {
+  name: TsNode;
+}
+
+interface TsObjectBindingPattern extends TsNode {
+  elements: readonly TsBindingElement[];
+}
+
+interface TsPropertySignature extends TsNode {
+  name: TsNode;
+}
+
+interface TsInterfaceDeclaration extends TsNode {
+  name: TsIdentifier;
+  members: readonly TsNode[];
+}
+
+interface TsParameter extends TsNode {
+  name: TsNode;
+  type?: TsNode;
+}
+
+interface TsTypeReference extends TsNode {
+  typeName: TsNode;
+}
+
+interface TsJsxExpression extends TsNode {
+  expression?: TsNode;
+}
+
+interface TsCommentRange {
+  pos: number;
+  end: number;
 }
 
 interface TsIdentifier extends TsNode {
@@ -51,7 +89,7 @@ interface TsNamedImports extends TsNode {
 
 interface TsImportDeclaration extends TsNode {
   moduleSpecifier: TsNode;
-  importClause?: { namedBindings?: TsNode };
+  importClause?: { name?: TsIdentifier; namedBindings?: TsNode };
 }
 
 interface TsSourceFile extends TsNode {
@@ -79,6 +117,17 @@ interface TsApi {
   isNamespaceImport(node: TsNode): boolean;
   isStringLiteral(node: TsNode): node is TsStringLiteral;
   isJsxElement(node: TsNode): node is TsJsxElementWithChildren;
+  isJsxExpression(node: TsNode): node is TsJsxExpression;
+  isBindingElement(node: TsNode): node is TsBindingElement;
+  isObjectBindingPattern(node: TsNode): node is TsObjectBindingPattern;
+  isPropertySignature(node: TsNode): node is TsPropertySignature;
+  isInterfaceDeclaration(node: TsNode): node is TsInterfaceDeclaration;
+  isParameter(node: TsNode): node is TsParameter;
+  isTypeReferenceNode(node: TsNode): node is TsTypeReference;
+  getLeadingCommentRanges(
+    text: string,
+    position: number,
+  ): TsCommentRange[] | undefined;
 }
 
 const LIBRARY = "@rfdtech/components";
@@ -180,13 +229,21 @@ const EXPORT_RENAMES: Record<string, ExportRename> = {
 /** Branding props captured from the header, to re-emit on the rail. */
 let capturedBranding: string | null = null;
 
+/**
+ * Props retired with the header branding, as component name -> prop names.
+ * A shell that took `logo`/`title`/`subtitle` only to feed `AppHeaderBranding`
+ * is left holding dead parameters once that element goes, which fails a
+ * `noUnusedLocals` build. The declaring file drops the binding and its
+ * interface member; every call site then drops the matching attribute.
+ */
+const retiredProps = new Map<string, Set<string>>();
+
 const REMOVED_ELEMENTS: Record<string, string> = {
   SidebarFooter:
     "SidebarFooter removed: the primary rail renders its own wordmark, so the app no longer declares one.",
   AppHeaderBranding:
     "AppHeaderBranding removed: branding belongs at the top of the rail now. Add a SidebarHeader " +
-    "with your logo and title if the rail does not have one, and check whether any props that fed " +
-    "the branding (logo/title/subtitle) are now unused on the surrounding component.",
+    "with your logo and title if the rail does not have one.",
 };
 
 /** Advisories reported from the JSX element, so attributes can be inspected. */
@@ -484,6 +541,155 @@ function findVariantAttribute(
   return null;
 }
 
+/**
+ * A node's start, reaching back over a comment written on its own line above,
+ * then to the start of the line when nothing else shares it. Deliberately
+ * never reaches back past the previous node: spans that overlap would corrupt
+ * each other when two neighbours are deleted in the same run.
+ */
+function startWithComments(
+  ts: TsApi,
+  text: string,
+  source: TsSourceFile,
+  node: TsNode,
+): number {
+  let start = node.getStart(source);
+  const ranges = ts.getLeadingCommentRanges(text, node.getFullStart());
+  if (ranges && ranges.length > 0) {
+    const first = ranges[0].pos;
+    const commentLine = text.lastIndexOf("\n", first - 1) + 1;
+    if (text.slice(commentLine, first).trim() === "") start = first;
+  }
+  const lineStart = text.lastIndexOf("\n", start - 1) + 1;
+  return text.slice(lineStart, start).trim() === "" ? lineStart : start;
+}
+
+/**
+ * Folds deletions that overlap into one span. Two neighbours removed in the
+ * same run can each reach for the whitespace between them; applying both
+ * back-to-front would then cut into text the other already claimed and eat a
+ * live character. Deletions absorb each other; a replacement wins its span.
+ */
+function mergeOverlaps(edits: Edit[]): Edit[] {
+  const sorted = [...edits].sort((a, b) => a.start - b.start || a.end - b.end);
+  const merged: Edit[] = [];
+  for (const edit of sorted) {
+    const previous = merged[merged.length - 1];
+    if (!previous || edit.start >= previous.end) {
+      merged.push({ ...edit });
+      continue;
+    }
+    if (previous.text === "" && edit.text === "") {
+      previous.end = Math.max(previous.end, edit.end);
+      continue;
+    }
+    // A rewrite nested inside a deletion is moot: the text is going anyway.
+    if (previous.text === "" && previous.end >= edit.end) continue;
+    merged.push({ ...edit });
+  }
+  return merged;
+}
+
+/** Extends an end position past a trailing comma and the rest of the line. */
+function endOfLine(text: string, end: number): number {
+  let cursor = end;
+  if (text[cursor] === "," || text[cursor] === ";") cursor += 1;
+  while (cursor < text.length && (text[cursor] === " " || text[cursor] === "\t")) {
+    cursor += 1;
+  }
+  return text[cursor] === "\n" ? cursor + 1 : cursor;
+}
+
+/**
+ * Deletes one entry from a comma-separated list without leaving a stray comma
+ * or the comment that introduced it.
+ */
+function spanWithSeparators(
+  ts: TsApi,
+  text: string,
+  source: TsSourceFile,
+  node: TsNode,
+  siblings: readonly TsNode[],
+): Edit {
+  const index = siblings.indexOf(node as never);
+  const start = startWithComments(ts, text, source, node);
+  const end = endOfLine(text, node.getEnd());
+  // Last in the list and no trailing comma: the comma now ending the list
+  // belongs to the predecessor and has to go with it.
+  if (index === siblings.length - 1 && index > 0 && text[node.getEnd()] !== ",") {
+    const previous = siblings[index - 1];
+    if (text[previous.getEnd()] === ",") {
+      return { start: previous.getEnd(), end, text: "" };
+    }
+  }
+  return { start, end, text: "" };
+}
+
+/**
+ * Second half of the branding retirement: drops `<Shell logo={...} />`
+ * attributes for props the declaring file just deleted. Runs over every source
+ * file, since a shell's callers need not import the library themselves.
+ */
+function retireCallSites(
+  ts: TsApi,
+  filePath: string,
+  text: string,
+): { text: string; changes: MigrateChange[] } {
+  if (retiredProps.size === 0) return { text, changes: [] };
+  if (![...retiredProps.keys()].some((name) => text.includes(`<${name}`))) {
+    return { text, changes: [] };
+  }
+
+  const source = ts.createSourceFile(
+    filePath,
+    text,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const changes: MigrateChange[] = [];
+  const edits: Edit[] = [];
+
+  const visit = (node: TsNode): void => {
+    if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+      const element = node as TsJsxElement;
+      if (ts.isIdentifier(element.tagName)) {
+        const retired = retiredProps.get((element.tagName as TsIdentifier).text);
+        if (retired) {
+          for (const property of element.attributes.properties) {
+            if (!ts.isJsxAttribute(property)) continue;
+            const attribute = property as TsJsxAttribute;
+            const name = attribute.name.getText(source);
+            if (!retired.has(name)) continue;
+            edits.push({
+              start: startWithComments(ts, text, source, attribute),
+              end: endOfLine(text, attribute.getEnd()),
+              text: "",
+            });
+            changes.push({
+              file: filePath,
+              line: source.getLineAndCharacterOfPosition(
+                attribute.getStart(source),
+              ).line + 1,
+              component: (element.tagName as TsIdentifier).text,
+              description: `${name} prop dropped (retired with the header branding)`,
+            });
+          }
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+
+  if (edits.length === 0) return { text, changes: [] };
+  let next = text;
+  for (const edit of mergeOverlaps(edits).sort((a, b) => b.start - a.start)) {
+    next = next.slice(0, edit.start) + edit.text + next.slice(edit.end);
+  }
+  return { text: next, changes };
+}
+
 function migrateSource(
   ts: TsApi,
   filePath: string,
@@ -555,6 +761,9 @@ function migrateSource(
   // Where a missing header child would go: just inside its parent's opening tag.
   const insertPoints = new Map<string, { at: number; indent: string }>();
   const neededImports = new Set<string>();
+  // Bindings the deleted branding referenced, and the spans it took with it.
+  const brandingRefs = new Set<string>();
+  const removedRanges: Array<[number, number]> = [];
   const bump = (counts: Map<string, number>, name: string) =>
     counts.set(name, (counts.get(name) ?? 0) + 1);
 
@@ -633,7 +842,19 @@ function migrateSource(
               )
               .map((attribute) => attribute.getText(source));
             if (carried.length > 0) capturedBranding = carried.join(" ");
+            // `logo={logo}` names a binding in this file. Note it, so the
+            // orphan pass below can retire it once the element is gone.
+            for (const property of removable.attributes.properties) {
+              if (!ts.isJsxAttribute(property)) continue;
+              const initializer = (property as TsJsxAttribute).initializer;
+              if (!initializer || !ts.isJsxExpression(initializer)) continue;
+              const expression = initializer.expression;
+              if (expression && ts.isIdentifier(expression)) {
+                brandingRefs.add(expression.text);
+              }
+            }
           }
+          removedRanges.push([node.getStart(source), node.getEnd()]);
           let start = node.getStart(source);
           while (start > 0 && isWhitespace(text[start - 1]) && text[start - 1] !== "\n") {
             start -= 1;
@@ -888,6 +1109,146 @@ function migrateSource(
 
   visit(source);
 
+  // Props the deleted branding was the only reader of: an unused destructured
+  // parameter fails a noUnusedLocals build. The binding and its interface
+  // member go here, the call sites in retireCallSites.
+  if (!options.preserve && brandingRefs.size > 0) {
+    const wasRemoved = (position: number) =>
+      removedRanges.some(([start, end]) => position >= start && position < end);
+
+    const bindings = new Map<string, TsBindingElement>();
+    const liveReads = new Set<string>();
+
+    const survey = (node: TsNode): void => {
+      if (ts.isIdentifier(node) && brandingRefs.has(node.text)) {
+        const parent = node.parent;
+        if (parent && ts.isBindingElement(parent) && parent.name === node) {
+          bindings.set(node.text, parent);
+        } else if (
+          !(parent && ts.isPropertySignature(parent) && parent.name === node) &&
+          !wasRemoved(node.getStart(source))
+        ) {
+          liveReads.add(node.text);
+        }
+      }
+      ts.forEachChild(node, survey);
+    };
+    survey(source);
+
+    for (const [name, binding] of bindings) {
+      if (liveReads.has(name)) continue;
+
+      const pattern = binding.parent;
+      if (!pattern || !ts.isObjectBindingPattern(pattern)) continue;
+      const parameter = pattern.parent;
+      if (!parameter || !ts.isParameter(parameter)) continue;
+
+      const owner = parameter.parent;
+      const ownerName =
+        owner && "name" in owner && owner.name && ts.isIdentifier(owner.name as TsNode)
+          ? (owner.name as TsIdentifier).text
+          : null;
+      if (!ownerName) continue;
+
+      edits.push(spanWithSeparators(ts, text, source, binding, pattern.elements));
+
+      // The prop's declaration in the interface the parameter is typed with.
+      const type = parameter.type;
+      if (type && ts.isTypeReferenceNode(type) && ts.isIdentifier(type.typeName)) {
+        const interfaceName = type.typeName.text;
+        for (const statement of source.statements) {
+          if (!ts.isInterfaceDeclaration(statement)) continue;
+          if (statement.name.text !== interfaceName) continue;
+          const member = statement.members.find(
+            (candidate) =>
+              ts.isPropertySignature(candidate) &&
+              ts.isIdentifier(candidate.name) &&
+              (candidate.name as TsIdentifier).text === name,
+          );
+          if (member) {
+            edits.push({
+              start: startWithComments(ts, text, source, member),
+              end: endOfLine(text, member.getEnd()),
+              text: "",
+            });
+          }
+        }
+      }
+
+      const retired = retiredProps.get(ownerName) ?? new Set<string>();
+      retired.add(name);
+      retiredProps.set(ownerName, retired);
+
+      changes.push({
+        file: filePath,
+        line: lineOf(binding.getStart(source)),
+        component: ownerName,
+        description: `${ownerName} prop "${name}" retired (only the removed branding read it)`,
+      });
+    }
+  }
+
+  // A deleted element takes its children with it, often the file's only use of
+  // something imported elsewhere: the profile row inside the removed
+  // SidebarFooter, say. The library's own specifiers are pruned above.
+  if (!options.preserve && removedRanges.length > 0) {
+    const insideRemoved = (position: number) =>
+      removedRanges.some(([start, end]) => position >= start && position < end);
+
+    for (const statement of source.statements) {
+      if (!ts.isImportDeclaration(statement)) continue;
+      if (
+        ts.isStringLiteral(statement.moduleSpecifier) &&
+        statement.moduleSpecifier.text === LIBRARY
+      ) {
+        continue;
+      }
+      const named = statement.importClause?.namedBindings;
+      if (!named || !ts.isNamedImports(named)) continue;
+
+      const importStart = statement.getStart(source);
+      const importEnd = statement.getEnd();
+      const live = new Set<string>();
+      const countReferences = (node: TsNode): void => {
+        if (ts.isIdentifier(node)) {
+          const position = node.getStart(source);
+          if (
+            !(position >= importStart && position < importEnd) &&
+            !insideRemoved(position)
+          ) {
+            live.add(node.text);
+          }
+        }
+        ts.forEachChild(node, countReferences);
+      };
+      countReferences(source);
+
+      const dead = named.elements.filter((element) => !live.has(element.name.text));
+      if (dead.length === 0) continue;
+
+      // Nothing left to import: the whole statement goes.
+      if (dead.length === named.elements.length && !statement.importClause?.name) {
+        edits.push({
+          start: startWithComments(ts, text, source, statement),
+          end: endOfLine(text, importEnd),
+          text: "",
+        });
+      } else {
+        for (const element of dead) {
+          edits.push(spanWithSeparators(ts, text, source, element, named.elements));
+        }
+      }
+
+      for (const element of dead) {
+        changes.push({
+          file: filePath,
+          line: lineOf(element.getStart(source)),
+          component: element.name.text,
+          description: `${element.name.text} import removed (no longer used)`,
+        });
+      }
+    }
+  }
 
   // The shell's header carries a search field and a notifications bell. Add
   // whichever the file does not already render, and import it.
@@ -918,10 +1279,18 @@ function migrateSource(
         (a, b) => b.node.getEnd() - a.node.getEnd(),
       )[0];
       if (anchor) {
+        // Match the import's own shape: one name per line when it is already
+        // broken across lines, otherwise inline after the last specifier.
+        const anchorStart = anchor.node.getStart(source);
+        const lineStart = text.lastIndexOf("\n", anchorStart - 1) + 1;
+        const indent = text.slice(lineStart, anchorStart);
+        const multiline = indent.trim() === "" && indent.length > 0;
         edits.push({
           start: anchor.node.getEnd(),
           end: anchor.node.getEnd(),
-          text: missingImports.map((name) => `, ${name}`).join(""),
+          text: multiline
+            ? missingImports.map((name) => `,\n${indent}${name}`).join("")
+            : missingImports.map((name) => `, ${name}`).join(""),
         });
       }
     }
@@ -953,7 +1322,7 @@ function migrateSource(
   if (edits.length === 0) return { text, changes, notes };
 
   // Back to front, so offsets stay valid.
-  const ordered = [...edits].sort((a, b) => b.start - a.start);
+  const ordered = mergeOverlaps([...edits]).sort((a, b) => b.start - a.start);
   let next = text;
   for (const edit of ordered) {
     next = next.slice(0, edit.start) + edit.text + next.slice(edit.end);
@@ -973,26 +1342,39 @@ export async function runMigrate(options: MigrateOptions): Promise<MigrateResult
   let filesChanged = 0;
 
   capturedBranding = null;
+  retiredProps.clear();
+
+  // Scan pass. Discarded except for the branding it captures and the props it
+  // finds orphaned, both of which the write pass needs up front: the rail and
+  // the shell's callers usually live in other files.
   if (!options.preserve) {
     for (const file of files) {
       const text = await readFile(file, "utf8");
       if (!text.includes(LIBRARY)) continue;
       migrateSource(ts, file, text, options);
-      if (capturedBranding) break;
     }
   }
 
   for (const file of files) {
     const text = await readFile(file, "utf8");
-    if (!text.includes(LIBRARY)) continue;
+    let next = text;
 
-    const result = migrateSource(ts, file, text, options);
-    changes.push(...result.changes);
-    notes.push(...result.notes);
+    if (text.includes(LIBRARY)) {
+      const result = migrateSource(ts, file, next, options);
+      changes.push(...result.changes);
+      notes.push(...result.notes);
+      next = result.text;
+    }
 
-    if (result.text !== text) {
+    if (!options.preserve) {
+      const retired = retireCallSites(ts, file, next);
+      changes.push(...retired.changes);
+      next = retired.text;
+    }
+
+    if (next !== text) {
       filesChanged += 1;
-      if (options.write) await writeFile(file, result.text, "utf8");
+      if (options.write) await writeFile(file, next, "utf8");
     }
   }
 
