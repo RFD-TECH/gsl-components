@@ -25,3 +25,7 @@ bun.lockb
 .bun-cache-temp/
 .bun-cache-temp-*/
 .bun-cache-temp-*/
+# pnpm is the only install path here; npm/yarn locks drift and get scanned separately.
+package-lock.json
+**/package-lock.json
+yarn.lock

@@ -1,0 +1,33 @@
+version: 2
+
+# Without this file nothing ever raises an update PR, so the lockfile drifts
+# until a scan reports dozens of transitive CVEs at once. pnpm-lock.yaml is the
+# only manifest here: the npm locks were removed and are gitignored.
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      # One PR for the routine noise, so review effort goes to the majors.
+      minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
+      # Security fixes travel together and jump the queue.
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    ignore:
+      # Peer dependencies: consumers pin their own. Bumping the local copy
+      # tells us nothing about what ships, and churns the lockfile weekly.
+      - dependency-name: next
+      - dependency-name: react
+      - dependency-name: react-dom

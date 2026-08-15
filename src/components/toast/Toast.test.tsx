@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { toast as sonnerToast } from "sonner";
 import { ToastProvider } from "./ToastProvider";
 import { Toaster } from "./Toaster";
 import { useToast } from "./hooks/useToast";
@@ -33,6 +34,12 @@ function renderToastTree() {
 }
 
 describe("Toast", () => {
+  // sonner keeps its toasts in a module-level store that outlives the Toaster,
+  // so without this one test's toast is still queued when the next one mounts.
+  afterEach(() => {
+    sonnerToast.dismiss();
+  });
+
   it("renders a toast after calling toast()", async () => {
     renderToastTree();
 
