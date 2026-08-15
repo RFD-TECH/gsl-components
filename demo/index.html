@@ -6,13 +6,17 @@
     <title>GSL Components</title>
     <script>
       (function() {
-        var stored = localStorage.getItem("gsl-theme");
+        // Must read the same key ThemeProvider writes, or the first paint is
+        // the OS theme and hydration flips it: a white flash on every reload.
+        // "gsl-theme" is the pre-rebrand key, kept for anyone who still has it.
+        var stored = localStorage.getItem("clet-theme") || localStorage.getItem("gsl-theme");
         var theme;
         if (stored === "dark" || stored === "light") {
           theme = stored;
         } else {
           theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         }
+        document.documentElement.setAttribute("data-clet-theme", theme);
         document.documentElement.setAttribute("data-gsl-theme", theme);
       })();
     </script>
