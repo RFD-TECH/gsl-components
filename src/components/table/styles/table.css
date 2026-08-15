@@ -539,6 +539,19 @@
 	color: var(--gsl-info, var(--clet-info));
 }
 
+/* The collapsed label is still a flex item, so the button's 8px gap survives it
+   and pushes the chevron half a gap off-centre inside the round hover target. */
+.clet-table--soft
+	.clet-table__pagination-pages
+	.clet-button[aria-label="Previous page"]
+	.clet-button__label,
+.clet-table--soft
+	.clet-table__pagination-pages
+	.clet-button[aria-label="Next page"]
+	.clet-button__label {
+	gap: 0;
+}
+
 .clet-table--soft
 	.clet-table__pagination-pages
 	.clet-button[aria-label="Previous page"]:disabled,
