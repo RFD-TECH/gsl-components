@@ -303,10 +303,17 @@ title: Prefer the "new design system" variant on these components
 severity: do
 components: app-header, metric-card, sidebar, table
 
-The current preferred variant set (demonstrated at `/dashboard2` vs. the frozen `/dashboard2/legacy`
-in the demo app): `AppHeader` `variant="plain"` over `"default"`; `MetricCard` `variant="outline"`
-over `"default"`; `SidebarGroup` `collapsible` (accordion groups) over flat non-collapsible groups;
-`TableContent` `variant="panel"` over `"default"`; `TableFilter` `variant="spread"` over the
-default `"popover"`. Default to these in new work. If asked to "convert this app to the new design
-system," scan for usages of the components above and swap them to the preferred variant, then ask
-before overriding any of the consuming app's own `--clet-*` color token overrides.
+The current preferred variant set is the 2.3 shell, demonstrated at `/` in the demo app, with the
+2.2 shell frozen at `/v2` and the pre-rebrand one at `/legacy`: `AppLayout` with no `variant`;
+`Sidebar` `variant="primary"`; `AppHeader` `variant="plain"`; `MetricCard` `variant="soft"` over
+`"outline"` and `"default"`; `Table` and `TableContent` `variant="soft"` over `"panel"` and
+`"default"`; `SidebarGroup` `collapsible` (accordion groups) over flat non-collapsible groups;
+`TableFilter` `variant="spread"` over the default `"popover"`. Default to these in new work.
+
+`"outline"` on `MetricCard` and `"panel"` on `TableContent` are the superseded 2.2 set: do not
+reach for them in new work, and expect the codemod to convert them.
+
+If asked to "convert this app to the new design system," do not hand-edit the call sites: run the
+codemod (`rfdui migrate --path . --write`, or the `migrate` MCP tool) which moves all of the above
+together and reports what it changed. Then ask before overriding any of the consuming app's own
+`--clet-*` color token overrides.
