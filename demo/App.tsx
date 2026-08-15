@@ -1,5 +1,4 @@
-import type { RouteRecord } from "vite-react-ssg";
-import { ClientOnly } from "vite-react-ssg";
+import type { RouteObject } from "react-router-dom";
 import { Navigate, Outlet } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeToggle";
 import { DemoLayout } from "./components/DemoLayout";
@@ -11,9 +10,8 @@ import { Dashboard3Page } from "./pages/Dashboard3Page";
 import { UserCreatePage } from "./pages/UserCreatePage";
 import { UserDetailPage } from "./pages/UserDetailPage";
 import { DocsPage } from "./pages/DocsPage";
-import { getAllDocSlugs } from "./docs/registry";
 
-export const routes: RouteRecord[] = [
+export const routes: RouteObject[] = [
   {
     path: "/",
     element: (
@@ -48,20 +46,15 @@ export const routes: RouteRecord[] = [
       },
       {
         path: "docs",
-        element: (
-          <ClientOnly>
-            {() => <Navigate to="/docs/getting-started" replace />}
-          </ClientOnly>
-        ),
+        element: <Navigate to="/docs/getting-started" replace />,
       },
       {
         path: "docs/:componentId",
         element: <DocsPage />,
-        getStaticPaths: () => getAllDocSlugs().map((slug) => `docs/${slug}`),
       },
       {
         path: "*",
-        element: <ClientOnly>{() => <Navigate to="/" replace />}</ClientOnly>,
+        element: <Navigate to="/" replace />,
       },
     ],
   },

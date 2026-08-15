@@ -41,8 +41,4 @@ export default defineConfig({
     outDir: "dist/client",
     emptyOutDir: true,
   },
-  ssgOptions: {
-    entry: "main.tsx",
-    mock: true,
-  },
 });
