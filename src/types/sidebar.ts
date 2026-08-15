@@ -123,10 +123,24 @@ export interface SidebarHeaderProps {
   children: ReactNode;
 }
 
+export interface SidebarBrandClassNames {
+  root?: string;
+  logo?: string;
+  title?: string;
+  subtitle?: string;
+}
+
 export interface SidebarBrandProps {
-  classNames?: { root?: string };
+  classNames?: SidebarBrandClassNames;
   className?: string;
-  children: ReactNode;
+  /** Inline logo node (e.g. an `<img>` or icon). */
+  logo?: ReactNode;
+  /** Product or organisation name, rendered in the heading face. */
+  title?: ReactNode;
+  /** Secondary line under the title. */
+  subtitle?: ReactNode;
+  /** Custom content, overrides the logo/title/subtitle rendering. */
+  children?: ReactNode;
 }
 
 export interface SidebarContentProps {

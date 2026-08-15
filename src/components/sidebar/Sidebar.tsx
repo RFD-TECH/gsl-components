@@ -248,13 +248,43 @@ export const SidebarHeader = forwardRef<HTMLDivElement, SidebarHeaderProps>(
 );
 
 export const SidebarBrand = forwardRef<HTMLDivElement, SidebarBrandProps>(
-  function SidebarBrand({ classNames, className, children }, ref) {
+  function SidebarBrand(
+    { classNames, className, logo, title, subtitle, children },
+    ref,
+  ) {
     return (
       <div
         ref={ref}
         className={cn("clet-sidebar__header-brand gsl-sidebar__header-brand", classNames?.root, className)}
       >
-        {children}
+        {logo ? (
+          <span
+            className={cn("clet-sidebar__header-logo gsl-sidebar__header-logo", classNames?.logo)}
+          >
+            {logo}
+          </span>
+        ) : null}
+        {children ?? (
+          <span className="clet-sidebar__header-text gsl-sidebar__header-text">
+            {title ? (
+              <span
+                className={cn("clet-sidebar__header-title gsl-sidebar__header-title", classNames?.title)}
+              >
+                {title}
+              </span>
+            ) : null}
+            {subtitle ? (
+              <span
+                className={cn(
+                  "clet-sidebar__header-subtitle gsl-sidebar__header-subtitle",
+                  classNames?.subtitle,
+                )}
+              >
+                {subtitle}
+              </span>
+            ) : null}
+          </span>
+        )}
       </div>
     );
   },

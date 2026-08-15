@@ -177,6 +177,9 @@ const EXPORT_RENAMES: Record<string, ExportRename> = {
  * by the rail itself, and branding moved from the header onto that rail, so
  * both are deleted outright rather than rewritten.
  */
+/** Branding props captured from the header, to re-emit on the rail. */
+let capturedBranding: string | null = null;
+
 const REMOVED_ELEMENTS: Record<string, string> = {
   SidebarFooter:
     "SidebarFooter removed: the primary rail renders its own wordmark, so the app no longer declares one.",
@@ -551,6 +554,7 @@ function migrateSource(
   const jsxRemoved = new Map<string, number>();
   // Where a missing header child would go: just inside its parent's opening tag.
   const insertPoints = new Map<string, { at: number; indent: string }>();
+  const neededImports = new Set<string>();
   const bump = (counts: Map<string, number>, name: string) =>
     counts.set(name, (counts.get(name) ?? 0) + 1);
 
@@ -610,6 +614,26 @@ function migrateSource(
         const exported = localToExported.get(local);
         const reason = exported ? REMOVED_ELEMENTS[exported] : undefined;
         if (reason) {
+          // The header's logo/title/subtitle are exactly what the rail's brand
+          // needs, so they travel with the deletion instead of being lost.
+          if (exported === "AppHeaderBranding") {
+            const carried = removable.attributes.properties
+              .filter((property) => ts.isJsxAttribute(property))
+              .map((property) => (property as TsJsxAttribute))
+              .filter((attribute) =>
+                ["logo", "title", "subtitle"].includes(attribute.name.getText()),
+              )
+              // Only string literals travel. `title={title}` names a binding in
+              // the header's own scope, which does not exist in the file that
+              // renders the rail.
+              .filter(
+                (attribute) =>
+                  attribute.initializer !== undefined &&
+                  ts.isStringLiteral(attribute.initializer),
+              )
+              .map((attribute) => attribute.getText(source));
+            if (carried.length > 0) capturedBranding = carried.join(" ");
+          }
           let start = node.getStart(source);
           while (start > 0 && isWhitespace(text[start - 1]) && text[start - 1] !== "\n") {
             start -= 1;
@@ -649,6 +673,58 @@ function migrateSource(
           const lineStart = text.lastIndexOf("\n", tagStart) + 1;
           const indent = text.slice(lineStart, tagStart);
           insertPoints.set(insert.child, { at: node.getEnd(), indent });
+        }
+      }
+
+      // The primary rail shows its header on every viewport, so brand content
+      // parked in `mobileHeader` is promoted into a real SidebarHeader. That
+      // content is the app's own logo and title, so nothing is invented.
+      if (
+        !options.preserve &&
+        ts.isIdentifier(tagName) &&
+        localToExported.get(tagName.text) === "Sidebar" &&
+        ts.isJsxOpeningElement(node) &&
+        !text.includes("<SidebarHeader")
+      ) {
+        const mobileHeader = node.attributes.properties.find(
+          (property) =>
+            ts.isJsxAttribute(property) &&
+            (property as TsJsxAttribute).name.getText() === "mobileHeader",
+        ) as TsJsxAttribute | undefined;
+        const initializer = mobileHeader?.initializer;
+        if (mobileHeader && initializer) {
+          const raw = initializer.getText(source).trim();
+          const inherited = raw.startsWith("{") && raw.endsWith("}")
+            ? raw.slice(1, -1).trim()
+            : raw;
+          // The prop form beats the app's hand-written markup when the header
+          // gave us its logo and title.
+          const brand = capturedBranding
+            ? `<SidebarBrand ${capturedBranding} />`
+            : inherited;
+          let attrStart = mobileHeader.getStart(source);
+          while (attrStart > 0 && isWhitespace(text[attrStart - 1])) attrStart -= 1;
+          edits.push({ start: attrStart, end: mobileHeader.getEnd(), text: "" });
+
+          const tagStart = node.getStart(source);
+          const lineStart = text.lastIndexOf("\n", tagStart) + 1;
+          const indent = text.slice(lineStart, tagStart);
+          edits.push({
+            start: node.getEnd(),
+            end: node.getEnd(),
+            text:
+              `\n${indent}  <SidebarHeader>\n${indent}    ${brand}\n` +
+              `${indent}    <SidebarCollapse />\n${indent}  </SidebarHeader>`,
+          });
+          neededImports.add("SidebarHeader");
+          neededImports.add("SidebarCollapse");
+          const line = lineOf(node.getStart(source));
+          changes.push({
+            file: filePath,
+            line,
+            component: "Sidebar",
+            description: "mobileHeader promoted to a SidebarHeader on the rail",
+          });
         }
       }
 
@@ -816,7 +892,6 @@ function migrateSource(
   // The shell's header carries a search field and a notifications bell. Add
   // whichever the file does not already render, and import it.
   if (!options.preserve) {
-    const importable: string[] = [];
     for (const entry of HEADER_INSERTS) {
       const point = insertPoints.get(entry.child);
       if (!point) continue;
@@ -826,7 +901,7 @@ function migrateSource(
         end: point.at,
         text: `\n${point.indent}  ${entry.markup}`,
       });
-      importable.push(entry.child);
+      neededImports.add(entry.child);
       const line = lineOf(point.at);
       changes.push({
         file: filePath,
@@ -837,7 +912,7 @@ function migrateSource(
       notes.push({ file: filePath, line, message: entry.note });
     }
 
-    const missingImports = importable.filter((name) => !imported.has(name));
+    const missingImports = [...neededImports].filter((name) => !imported.has(name));
     if (missingImports.length > 0) {
       const anchor = [...specifiers.values()].sort(
         (a, b) => b.node.getEnd() - a.node.getEnd(),
@@ -896,6 +971,16 @@ export async function runMigrate(options: MigrateOptions): Promise<MigrateResult
   const changes: MigrateChange[] = [];
   const notes: MigrateNote[] = [];
   let filesChanged = 0;
+
+  capturedBranding = null;
+  if (!options.preserve) {
+    for (const file of files) {
+      const text = await readFile(file, "utf8");
+      if (!text.includes(LIBRARY)) continue;
+      migrateSource(ts, file, text, options);
+      if (capturedBranding) break;
+    }
+  }
 
   for (const file of files) {
     const text = await readFile(file, "utf8");
