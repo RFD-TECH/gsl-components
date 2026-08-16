@@ -12,9 +12,11 @@ export const meta = {
 import { ExampleTabs } from "../components/ExampleTabs";
 import { SidebarPreview } from "../previews/code/SidebarPreview";
 import { SidebarPlainPreview } from "../previews/code/SidebarPlainPreview";
+import { SidebarPrimaryPreview } from "../previews/code/SidebarPrimaryPreview";
 import { SidebarLoadingPreview } from "../previews/code/SidebarLoadingPreview";
 import sidebarSource from "../previews/examples/sidebar.example.tsx?raw";
 import sidebarPlainSource from "../previews/examples/sidebar-plain.example.tsx?raw";
+import sidebarPrimarySource from "../previews/examples/sidebar-primary.example.tsx?raw";
 import sidebarLoadingSource from "../previews/examples/sidebar-loading.example.tsx?raw";
 
 # Sidebar
@@ -34,7 +36,14 @@ Compound sidebar primitives for app shells and section navigation. Desktop shows
 `Sidebar` accepts a `variant` prop that controls its surface style.
 
 - **`"default"`** (default) — card panel surface (`--clet-surface-subtle` background, rounded corners).
-- **`"plain"`** — transparent background with a right border instead of the card panel, and no border radius. Used for dashboard shells where the sidebar should sit flush against the layout edge.
+- **`"plain"`**: transparent background with a right border instead of the card panel, and no border radius. Used where the sidebar should sit flush against the layout edge but stay on the page surface.
+- **`"primary"`**: the brand rail: `--clet-primary-surface` background, `--clet-on-primary` text, no radius and no border. The sidebar of the [layout shell](/docs/app-layout#variants), paired with `AppHeader variant="plain"`. Branding goes in a `SidebarHeader` at the top of the rail, and the group labels set in uppercase with the fold chevron pointing up while a group is open.
+
+<ExampleTabs
+  title='variant="primary": the brand rail, with branding and a collapse toggle in its header'
+  preview={<SidebarPrimaryPreview />}
+  code={sidebarPrimarySource}
+/>
 
 <ExampleTabs
   title='variant="plain" — transparent background with a right border'
@@ -89,8 +98,8 @@ Root `<aside>`. Sticky card panel on desktop; fixed offcanvas panel on mobile wh
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `variant` | `"default" \| "plain"` | `"default"` | Visual style — see [Variants](#variants) |
-| `mobileHeader` | `ReactNode` | — | Content rendered into a mobile-only `SidebarHeader` (hidden on desktop via the built-in `clet-sidebar__header--mobile-only` class) when `variant="plain"`. Typically a `SidebarBrand` with the same logo/title as the sibling `AppHeader`'s `AppHeaderBranding`, so the brand is visible when the mobile drawer opens. Not auto-extracted by `AppLayout` — pass it explicitly. Skipped if you also supply your own `<SidebarHeader>` child. |
+| `variant` | `"default" \| "plain" \| "primary"` | `"default"` | Visual style: see [Variants](#variants) |
+| `mobileHeader` | `ReactNode` | — | Content rendered into a mobile-only `SidebarHeader` (hidden on desktop via the built-in `clet-sidebar__header--mobile-only` class) when `variant` is `"plain"` or `"primary"`. Typically a `SidebarBrand` with the same logo/title as the sibling `AppHeader`'s `AppHeaderBranding`, so the brand is visible when the mobile drawer opens. Not auto-extracted by `AppLayout`: pass it explicitly. Skipped if you also supply your own `<SidebarHeader>` child, which is the usual composition on the `"primary"` rail. |
 | `classNames` | `SidebarClassNames` | — | Part-level class overrides |
 | `className` | `string` | — | Merged onto the aside |
 | `children` | `ReactNode` | — | Header, content, footer |
@@ -137,7 +146,9 @@ Scrollable middle section for navigation.
 
 ### `SidebarFooter`
 
-Bottom slot separated by a top border. A plain wrapper — typically holds a [`ProfilePopover`](/profile-popover) for the signed-in user's trigger row and menu.
+Bottom slot, set off by its own spacing rather than a divider. Typically holds a [`ProfilePopover`](/profile-popover) for the signed-in user's trigger row and menu, or the organisation wordmark.
+
+`children` is optional: with none, the footer renders the CLET wordmark (sized by `--clet-sidebar-wordmark-size`, hidden while the rail is collapsed) so it always has a bottom anchor. Any child replaces it.
 
 ```tsx
 <SidebarFooter>
@@ -248,7 +259,7 @@ Props for `SidebarProvider`.
 
 ### `SidebarProps`
 
-Props for `Sidebar`. Includes `variant?: "default" | "plain"` and `mobileHeader?: ReactNode` — see [Variants](#variants) and the `Sidebar` prop table above.
+Props for `Sidebar`. Includes `variant?: "default" | "plain" | "primary"` and `mobileHeader?: ReactNode`, see [Variants](#variants) and the `Sidebar` prop table above.
 
 ### `SidebarTriggerProps`
 
@@ -331,7 +342,9 @@ Props for `SidebarBadge`.
 ## Notes
 
 - Desktop renders a **card panel** (`--clet-bg` background, 24px radius, icon + label rows) by default. Active links use a neutral gray pill, not primary color.
-- `variant="plain"` swaps the card panel for a transparent background with a right border (`--clet-border`) and no radius — use it alongside `AppHeader`'s `"plain"` variant for a flush dashboard shell.
+- `variant="plain"` swaps the card panel for a transparent background with a right border (`--clet-border`) and no radius.
+- `variant="primary"` repaints the same `--clet-sidebar-*` override points the other variants read, rather than introducing a parallel set: so `cletTheme({ components: { sidebar: { ... } } })` re-themes the rail through the documented token names. Its foreground scale is derived from `--clet-on-primary` at decreasing opacities, so it follows the brand in both themes. `--clet-primary-surface` is a separate token from `--clet-primary` precisely so the rail can deepen in dark mode, where `--clet-primary` lightens for contrast and would otherwise make the rail the brightest surface on screen.
+- The `--clet-focus` ring resolves to `--clet-primary`, which is the primary rail's own background, so the rail overrides its focus outline to `--clet-on-primary`. Keep that in mind if you re-theme the rail to a different surface.
 - Use `SidebarCollapse` in the header to collapse to a **72px icon rail** on desktop; group labels, link labels, badges, and footer content hide automatically.
 - `SidebarGroup` with `collapsible` renders its first `SidebarGroupLabel` as a button and animates the content open/close with an opacity transition. The label looks identical to the static label when not collapsible — same font, size, color, and padding. The content area stays in the layout when folded (items fade to invisible but the space is reserved) so toggling doesn't shift items below it. Set `defaultExpanded` for the initial state or use `expanded` + `onExpandedChange` for controlled state. The animation respects `prefers-reduced-motion`.
 - Mobile breakpoint defaults to **768px**; override with `breakpoint` on `SidebarProvider` if needed.

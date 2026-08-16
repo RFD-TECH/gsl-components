@@ -3,6 +3,7 @@ import { loadIndex, searchComponents } from "./docs.js";
 import { runDoctor } from "./installers/doctor.js";
 import { runSetup } from "./installers/setup.js";
 import { buildIndex } from "./indexer.js";
+import { runMigrate } from "./migrate.js";
 import { GENERATED_DIR, hasRepoSource } from "./paths.js";
 
 const USAGE = `rfdui — @rfdtech/components AI tooling
@@ -15,7 +16,37 @@ Usage:
   rfdui mcp              Run the MCP server directly over stdio.
   rfdui search <query>   Lexical search over components from the terminal.
   rfdui update           Rebuild the index (if possible) and re-run setup.
+  rfdui migrate          Move AppLayout/AppHeader/Sidebar onto the 2.3 layout shell.
+
+Migrate options:
+  --write                Apply the edits. Without it the run only reports them.
+  --preserve             Keep the pre-2.3 look instead of adopting the new shell
+                         (AppLayout -> "panel", the brand header -> "primary").
+  --path <dir>           Directory or file to migrate. Defaults to the working directory.
 `;
+
+function parseMigrateArgs(rest: string[]): {
+  root: string;
+  write: boolean;
+  preserve: boolean;
+} {
+  let root = process.cwd();
+
+  for (let i = 0; i < rest.length; i += 1) {
+    if (rest[i] === "--path") {
+      const value = rest[i + 1];
+      if (!value) throw new Error("--path needs a directory or file.");
+      root = value;
+      i += 1;
+    }
+  }
+
+  return {
+    root,
+    write: rest.includes("--write"),
+    preserve: rest.includes("--preserve"),
+  };
+}
 
 async function main() {
   const [, , cmd, ...rest] = process.argv;
@@ -66,6 +97,34 @@ async function main() {
       }
       await runSetup();
       return;
+
+    case "migrate": {
+      const options = parseMigrateArgs(rest);
+      const result = await runMigrate(options);
+
+      for (const change of result.changes) {
+        console.log(`${change.file}:${change.line}  ${change.description}`);
+      }
+
+      if (result.notes.length > 0) {
+        console.log("");
+        console.log("Needs a look:");
+        for (const note of result.notes) {
+          console.log(`${note.file}:${note.line}  ${note.message}`);
+        }
+      }
+
+      console.log("");
+      const mode = options.preserve ? "preserve" : "adopt";
+      console.log(
+        `${result.changes.length} change(s) across ${result.filesChanged} file(s), ` +
+          `${result.filesScanned} scanned (${mode} mode).`,
+      );
+      if (!options.write && result.filesChanged > 0) {
+        console.log("Nothing was written. Re-run with --write to apply.");
+      }
+      return;
+    }
 
     case "mcp":
       // Delegate to the server entry point (same process, same stdio streams).

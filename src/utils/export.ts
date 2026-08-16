@@ -1,3 +1,6 @@
+// xlsx is an optional peer, so the consuming app picks the version. The npm
+// release is frozen at 0.18.5 and carries CVE-2023-30533 with no patch;
+// maintained builds live at cdn.sheetjs.com. Parse only files a user chose.
 import * as XLSX from "xlsx";
 
 export interface ExportColumn<T> {

@@ -12,9 +12,11 @@ export const meta = {
 import { ExampleTabs } from "../components/ExampleTabs";
 import { AppHeaderPreview } from "../previews/code/AppHeaderPreview";
 import { AppHeaderPlainPreview } from "../previews/code/AppHeaderPlainPreview";
+import { AppHeaderPrimaryPreview } from "../previews/code/AppHeaderPrimaryPreview";
 import { AppHeaderBrandingDeclarativePreview } from "../previews/code/AppHeaderBrandingDeclarativePreview";
 import appHeaderSource from "../previews/examples/app-header.example.tsx?raw";
 import appHeaderPlainSource from "../previews/examples/app-header-plain.example.tsx?raw";
+import appHeaderPrimarySource from "../previews/examples/app-header-primary.example.tsx?raw";
 import appHeaderBrandingDeclarativeSource from "../previews/examples/app-header-branding-declarative.example.tsx?raw";
 
 # AppHeader
@@ -36,12 +38,19 @@ Click the profile avatar to open the profile popover with variant toggle (cycles
 `AppHeader` accepts a `variant` prop that controls its surface style.
 
 - **`"default"`** (default) — subtle rounded panel surface, matching the rest of the `AppLayout` content area.
-- **`"plain"`** — square edges (no border radius), `--clet-primary` background, and `--clet-on-primary` text. Used for dashboard shells where the header should read as a solid top bar rather than a panel.
+- **`"plain"`**: square edges, the page surface, ordinary text, and a single hairline along the bottom. The top bar of the [layout shell](/docs/app-layout#variants), where the brand colour lives on the `Sidebar` rail instead. Carries no branding: the mark belongs at the top of the rail, and showing it in both places puts the same logo on screen twice.
+- **`"primary"`**: square edges, `--clet-primary-surface` background, and `--clet-on-primary` text. A continuous brand top bar, for systems that want the colour along the top rather than down the side.
 
 <ExampleTabs
-  title='variant="plain" — solid primary-colored header with branding'
+  title='variant="plain": page surface, hairline underneath, search on the left'
   preview={<AppHeaderPlainPreview />}
   code={appHeaderPlainSource}
+/>
+
+<ExampleTabs
+  title='variant="primary": solid brand-coloured header with branding'
+  preview={<AppHeaderPrimaryPreview />}
+  code={appHeaderPrimarySource}
 />
 
 ## Components
@@ -52,7 +61,7 @@ Root flex container that renders children. `AppHeaderSearch` goes on the left; e
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `variant` | `"default" \| "plain"` | `"default"` | Visual style — see [Variants](#variants) |
+| `variant` | `"default" \| "plain" \| "primary"` | `"default"` | Visual style: see [Variants](#variants) |
 | `className` | `string` | — | Merged onto the root element |
 | `children` | `ReactNode` | — | Header content — search, actions, etc. |
 
@@ -67,7 +76,7 @@ Groups items on the right side of the header with a gap. Typically contains `App
 
 ### `AppHeaderBranding`
 
-Logo + title/subtitle slot for the left side of the header, typically used in place of `AppHeaderSearch` for dashboard shells (see the `"plain"` variant example above).
+Logo + title/subtitle slot for the left side of the header, used in place of `AppHeaderSearch` on a `"primary"` top bar (see the `"primary"` variant example above). On the `"plain"` layout shell the brand lives at the top of the `Sidebar` rail instead, so the header carries a search field rather than branding.
 
 | Prop | Type | Description |
 |------|------|-------------|
@@ -198,7 +207,7 @@ The profile trigger in the example above is [`ProfilePopover`](/profile-popover)
 
 | Key | Type | Description |
 |-----|------|-------------|
-| `variant` | `"default" \| "plain"` | Visual style — see [Variants](#variants) |
+| `variant` | `"default" \| "plain" \| "primary"` | Visual style: see [Variants](#variants) |
 | `className` | `string` | Merged onto the root element |
 | `children` | `ReactNode` | Header content — typically `AppHeaderSearch` + `AppHeaderActions` |
 
@@ -287,7 +296,8 @@ See the props table above.
 - All header components accept `className` and pass it through to their root element for Tailwind/consumer overrides.
 - The trigger and popover header avatars default to the normal per-name gradient. Set `--clet-profile-avatar-bg` (unset by default) on any ancestor to override the background for both — see [`ProfilePopover`](/profile-popover).
 - Profile popover opens at `side="top"`, `align="end"`, `sideOffset={8}` — see [`ProfilePopover`](/profile-popover) for the shared implementation.
-- `variant="plain"` sets `--clet-app-header-bg`/`--clet-app-header-color` on the root — override either on `.clet-app-header--plain` (or an ancestor) to re-theme without extra CSS. Notification button, profile hover, and `AppSwitcher` trigger all inherit the on-primary foreground automatically.
+- `variant="plain"` and `variant="primary"` both set `--clet-app-header-bg`/`--clet-app-header-color` on the root: override either on `.clet-app-header--plain` / `.clet-app-header--primary` (or an ancestor) to re-theme without extra CSS. On `"primary"`, the notification button, profile hover, and the `Launchpad`/`AppSwitcher` triggers all inherit the on-primary foreground automatically.
+- `variant="plain"` changed meaning in 2.3: it used to be the brand-coloured bar, which is now `variant="primary"`. `rfdui migrate --preserve` moves existing `"plain"` headers to `"primary"`; `rfdui migrate` leaves them as `"plain"` so they adopt the new look. See the [migration guide](/docs/migration-v2).
 - **Mobile collapse (automatic):** when `AppHeader` is rendered inside an `AppLayout` (i.e. a `SidebarProvider` is present) and the viewport drops below the sidebar's mobile breakpoint (768px by default), it collapses to a hamburger button on the left — which toggles the sidebar drawer via `SidebarTrigger`'s same `toggle()` — plus, on the right, only the `AppSwitcher` (if one is present) and the profile trigger (`ProfilePopover`, identified by its `componentId`). Branding, search, notifications, and any other actions are dropped. Nothing to opt into — it's derived entirely from the existing children and sidebar context. `AppHeader` used standalone (no `SidebarProvider`) is unaffected and always renders its full children.
 
 ## Design tokens
@@ -302,8 +312,10 @@ See the props table above.
 | `--clet-app-header-font` | `--clet-font-body` | Header font family |
 | `--clet-panel-radius` | `--clet-radius-2xl` | Header border radius (`"default"` variant) |
 | `--clet-panel-bg` | `--clet-surface-subtle` | Header background (`"default"` variant) |
-| `--clet-app-header-bg` | `--clet-primary` | Header background (`"plain"` variant) |
-| `--clet-app-header-color` | `--clet-on-primary` | Header text/icon color (`"plain"` variant) |
+| `--clet-app-header-bg` | `--clet-bg` (`"plain"`) / `--clet-primary-surface` (`"primary"`) | Header background |
+| `--clet-app-header-color` | `--clet-text` (`"plain"`) / `--clet-on-primary` (`"primary"`) | Header text/icon color |
+| `--clet-app-header-border` | `--clet-border` | Colour of the hairline under the `"plain"` header |
+| `--clet-app-header-hover-bg` | `color-mix(--clet-on-primary 15%, transparent)` | Icon-button hover wash on the `"primary"` header |
 | `--clet-branding-color` | `inherit` | `AppHeaderBranding` text/icon color |
 | `--clet-branding-font` | `--clet-font-body` | `AppHeaderBranding` font family for the block (subtitle included) — the title overrides this with `--clet-branding-title-font` |
 | `--clet-branding-gap` | `10px` | Gap between logo and text in `AppHeaderBranding` |

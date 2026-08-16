@@ -76,20 +76,27 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
     [ref],
   );
 
-  // When `mobileHeader` is provided and the consumer hasn't already rendered
-  // a `SidebarHeader` child, auto-inject one wrapped in the built-in
-  // `clet-sidebar__header--mobile-only` class. Only applies to `variant="plain"`
-  // — the desktop-default sidebar has no need for a brand row.
+  // Auto-inject a mobile-only SidebarHeader on the shell variants when the
+  // consumer supplied `mobileHeader` but no SidebarHeader of their own.
   const hasExistingHeader = Children.toArray(children).some(
     (child) => isValidElement(child) && child.type === SidebarHeader,
   );
   const showAutoMobileHeader =
-    variant === "plain" && mobileHeader != null && !hasExistingHeader;
+    variant !== "default" && mobileHeader != null && !hasExistingHeader;
   const autoHeader = showAutoMobileHeader ? (
     <SidebarHeader className="clet-sidebar__header--mobile-only">
       {mobileHeader}
     </SidebarHeader>
   ) : null;
+
+  // The rail carries its own bottom anchor. An app that declares no
+  // SidebarFooter still gets the wordmark, so migrating one is a deletion
+  // rather than a swap.
+  const hasExistingFooter = Children.toArray(children).some(
+    (child) => isValidElement(child) && child.type === SidebarFooter,
+  );
+  const autoFooter =
+    variant === "primary" && !hasExistingFooter ? <SidebarFooter /> : null;
 
   return (
     <>
@@ -99,6 +106,7 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
         className={cn(
           "clet-sidebar gsl-sidebar",
           variant === "plain" && "clet-sidebar--plain gsl-sidebar--plain",
+          variant === "primary" && "clet-sidebar--primary gsl-sidebar--primary",
           isMobile && "clet-sidebar--mobile gsl-sidebar--mobile",
           isMobile && open && "clet-sidebar--mobile-open gsl-sidebar--mobile-open",
           !isMobile && collapsed && "clet-sidebar--collapsed gsl-sidebar--collapsed",
@@ -109,6 +117,7 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
       >
         {autoHeader}
         {children}
+        {autoFooter}
       </aside>
       {isMobile && <SidebarOverlay />}
     </>
@@ -156,8 +165,11 @@ export const SidebarTrigger = forwardRef<
   ref,
 ) {
   const { open, toggle, isMobile, sidebarId } = useSidebar();
+  // Null-vs-button is a structural branch, so it must wait a render past mount
+  // to match SSR/static-prerendered (always-desktop) markup. See useHasMounted.
+  const hasMounted = useHasMounted();
 
-  if (!isMobile) {
+  if (!hasMounted || !isMobile) {
     return null;
   }
 
@@ -192,8 +204,10 @@ export const SidebarCollapse = forwardRef<
   SidebarCollapseProps
 >(function SidebarCollapse({ classNames, className, onClick, ...props }, ref) {
   const { collapsed, toggleCollapsed, isMobile, sidebarId } = useSidebar();
+  // Structural branch: SSR renders desktop, so this waits a render past mount.
+  const hasMounted = useHasMounted();
 
-  if (isMobile) {
+  if (hasMounted && isMobile) {
     return null;
   }
 
@@ -234,13 +248,43 @@ export const SidebarHeader = forwardRef<HTMLDivElement, SidebarHeaderProps>(
 );
 
 export const SidebarBrand = forwardRef<HTMLDivElement, SidebarBrandProps>(
-  function SidebarBrand({ classNames, className, children }, ref) {
+  function SidebarBrand(
+    { classNames, className, logo, title, subtitle, children },
+    ref,
+  ) {
     return (
       <div
         ref={ref}
         className={cn("clet-sidebar__header-brand gsl-sidebar__header-brand", classNames?.root, className)}
       >
-        {children}
+        {logo ? (
+          <span
+            className={cn("clet-sidebar__header-logo gsl-sidebar__header-logo", classNames?.logo)}
+          >
+            {logo}
+          </span>
+        ) : null}
+        {children ?? (
+          <span className="clet-sidebar__header-text gsl-sidebar__header-text">
+            {title ? (
+              <span
+                className={cn("clet-sidebar__header-title gsl-sidebar__header-title", classNames?.title)}
+              >
+                {title}
+              </span>
+            ) : null}
+            {subtitle ? (
+              <span
+                className={cn(
+                  "clet-sidebar__header-subtitle gsl-sidebar__header-subtitle",
+                  classNames?.subtitle,
+                )}
+              >
+                {subtitle}
+              </span>
+            ) : null}
+          </span>
+        )}
       </div>
     );
   },
@@ -313,7 +357,9 @@ export const SidebarFooter = forwardRef<HTMLDivElement, SidebarFooterProps>(
         ref={ref}
         className={cn("clet-sidebar__footer gsl-sidebar__footer", classNames?.footer, className)}
       >
-        {children}
+        {children ?? (
+          <span className="clet-sidebar__wordmark gsl-sidebar__wordmark">CLET</span>
+        )}
       </div>
     );
   },

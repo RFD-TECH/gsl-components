@@ -398,6 +398,169 @@
 	border-bottom: none;
 }
 
+/* ── Soft content ── */
+
+.clet-table__content--soft {
+	background: var(--gsl-bg, var(--clet-bg));
+	border: none;
+}
+
+.clet-table__content--soft th,
+.clet-table__content--soft thead td,
+.clet-table__content--soft thead tr {
+	background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
+}
+
+.clet-table__content--soft thead tr {
+	border-bottom: none;
+}
+
+.clet-table__content--soft tbody tr {
+	border-bottom: 1px solid var(--gsl-border-subtle, var(--clet-border-subtle));
+}
+
+.clet-table__content--soft tbody tr:last-child {
+	border-bottom: none;
+}
+
+/* ── Soft table: restyles the controls the table already composes ── */
+
+.clet-table--soft {
+	--clet-table-control-radius: 999px;
+	--clet-table-control-shadow: var(--gsl-shadow-soft, var(--clet-shadow-soft));
+	--clet-table-page-size: 32px;
+}
+
+/* Filters left, inputs right. The base bar already spaces its children apart. */
+.clet-table--soft .clet-table__header-bar {
+	flex-direction: row-reverse;
+}
+
+.clet-table--soft .clet-table__actions {
+	margin-right: auto;
+	margin-left: 0;
+}
+
+@media (width < 1024px) {
+	.clet-table--soft .clet-table__header-bar {
+		flex-direction: column;
+	}
+
+	.clet-table--soft .clet-table__actions {
+		margin-right: 0;
+	}
+}
+
+/* Listed explicitly so the table's own buttons, badges and menus are left alone. */
+.clet-table--soft .clet-table__search,
+.clet-table--soft .clet-table__filter-trigger,
+.clet-table--soft .clet-dropdown__trigger,
+.clet-table--soft .clet-combobox__trigger,
+.clet-table--soft .clet-country-selector__trigger,
+.clet-table--soft .clet-date-selector__trigger,
+.clet-table--soft .clet-date-range-selector__trigger,
+.clet-table--soft .clet-time-selector__trigger,
+.clet-table--soft .clet-phone-number-input,
+.clet-table--soft .clet-input {
+	border-radius: var(
+		--gsl-table-control-radius,
+		var(--clet-table-control-radius)
+	);
+	box-shadow: var(
+		--gsl-table-control-shadow,
+		var(--clet-table-control-shadow)
+	);
+}
+
+/* Controls whose content sits in normal flow just take the wider inset. */
+.clet-table--soft .clet-table__search,
+.clet-table--soft .clet-input {
+	padding-inline: 20px;
+}
+
+/* Dropdown-style triggers park their chevron absolutely and reserve room for it
+   with asymmetric padding, so the inset has to grow on both sides together:
+   a plain padding-inline would drop the reserve and run the label under it. */
+.clet-table--soft .clet-dropdown__trigger,
+.clet-table--soft .clet-combobox__trigger,
+.clet-table--soft .clet-country-selector__trigger,
+.clet-table--soft .clet-date-selector__trigger,
+.clet-table--soft .clet-date-range-selector__trigger,
+.clet-table--soft .clet-time-selector__trigger {
+	padding: 0 40px 0 20px;
+}
+
+.clet-table--soft .clet-dropdown__trigger-icon,
+.clet-table--soft .clet-combobox__trigger-icon {
+	right: 20px;
+}
+
+/* ── Soft pagination ── */
+
+.clet-table--soft .clet-table__pagination-pages {
+	gap: 4px;
+}
+
+.clet-table--soft .clet-table__pagination-pages .clet-button[aria-current="page"] {
+	min-width: var(--gsl-table-page-size, var(--clet-table-page-size));
+	height: var(--gsl-table-page-size, var(--clet-table-page-size));
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: var(--gsl-info, var(--clet-info));
+	color: var(--gsl-on-info, var(--clet-on-info));
+}
+
+.clet-table--soft
+	.clet-table__pagination-pages
+	.clet-button[aria-current="page"]:hover {
+	background: var(--gsl-info, var(--clet-info));
+	color: var(--gsl-on-info, var(--clet-on-info));
+}
+
+.clet-table--soft
+	.clet-table__pagination-pages
+	.clet-button:not([aria-current="page"]) {
+	min-width: var(--gsl-table-page-size, var(--clet-table-page-size));
+	height: var(--gsl-table-page-size, var(--clet-table-page-size));
+	padding: 0;
+	border-radius: 50%;
+	color: var(--gsl-text-secondary, var(--clet-text-secondary));
+}
+
+/* `font-size: 0` hides the bare text node beside the icon. Icons are sized explicitly. */
+.clet-table--soft .clet-table__pagination-pages .clet-button[aria-label="Previous page"],
+.clet-table--soft .clet-table__pagination-pages .clet-button[aria-label="Next page"] {
+	min-width: var(--gsl-table-page-size, var(--clet-table-page-size));
+	height: var(--gsl-table-page-size, var(--clet-table-page-size));
+	padding: 0;
+	border-radius: 50%;
+	font-size: 0;
+	color: var(--gsl-info, var(--clet-info));
+}
+
+/* The collapsed label is still a flex item, so the button's 8px gap survives it
+   and pushes the chevron half a gap off-centre inside the round hover target. */
+.clet-table--soft
+	.clet-table__pagination-pages
+	.clet-button[aria-label="Previous page"]
+	.clet-button__label,
+.clet-table--soft
+	.clet-table__pagination-pages
+	.clet-button[aria-label="Next page"]
+	.clet-button__label {
+	gap: 0;
+}
+
+.clet-table--soft
+	.clet-table__pagination-pages
+	.clet-button[aria-label="Previous page"]:disabled,
+.clet-table--soft
+	.clet-table__pagination-pages
+	.clet-button[aria-label="Next page"]:disabled {
+	color: var(--gsl-text-muted, var(--clet-text-muted));
+}
+
 .clet-table__empty {
 	text-align: center;
 	padding: 56px 16px;
@@ -437,6 +600,22 @@
 
 .clet-table__footer--no-border {
 	border-top: none;
+}
+
+/* On a soft table the rule above the footer only makes sense when the footer
+   shares a surface with the rows. Lifted out of the card it becomes its own
+   row on the page, where a top border would be a line floating in space, so it
+   is drawn only while the footer is inside a card. `noBorder` still forces it
+   off in either arrangement. */
+.clet-table--soft .clet-table__footer {
+	border-top: none;
+	padding-inline: 0;
+}
+
+.clet-card .clet-table--soft .clet-table__footer,
+.clet-table--soft .clet-card .clet-table__footer {
+	border-top: 1px solid var(--gsl-border, var(--clet-border));
+	padding-inline: 16px;
 }
 
 /* ── Pagination ── */

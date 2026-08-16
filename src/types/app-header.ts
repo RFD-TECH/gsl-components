@@ -7,10 +7,14 @@ export interface AppHeaderProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
   children?: ReactNode;
   /**
-   * Visual style. "default" = subtle rounded panel surface.
-   * "plain" = square edges (no border radius), primary background, on-primary text.
+   * Visual style.
+   * - `"default"`: subtle rounded panel surface.
+   * - `"plain"`: square edges, page surface, a single hairline along the bottom
+   *   and ordinary text: the top bar of the default `AppLayout`, sitting beside
+   *   a `Sidebar variant="primary"` rail.
+   * - `"primary"`: square edges, primary background, on-primary text.
    */
-  variant?: "default" | "plain";
+  variant?: "default" | "plain" | "primary";
 }
 
 export interface AppHeaderActionsProps {

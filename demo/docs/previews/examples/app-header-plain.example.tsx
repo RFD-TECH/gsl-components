@@ -2,13 +2,15 @@ import { useState } from "react";
 import {
   AppHeader,
   AppHeaderActions,
-  AppHeaderBranding,
   AppHeaderNotifications,
-  AppSwitcher,
+  AppHeaderSearch,
+  Launchpad,
+  LaunchpadIconTile,
   ProfilePopover,
   RoleSelect,
 } from "@rfdtech/components";
-import { Shield, Eye, ScrollText } from "lucide-react";
+import type { LaunchpadApp } from "@rfdtech/components";
+import { Landmark, Shield, Eye, ScrollText, Wallet } from "lucide-react";
 
 const user = {
   name: "Kwame Asante",
@@ -23,17 +25,24 @@ const roles = [
   { id: "auditor", name: "Auditor", icon: <ScrollText size={16} strokeWidth={1.5} /> },
 ];
 
-const apps = [
+const apps: LaunchpadApp[] = [
   {
     id: "gov-portal",
     name: "Governance Portal",
-    icon: "https://ui-avatars.com/api/?name=Governance+Portal&background=1d4ed8&color=fff&size=96",
-    href: "https://portal.example.com",
+    icon: (
+      <LaunchpadIconTile name="Governance Portal">
+        <Landmark size={26} strokeWidth={1.75} />
+      </LaunchpadIconTile>
+    ),
   },
   {
     id: "finance-hub",
     name: "Finance Hub",
-    icon: "https://ui-avatars.com/api/?name=Finance+Hub&background=047857&color=fff&size=96",
+    icon: (
+      <LaunchpadIconTile name="Finance Hub">
+        <Wallet size={26} strokeWidth={1.75} />
+      </LaunchpadIconTile>
+    ),
   },
 ];
 
@@ -48,15 +57,15 @@ export function AppHeaderPlainExample() {
   return (
     <div
       style={{
-        padding: 16,
         borderRadius: "var(--clet-radius-2xl)",
-        background: "var(--clet-surface-subtle)",
+        overflow: "hidden",
+        background: "var(--clet-bg)",
       }}
     >
       <AppHeader variant="plain">
-        <AppHeaderBranding title="CLET PORTAL" subtitle="Component Library" />
+        <AppHeaderSearch placeholder="Search" />
         <AppHeaderActions>
-          <AppSwitcher apps={apps} title="System directory" />
+          <Launchpad apps={apps} />
           <AppHeaderNotifications>
             {notifications.map((n) => (
               <div key={n.id} className="clet-notif-popover__item">
@@ -69,7 +78,7 @@ export function AppHeaderPlainExample() {
             ))}
           </AppHeaderNotifications>
           <ProfilePopover
-            variant="avatar"
+            variant="full"
             user={user}
             onSignOut={() => console.log("Sign out")}
           >

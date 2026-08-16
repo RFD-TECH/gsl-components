@@ -79,13 +79,16 @@ export interface SidebarProps {
   classNames?: SidebarClassNames;
   className?: string;
   /**
-   * Visual style. "default" keeps the panel surface.
-   * "plain" makes the background transparent and adds a right border.
+   * Visual style.
+   * - `"default"`: keeps the panel surface.
+   * - `"plain"`: makes the background transparent and adds a right border.
+   * - `"primary"`: paints the brand surface (`--clet-primary`) with on-primary
+   *   text: the full-height rail of the default `AppLayout`.
    */
-  variant?: "default" | "plain";
+  variant?: "default" | "plain" | "primary";
   /**
    * Content rendered into a mobile-only `SidebarHeader` at the top of the
-   * sidebar when `variant` is `"plain"`. Typically forwarded automatically
+   * sidebar when `variant` is `"plain"` or `"primary"`. Typically forwarded automatically
    * by `AppLayout` from the sibling `AppHeader`'s `AppHeaderBranding` so the
    * brand is visible when the mobile drawer opens. On desktop the auto-injected
    * `SidebarHeader` is hidden via the built-in `clet-sidebar__header--mobile-only`
@@ -120,10 +123,24 @@ export interface SidebarHeaderProps {
   children: ReactNode;
 }
 
+export interface SidebarBrandClassNames {
+  root?: string;
+  logo?: string;
+  title?: string;
+  subtitle?: string;
+}
+
 export interface SidebarBrandProps {
-  classNames?: { root?: string };
+  classNames?: SidebarBrandClassNames;
   className?: string;
-  children: ReactNode;
+  /** Inline logo node (e.g. an `<img>` or icon). */
+  logo?: ReactNode;
+  /** Product or organisation name, rendered in the heading face. */
+  title?: ReactNode;
+  /** Secondary line under the title. */
+  subtitle?: ReactNode;
+  /** Custom content, overrides the logo/title/subtitle rendering. */
+  children?: ReactNode;
 }
 
 export interface SidebarContentProps {
@@ -135,8 +152,12 @@ export interface SidebarContentProps {
 export interface SidebarFooterProps {
   classNames?: SidebarFooterClassNames;
   className?: string;
-  /** Typically a `ProfilePopover` with the trigger row and menu content */
-  children: ReactNode;
+  /**
+   * Typically a `ProfilePopover` with the trigger row and menu content.
+   * Optional: with no children the footer falls back to the CLET wordmark, so
+   * the rail always has a bottom anchor. Passing children replaces it.
+   */
+  children?: ReactNode;
 }
 
 export interface SidebarNavProps extends HTMLAttributes<HTMLElement> {

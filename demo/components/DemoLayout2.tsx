@@ -66,7 +66,16 @@ const demoUser = {
   email: "kwame@gsl.edu.gh",
 };
 
-export function DemoLayout2() {
+interface DemoLayout2Props {
+  /**
+   * Route prefix this shell is mounted under. The 2.2 shell now lives at
+   * "/v2" so 2.3 can own "/", and prefixing keeps its nav inside itself
+   * instead of bouncing to the newer shell. Everything visual is untouched.
+   */
+  basePath?: string;
+}
+
+export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -92,19 +101,19 @@ export function DemoLayout2() {
           {
             id: "dashboard",
             label: "Dashboard",
-            href: "/",
+            href: basePath || "/",
             icon: LayoutDashboard,
           },
           {
             id: "users",
             label: "Users",
-            href: "/users/user-1",
+            href: `${basePath}/users/user-1`,
             icon: User,
           },
           {
             id: "users-new",
             label: "Create User",
-            href: "/users/new",
+            href: `${basePath}/users/new`,
             icon: User,
           },
           {
@@ -126,7 +135,7 @@ export function DemoLayout2() {
         ],
       },
     ],
-    [],
+    [basePath],
   );
 
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
@@ -160,7 +169,7 @@ export function DemoLayout2() {
     <SidebarProvider>
       <BreadcrumbProvider>
         <AppLayout variant="stacked">
-          <AppHeader variant="plain">
+          <AppHeader variant="primary">
             <AppHeaderBranding
               logo={
                 <img
@@ -175,7 +184,7 @@ export function DemoLayout2() {
               subtitle="CLET Component Library"
             />
             <AppHeaderActions>
-              <VersionSwitcher active="current" />
+              <VersionSwitcher active="v2_2" />
               <button
                 type="button"
                 className="clet-app-header__notif-btn"

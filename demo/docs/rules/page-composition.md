@@ -2,15 +2,24 @@
 
 ===RULE===
 id: page-composition-layout-shell
-title: Adopt AppLayout variant="stacked" + AppHeader variant="plain" + Sidebar variant="plain" together
+title: Adopt AppLayout (default) + Sidebar variant="primary" + AppHeader variant="plain" together
 severity: do
 components: app-layout, app-header, sidebar
 
-Adopt the new layout shell as a set, not individually: `AppLayout variant="stacked"` (header spans
-full width on top, sidebar + content side by side below), `AppHeader variant="plain"` (square
-corners, `--clet-primary` background, on-primary text, continuous top bar), and `Sidebar
-variant="plain"` (transparent background + right border instead of a panel surface). All required
-for new/touched screens — none required for existing screens to keep compiling.
+Adopt the layout shell as a set, not individually: `AppLayout` with no `variant` (the rail runs the
+full height against the viewport edge, the header spans the content column only), `Sidebar
+variant="primary"` (the brand rail: `--clet-primary-surface` background, on-primary text, flush
+edges), and `AppHeader variant="plain"` (square corners, page surface, one hairline underneath).
+The brand colour lives on the rail; the header is quiet. All required for new/touched screens ,
+none required for existing screens to keep compiling.
+
+Two arrangements are deliberately kept alongside it. `AppLayout variant="panel"` is the pre-2.3
+default, where the sidebar and content float as inset rounded panels; use it only for screens that
+were already built that way. `AppLayout variant="stacked"` puts one full-width bar across the top
+instead of a rail, and pairs with `AppHeader variant="primary"`; it is a peer, not a fallback.
+
+Upgrading an existing app: `rfdui migrate` rewrites the variants to the new shell, and
+`rfdui migrate --preserve` pins the old appearance instead. Both are dry runs until `--write`.
 
 ===RULE===
 id: page-composition-sidebar-groups-collapsible
@@ -23,14 +32,22 @@ the `Main` group expanded and the rest collapsed.
 
 ===RULE===
 id: page-composition-sidebar-footer-required
-title: Every Sidebar needs a SidebarFooter hosting a ProfilePopover
+title: Every Sidebar needs a SidebarFooter, and the identity block goes in exactly one place
 severity: do
 components: sidebar, profile-popover
 
-Never omit `SidebarFooter`. It must host a `ProfilePopover` in `fullName`/`email` mode (not
-`user`/`variant`) — full name, email, and role get a stable, real-estate-rich home there. This is
-required on the new layout shell, unlike the old default shell (`DemoLayout`), which never
-required one.
+Never omit `SidebarFooter`: the rail needs a bottom anchor rather than trailing off into empty
+space. What goes in it depends on where the identity block lives, and it lives in exactly one
+place, never two:
+
+- Identity in the header (the shell's default): the header's `ProfilePopover` uses
+  `variant="full"`: avatar, name and role: and the `SidebarFooter` holds the organisation
+  wordmark instead. This is the shape the current CLET systems use.
+- Identity in the rail: the `SidebarFooter` hosts a `ProfilePopover` in `fullName`/`email` mode
+  (not `user`/`variant`), and the header's popover drops to `variant="avatar"` so the name and
+  role are not repeated. Prefer this when the header is already crowded.
+
+Both are correct; picking one and repeating the name and role in both is not.
 
 ===RULE===
 id: page-composition-no-sidebar-trigger
@@ -38,9 +55,14 @@ title: Don't render SidebarTrigger in new layouts
 severity: dont
 components: sidebar
 
-The old default layout shell renders `<SidebarTrigger>Menu</SidebarTrigger>` to manually toggle the
-sidebar. The new shell drops it entirely — don't render `SidebarTrigger` in new or touched
-layouts. Use `SidebarProvider` with its defaults and no manual collapse control.
+The old panel layout shell renders `<SidebarTrigger>Menu</SidebarTrigger>` to manually toggle the
+sidebar. The shell drops it entirely: don't render `SidebarTrigger` in new or touched layouts.
+`AppHeader` already collapses to a hamburger below the sidebar's mobile breakpoint, and that
+button opens the drawer.
+
+`SidebarCollapse` is a different control and is **not** covered by this rule: it is the desktop
+rail's collapse-to-icons toggle, it belongs in the rail's `SidebarHeader` next to the brand, and
+the shell uses it.
 
 ===RULE===
 id: page-composition-sidebar-overlay-optional
@@ -68,21 +90,28 @@ is a short text badge like `"New"` for a feature callout (e.g. a newly-added nav
 invent other text badges beyond that pattern.
 
 ===RULE===
-id: page-composition-branding-in-app-header
-title: Branding lives in AppHeader via AppHeaderBranding; pass a matching mobileHeader to the plain Sidebar for the mobile drawer
+id: page-composition-branding-in-sidebar
+title: On the layout shell, branding lives at the top of the Sidebar rail, not in the header
 severity: do
 components: app-header, sidebar
 
-Put branding in `AppHeader` via `AppHeaderBranding` (`logo`/`title`/`subtitle`). On desktop, the
-plain `Sidebar` has no `SidebarHeader`/`SidebarBrand` — the same logo must not appear twice on
-screen. On mobile, the `AppHeader` collapses to just the hamburger and the sidebar becomes a
-full-overlay drawer — pass the same brand content as a `mobileHeader` prop on the plain `Sidebar`
-(typically a `SidebarBrand` with the same logo/title as the `AppHeaderBranding`). The library
-wraps it in a `SidebarHeader` with the built-in `clet-sidebar__header--mobile-only` class, hidden
+On the shell (`Sidebar variant="primary"` + `AppHeader variant="plain"`), put the brand in a
+`SidebarHeader` at the top of the rail: a `SidebarBrand` with the logo and the system name, and a
+`SidebarCollapse` beside it. The header carries an `AppHeaderSearch` on the left instead: it gets
+no `AppHeaderBranding`, because the same mark must not appear twice on screen. The rail's own
+header is what the mobile drawer shows, so no `mobileHeader` prop is needed once a real
+`SidebarHeader` is present.
+
+The reverse holds for `AppHeader variant="primary"` (the full-width brand bar, typically with
+`AppLayout variant="stacked"`): branding goes in the header via `AppHeaderBranding`
+(`logo`/`title`/`subtitle`), the sidebar has no `SidebarHeader`, and the same brand content is
+passed as `mobileHeader` on the sidebar so it is visible when the mobile drawer opens. The library
+wraps that in a `SidebarHeader` with the built-in `clet-sidebar__header--mobile-only` class, hidden
 on desktop. `AppLayout` does NOT auto-extract the `AppHeaderBranding` — the two brand blocks are
 intentionally separate, since they live in different visual contexts with different styling.
+
 Use the current brand logo (`clet-logo.png`) for any new system — `gsl-logo.png` is the older
-mark used only by the legacy default layout shell.
+mark used only by the legacy panel layout shell.
 
 ===RULE===
 id: page-composition-profile-popover-default-items
@@ -131,22 +160,37 @@ grid without an expand modal, or a fully custom footer slot — and check with t
 
 ===RULE===
 id: page-composition-table-family-variants
-title: Adopt TableContent variant="panel" + TableFilter variant="spread" + no-border TableFooter together
+title: Adopt Table variant="soft" + TableContent variant="soft" + TableFilter variant="spread" + no-border TableFooter together
 severity: do
 components: table
 
-New or touched `Table`s use all three together: `TableContent variant="panel"` (not `"default"`),
-`TableFilter variant="spread"` (not the default `"popover"`), and `TableFooter noBorder` (a real
-`TableFooterProps` prop, not a demo hack).
+New or touched `Table`s use all four together: `Table variant="soft"` on the root,
+`TableContent variant="soft"` (not `"panel"` or `"default"`), `TableFilter variant="spread"` (not
+the default `"popover"`), and `TableFooter noBorder` (a real `TableFooterProps` prop, not a demo
+hack).
+
+`variant="soft"` on the root is what restyles the header's filter and search into pills and turns
+the current page into a filled `--clet-info` disc. It reaches those controls by drilling down from
+the root class, so keep composing the ordinary `Dropdown`, `TableSearch` and `TablePagination` ,
+there is no separate "soft" filter or pagination component to swap in, and hand-rolling one throws
+away their URL-state and keyboard behaviour. The header puts filters on the left and inputs on the
+right; that is the variant's own ordering, so don't reorder the children to force it.
 
 ===RULE===
 id: page-composition-other-preferred-variants
-title: Prefer MetricCard variant="outline" and Tabs variant="pill" on new usage
+title: Prefer MetricCard variant="soft" and Tabs variant="pill" on new usage
 severity: do
 components: metric-card, tabs
 
-Use `MetricCard variant="outline"` over `"default"`, and `Tabs variant="pill"` over `"default"`,
-on any new or substantially-touched screen.
+Use `MetricCard variant="soft"` over `"outline"` or `"default"`, and `Tabs variant="pill"` over
+`"default"`, on any new or substantially-touched screen.
+
+`variant="soft"` draws one of the bundled brand watermarks bleeding off its bottom-right corner.
+Leave `mark` off and the card picks one by hashing its `label`, which is stable across reloads and
+spreads a row of cards across the set: name marks explicitly only when a specific pairing matters
+(and then name them for every card in the row, so the row reads deliberately rather than half
+chosen). `mark={false}` opts out. The `"bordered"` variant is still a deliberate choice and is not
+superseded.
 
 ===RULE===
 id: page-composition-section-header

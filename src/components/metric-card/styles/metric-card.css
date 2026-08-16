@@ -31,6 +31,60 @@
 
 /* ── Variants — only affect trend colors ─────── */
 
+/* ── Soft variant: borderless on a shadow, watermark bleeding off the corner ── */
+
+.clet-metric-card--soft {
+  --clet-metric-card-mark-size: 68px;
+  --clet-metric-card-mark-opacity: 0.22;
+
+  position: relative;
+  overflow: hidden;
+  border: none;
+  background: var(--gsl-surface-card, var(--clet-surface-card));
+  box-shadow: var(--gsl-shadow-soft, var(--clet-shadow-soft));
+}
+
+.clet-metric-card--soft .clet-metric-card__label {
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
+  font-weight: 400;
+  color: var(--gsl-text, var(--clet-text));
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Both offsets derive from the size token at a 3:1 right:bottom ratio. */
+.clet-metric-card__mark {
+  position: absolute;
+  right: calc(
+    var(--gsl-metric-card-mark-size, var(--clet-metric-card-mark-size)) * -0.3
+  );
+  bottom: calc(
+    var(--gsl-metric-card-mark-size, var(--clet-metric-card-mark-size)) * -0.1
+  );
+  z-index: 0;
+  display: block;
+  width: var(--gsl-metric-card-mark-size, var(--clet-metric-card-mark-size));
+  height: var(--gsl-metric-card-mark-size, var(--clet-metric-card-mark-size));
+  opacity: var(
+    --gsl-metric-card-mark-opacity,
+    var(--clet-metric-card-mark-opacity)
+  );
+  pointer-events: none;
+}
+
+.clet-metric-card__mark img,
+.clet-metric-card__mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.clet-metric-card--soft > *:not(.clet-metric-card__mark) {
+  position: relative;
+  z-index: 1;
+}
+
 /* ── Outline variant: no fill, bordered, larger value, unified 8px gaps ── */
 
 .clet-metric-card--outline {

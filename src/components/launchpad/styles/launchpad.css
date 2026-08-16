@@ -45,13 +45,13 @@
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: var(--gsl-on-primary, var(--clet-on-primary));
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
 
 .clet-launchpad__trigger:hover {
-  background-color: #fff3;
+  background-color: var(--gsl-hover, var(--clet-hover));
 }
 
 .clet-launchpad__trigger:focus-visible {

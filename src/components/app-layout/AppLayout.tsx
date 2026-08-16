@@ -11,10 +11,14 @@ export interface AppLayoutProps {
   className?: string;
   /**
    * Layout arrangement.
-   * - `"default"`: sidebar spans full height on the left, header sits above the content only.
+   * - `"default"`: sidebar spans full height on the left with nothing between it
+   *   and the viewport edge; the header sits flush across the top of the content
+   *   column only. Pairs with `Sidebar variant="primary"` and `AppHeader variant="plain"`.
+   * - `"panel"`: the same arrangement, but sidebar, header and content float as
+   *   inset rounded panels over the page background.
    * - `"stacked"`: header spans the full width on top, with sidebar and content side by side below it.
    */
-  variant?: "default" | "stacked";
+  variant?: "default" | "panel" | "stacked";
 }
 
 /**

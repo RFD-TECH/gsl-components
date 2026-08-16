@@ -63,6 +63,7 @@ export const AppHeader = ({
           "clet-app-header gsl-app-header",
           "clet-app-header--mobile gsl-app-header--mobile",
           variant === "plain" && "clet-app-header--plain gsl-app-header--plain",
+          variant === "primary" && "clet-app-header--primary gsl-app-header--primary",
           className,
         )}
         {...props}
@@ -90,6 +91,7 @@ export const AppHeader = ({
       className={cn(
         "clet-app-header gsl-app-header",
         variant === "plain" && "clet-app-header--plain gsl-app-header--plain",
+        variant === "primary" && "clet-app-header--primary gsl-app-header--primary",
         className,
       )}
       {...props}

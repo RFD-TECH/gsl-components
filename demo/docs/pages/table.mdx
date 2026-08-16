@@ -43,6 +43,45 @@ Compound table component with built-in URL-driven search, pagination, filters, c
   code={tableEmptySource}
 />
 
+## Soft variant
+
+`Table variant="soft"` is the current preferred table. It restyles the controls the table already
+composes rather than introducing new ones:
+
+- The header puts **filters on the left and inputs on the right**, and rounds the filter trigger,
+  the search field and any `Dropdown` into pills on a faint shadow.
+- **Pagination** draws the current page as a filled `--clet-info` disc, collapses Previous/Next to
+  their chevrons, and keeps "Showing X-Y of Z" with the page-size pill together on the left.
+- Pair it with `TableContent variant="soft"` for the tinted header band and hairline row rules.
+
+```tsx
+<Table paramPrefix="submissions" variant="soft">
+  <TableHeader>
+    <TableSearch placeholder="Search submission" />
+    <TableFilter variant="spread">
+      <Dropdown options={statuses} placeholder="All Statuses" aria-label="Filter by status" />
+    </TableFilter>
+  </TableHeader>
+  <TableContent variant="soft" columns={columns} data={rows} />
+  <TableFooter noBorder>
+    <TablePagination totalPages={totalPages} totalItems={total} />
+  </TableFooter>
+</Table>
+```
+
+Every one of those controls is the ordinary component with its ordinary API: the variant reaches
+them by drilling down from the root `.clet-table--soft` class. So keep composing `Dropdown`,
+`TableSearch` and `TablePagination` as normal: there is no separate soft filter or pagination
+component, and hand-rolling one loses their URL-state and keyboard handling. `TableHeader` children
+stay in their usual order too; the left/right swap is the variant's own.
+
+| Token | Fallback | Used for |
+|-------|----------|----------|
+| `--clet-table-control-radius` | `999px` | Pill radius on the filter, search and dropdowns |
+| `--clet-table-control-shadow` | `--clet-shadow-soft` | Lift under those pills: the same shadow the soft `MetricCard` uses |
+| `--clet-table-page-size` | `32px` | Diameter of the pagination discs |
+| `--clet-info` | `#098be6` | Fill of the current-page disc and the prev/next chevrons |
+
 ## Panel variant
 
 Pass `variant="panel"` to `<TableContent>` for a faint recessed surface with
@@ -132,6 +171,7 @@ Root wrapper. Accepts a `paramPrefix` that is provided via Context to all childr
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `paramPrefix` | `string` | — | **Required.** URL key namespace shared by all child components |
+| `variant` | `"default" \| "soft"` | `"default"` | `"soft"` rounds the header's filter and search into pills and turns the current page into a filled `--clet-info` disc: see [Soft variant](#soft-variant) |
 | `height` | `number \| string` | — | Constrain the table height. Required when using `virtualRowHeight`. Number = px, string = CSS value. |
 | `classNames` | `TableClassNames` | — | Part-level class overrides |
 | `className` | `string` | — | Merged onto the root div |
@@ -172,7 +212,7 @@ Renders a `<table>` with columns, data, optional sort, row selection, and loadin
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `variant` | `"default" \| "panel"` | `"default"` | `"panel"` renders a faint recessed surface with subtle row dividers and a border all around (CSS-only override) |
+| `variant` | `"default" \| "panel" \| "soft"` | `"default"` | `"panel"` renders a faint recessed surface with subtle row dividers and a border all around; `"soft"` drops the outer border for a tinted header band and hairline row dividers (both CSS-only overrides) |
 | `columns` | `TableColumn<T>[]` | — | Column definitions |
 | `data` | `T[]` | — | Row data |
 | `rowKey` | `(row: T) => string \| number` | — | Unique key extractor for each row |

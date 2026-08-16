@@ -1,7 +1,8 @@
-import { forwardRef, useEffect, useMemo, useState } from "react";
+import { forwardRef, isValidElement, useEffect, useMemo, useState } from "react";
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 import type { MetricCardProps, MetricTrend } from "../../types/metric-card";
 import { cn } from "../../utils/cn";
+import { MARKS, pickMark } from "./marks";
 import "./styles/metric-card.css";
 
 const trendIcons: Record<MetricTrend, typeof ArrowUp> = {
@@ -56,6 +57,7 @@ export const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
       icon,
       description,
       variant = "default",
+      mark,
       trend,
       trendValue,
       animate = false,
@@ -69,6 +71,16 @@ export const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
     ref,
   ) {
     const isOutline = variant === "outline";
+
+    const markNode = useMemo(() => {
+      if (variant !== "soft" || mark === false) return null;
+      if (isValidElement(mark)) return mark;
+      const id =
+        typeof mark === "string" && mark in MARKS
+          ? (mark as keyof typeof MARKS)
+          : pickMark(label);
+      return <img src={MARKS[id]} alt="" aria-hidden />;
+    }, [variant, mark, label]);
     const TrendIcon = trend && !isOutline ? trendIcons[trend] : null;
     const trendGlyph = trend && isOutline ? outlineTrendGlyphs[trend] : null;
 
@@ -218,6 +230,15 @@ export const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
               {description}
             </span>
           )
+        ) : null}
+
+        {markNode ? (
+          <span
+            className={cn("clet-metric-card__mark gsl-metric-card__mark", classNames?.mark)}
+            aria-hidden
+          >
+            {markNode}
+          </span>
         ) : null}
       </div>
     );

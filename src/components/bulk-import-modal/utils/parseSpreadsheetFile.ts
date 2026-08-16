@@ -1,3 +1,5 @@
+// Optional peer, pinned by the consuming app. See the note in utils/export.ts:
+// the npm release is frozen at 0.18.5 with CVE-2023-30533 unpatched.
 import * as XLSX from "xlsx";
 import type { ParsedSpreadsheet } from "../../../types/bulk-import-modal";
 import { ACCEPTED_EXTENSIONS } from "../constants";

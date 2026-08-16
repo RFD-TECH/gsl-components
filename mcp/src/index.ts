@@ -335,6 +335,65 @@ async function main() {
   );
 
   server.registerTool(
+    "migrate",
+    {
+      title: "Migrate to the 2.3 layout shell",
+      description:
+        "Runs the library's own codemod over a consuming app: moves AppLayout/AppHeader/Sidebar onto " +
+        "the 2.3 shell, swaps MetricCard and Table onto their soft variants, renames AppHeaderProfile " +
+        "to ProfilePopover and gslTheme to cletTheme, and deletes the elements the shell no longer " +
+        "declares (AppHeaderBranding, SidebarFooter) along with any import they leave unused. " +
+        "Defaults to a dry run. Point `path` at the REPOSITORY ROOT, not one app: in a monorepo the " +
+        "layout shell often lives in a shared package. Anything needing a human decision is returned " +
+        "as a note rather than rewritten, and those notes are the follow-up work.",
+      inputSchema: {
+        path: z
+          .string()
+          .describe("Repository root to migrate. Use the workspace root, not a single app directory."),
+        write: z
+          .boolean()
+          .optional()
+          .describe("Apply the edits. Omit or false to preview them first."),
+        preserve: z
+          .boolean()
+          .optional()
+          .describe(
+            "Pin the pre-2.3 appearance instead of adopting the shell: AppLayout to \"panel\", the brand header to \"primary\"."
+          ),
+      },
+    },
+    async ({ path: root, write, preserve }) => {
+      const { runMigrate } = await import("./migrate.js");
+      const result = await runMigrate({
+        root,
+        write: write ?? false,
+        preserve: preserve ?? false,
+      });
+      const lines = [
+        `${result.changes.length} change(s) across ${result.filesChanged} file(s), ${result.filesScanned} scanned (${preserve ? "preserve" : "adopt"} mode).`,
+      ];
+      if (result.changes.length) {
+        lines.push(
+          "",
+          "## Changes",
+          ...result.changes.map((c) => `- ${c.file}:${c.line} ${c.description}`)
+        );
+      }
+      if (result.notes.length) {
+        lines.push(
+          "",
+          "## Needs a decision (not rewritten)",
+          ...result.notes.map((n) => `- ${n.file}:${n.line} ${n.message}`)
+        );
+      }
+      if (!write && result.filesChanged > 0) {
+        lines.push("", "Nothing was written. Re-run with write: true to apply.");
+      }
+      return { content: [{ type: "text", text: lines.join("\n") }] };
+    }
+  );
+
+  server.registerTool(
     "search_rules",
     {
       title: "Search rules",

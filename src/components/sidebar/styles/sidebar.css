@@ -3,6 +3,8 @@
 .clet-sidebar {
 	--clet-sidebar-font: var(--gsl-font-body, var(--clet-font-body));
 	--clet-sidebar-bg: var(--gsl-bg, var(--clet-bg));
+	--clet-sidebar-wordmark-size: 24px;
+	--clet-sidebar-logo-size: 28px;
 	/* The mobile drawer stacks one level below the popover level (1000) on
 	   the shared stack scale in styles/theme/base.css. Portaled overlays
 	   opened FROM the drawer — the profile menu — render at the popover
@@ -27,6 +29,88 @@
 	border-radius: 0;
 }
 
+/* ── Primary variant: full-bleed brand rail ──
+   Repaints the same --clet-sidebar-* override points the other variants read. */
+.clet-sidebar.clet-sidebar--primary {
+	--clet-sidebar-bg: var(--gsl-primary-surface, var(--clet-primary-surface));
+	--clet-sidebar-text: var(--gsl-on-primary, var(--clet-on-primary));
+	--clet-sidebar-label-text: color-mix(
+		in srgb,
+		var(--gsl-on-primary, var(--clet-on-primary)) 55%,
+		transparent
+	);
+	--clet-sidebar-link-text: color-mix(
+		in srgb,
+		var(--gsl-on-primary, var(--clet-on-primary)) 82%,
+		transparent
+	);
+	--clet-sidebar-link-hover-bg: color-mix(
+		in srgb,
+		var(--gsl-on-primary, var(--clet-on-primary)) 10%,
+		transparent
+	);
+	--clet-sidebar-link-hover-text: var(--gsl-on-primary, var(--clet-on-primary));
+	--clet-sidebar-link-active-bg: var(--gsl-on-primary, var(--clet-on-primary));
+	--clet-sidebar-link-active-text: var(
+		--gsl-primary-surface,
+		var(--clet-primary-surface)
+	);
+	--clet-sidebar-badge-bg: color-mix(
+		in srgb,
+		var(--gsl-on-primary, var(--clet-on-primary)) 18%,
+		transparent
+	);
+	--clet-sidebar-badge-color: var(--gsl-on-primary, var(--clet-on-primary));
+	background: var(--gsl-sidebar-bg, var(--clet-sidebar-bg));
+	border-right: none;
+	border-radius: 0;
+}
+
+.clet-sidebar--primary .clet-sidebar__group-label {
+	text-transform: uppercase;
+}
+
+/* Chevron points up while open, down while closed. Other variants fold sideways. */
+.clet-sidebar--primary .clet-sidebar__group-toggle .clet-sidebar__group-label-icon {
+	transform: rotate(180deg);
+}
+
+.clet-sidebar--primary
+.clet-sidebar__group-toggle[aria-expanded="false"]
+.clet-sidebar__group-label-icon {
+	transform: rotate(0deg);
+}
+
+.clet-sidebar--primary .clet-sidebar__link--active .clet-sidebar__link-badge {
+	--clet-sidebar-badge-bg: var(--gsl-primary-surface, var(--clet-primary-surface));
+	--clet-sidebar-badge-color: var(--gsl-on-primary, var(--clet-on-primary));
+}
+
+.clet-sidebar--primary .clet-sidebar__collapse:hover {
+	background: var(--gsl-sidebar-link-hover-bg, var(--clet-sidebar-link-hover-bg));
+	color: var(--gsl-sidebar-link-hover-text, var(--clet-sidebar-link-hover-text));
+}
+
+.clet-sidebar--primary .clet-sidebar__scroll-hint {
+	color: var(--gsl-sidebar-link-text, var(--clet-sidebar-link-text));
+}
+
+.clet-sidebar--primary .clet-sidebar__scroll-hint:hover {
+	color: var(--gsl-sidebar-link-hover-text, var(--clet-sidebar-link-hover-text));
+}
+
+/* --clet-focus is --clet-primary, the rail's own background, so it is invisible here. */
+.clet-sidebar--primary .clet-sidebar__link:focus-visible,
+.clet-sidebar--primary .clet-sidebar__group-toggle:focus-visible,
+.clet-sidebar--primary .clet-sidebar__collapse:focus-visible,
+.clet-sidebar--primary .clet-sidebar__scroll-hint:focus-visible {
+	outline-color: var(--gsl-on-primary, var(--clet-on-primary));
+}
+
+.clet-sidebar--primary .clet-skeleton {
+	background: var(--gsl-sidebar-link-hover-bg, var(--clet-sidebar-link-hover-bg));
+}
+
 .clet-sidebar__header {
 	display: flex;
 	flex-wrap: nowrap;
@@ -44,8 +128,38 @@
 	gap: 10px;
 }
 
+.clet-sidebar__header-logo {
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+}
+
+.clet-sidebar__header-logo img,
+.clet-sidebar__header-logo svg {
+	display: block;
+	width: var(--gsl-sidebar-logo-size, var(--clet-sidebar-logo-size));
+	height: var(--gsl-sidebar-logo-size, var(--clet-sidebar-logo-size));
+	object-fit: contain;
+}
+
+.clet-sidebar__header-text {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+}
+
+.clet-sidebar__header-subtitle {
+	overflow: hidden;
+	font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
+	line-height: 1.3;
+	opacity: 0.7;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .clet-sidebar__header-title {
 	overflow: hidden;
+	font-family: var(--gsl-font-header, var(--clet-font-header));
 	font-size: 18px;
 	font-weight: 700;
 	line-height: 1.2;
@@ -168,7 +282,20 @@
 .clet-sidebar__footer {
 	margin-top: 24px;
 	padding-top: 16px;
-	border-top: 1px solid var(--gsl-border, var(--clet-border));
+}
+
+/* Default SidebarFooter content, replaced by any child. */
+.clet-sidebar__wordmark {
+	font-family: var(--gsl-font-header, var(--clet-font-header));
+	font-size: var(--gsl-sidebar-wordmark-size, var(--clet-sidebar-wordmark-size));
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	line-height: 1.2;
+	color: inherit;
+}
+
+.clet-sidebar--collapsed .clet-sidebar__wordmark {
+	display: none;
 }
 
 .clet-sidebar__nav {
@@ -457,6 +584,10 @@
 	transition: transform 200ms ease;
 }
 
+.clet-sidebar--mobile.clet-sidebar--primary {
+	border-right: none;
+}
+
 .clet-sidebar--mobile.clet-sidebar--mobile-open {
 	transform: translateX(0);
 }
@@ -517,6 +648,13 @@
 		border-radius: 0;
 	}
 
+	/* Must beat the base desktop border-radius, as with plain above. */
+	.clet-sidebar.clet-sidebar--primary:not(.clet-sidebar--mobile) {
+		background: var(--gsl-sidebar-bg, var(--clet-sidebar-bg));
+		border-right: none;
+		border-radius: 0;
+	}
+
 	/* Hide the auto-injected brand row on desktop. The plain `Sidebar`
      mirrors the sibling `AppHeader`'s `AppHeaderBranding` into this row on
      mobile (where the sidebar becomes a drawer); on desktop the brand is
@@ -540,6 +678,10 @@
 		box-shadow: var(--gsl-shadow-lg, var(--clet-shadow-lg));
 		transform: translateX(-100%);
 		transition: transform 200ms ease;
+	}
+
+	.clet-sidebar--primary:not(.clet-sidebar--mobile) {
+		border-right: none;
 	}
 
 	.clet-sidebar:not(.clet-sidebar--mobile).clet-sidebar--mobile-open {

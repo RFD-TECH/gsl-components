@@ -128,7 +128,10 @@
 .clet-tabs--pill .clet-tabs__list {
   --clet-tabs-pill-gap: 6px;
   gap: var(--gsl-tabs-pill-gap, var(--clet-tabs-pill-gap));
-  margin-bottom: 16px;
+
+  /* No margin-bottom: `.clet-tabs` is a flex column with its own row gap, so a
+     margin here stacks on top of it and the panel sits ~31px down instead of
+     the intended 15px. */
   position: relative;
   background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
   padding: var(--gsl-tabs-pill-gap, var(--clet-tabs-pill-gap));

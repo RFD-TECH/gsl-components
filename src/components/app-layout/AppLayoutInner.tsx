@@ -20,7 +20,7 @@ import "./styles/app-layout.css";
 export interface AppLayoutInnerProps {
   children?: ReactNode;
   className?: string;
-  variant?: "default" | "stacked";
+  variant?: "default" | "panel" | "stacked";
 }
 
 export const AppLayoutInner = forwardRef<HTMLDivElement, AppLayoutInnerProps>(
@@ -120,7 +120,14 @@ export const AppLayoutInner = forwardRef<HTMLDivElement, AppLayoutInnerProps>(
     }
 
     return (
-      <div ref={ref} className={cn("clet-app-layout gsl-app-layout", className)}>
+      <div
+        ref={ref}
+        className={cn(
+          "clet-app-layout gsl-app-layout",
+          variant === "panel" && "clet-app-layout--panel gsl-app-layout--panel",
+          className,
+        )}
+      >
         {sidebarNode}
         <div className="clet-app-layout__body gsl-app-layout__body">
           {headerEl}

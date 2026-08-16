@@ -405,7 +405,7 @@ export function DemoLayout() {
   return (
     <SidebarProvider>
       <BreadcrumbProvider>
-        <AppLayout>
+        <AppLayout variant="panel">
           <AppHeader>
             <AppHeaderSearch
               data={searchGroups}
@@ -414,7 +414,7 @@ export function DemoLayout() {
               placeholder="Search pages and members..."
             />
             <AppHeaderActions>
-              <VersionSwitcher active="legacy" />
+              <VersionSwitcher active="v1_22" />
               <button
                 type="button"
                 className="clet-app-header__notif-btn"

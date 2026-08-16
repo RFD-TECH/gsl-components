@@ -280,7 +280,7 @@ Exports: `useSearchParamOverlay`, `useDialogSearchParam`, `useModalSearchParam`,
 
 ## AppHeader
 
-Compound header bar with `AppHeader`, `AppHeaderSearch`, `AppHeaderActions`, and `AppHeaderNotifications`. Nest search on the left and group switcher, notifications, and profile inside `AppHeaderActions` on the right. The profile trigger is [`ProfilePopover`](/docs/profile-popover) itself (pass `user`/`variant` for the compact header-style trigger) — there's no separate `AppHeaderProfile` component.
+Compound header bar with `AppHeader`, `AppHeaderSearch`, `AppHeaderActions`, and `AppHeaderNotifications`. Nest search on the left and group switcher, notifications, and profile inside `AppHeaderActions` on the right. The profile trigger is [`ProfilePopover`](/docs/profile-popover) itself (pass `user`/`variant` for the compact header-style trigger): there's no separate `AppHeaderProfile` component. `variant` picks the surface: `"default"` is a rounded panel, `"plain"` is the page surface with a hairline underneath (the layout shell's top bar), `"primary"` is the brand-coloured bar.
 
 See the [AppHeader](/docs/app-header) docs page for props and exported types.
 
@@ -318,23 +318,28 @@ Props: `AppHeader` — `className`, `children`. `AppHeaderActions` — `classNam
 
 ## AppLayout
 
-Application layout container that auto-positions `AppHeader`, `AppSidebar`, and `AppBody` by component type. Sidebar on the left, header sticky at the top, main content filling the rest. See the [AppLayout](/docs/app-layout) docs page for props and exported types.
+Application layout container that auto-positions `AppHeader`, `AppSidebar`, and `AppBody` by component type. Sidebar on the left, header sticky at the top, main content filling the rest. `variant` picks the arrangement: `"default"` runs the sidebar full height flush against the viewport edge with the header across the content column, `"panel"` floats both as inset rounded panels, `"stacked"` puts one full-width header on top. See the [AppLayout](/docs/app-layout) docs page for props and exported types.
 
 ```tsx
-import { AppLayout, AppSidebar, AppBody } from "@rfdtech/components";
+import { AppLayout, AppSidebar, AppBody, Sidebar, AppHeader } from "@rfdtech/components";
 
 <AppLayout>
-  <AppHeader>
+  <AppHeader variant="plain">
+    <AppHeaderSearch placeholder="Search" />
     <AppHeaderActions>
-      <AppSwitcher apps={apps} />
+      <Launchpad apps={apps} />
     </AppHeaderActions>
   </AppHeader>
-  <AppSidebar>{/* sidebar */}</AppSidebar>
+  <AppSidebar>
+    <Sidebar variant="primary">{/* rail */}</Sidebar>
+  </AppSidebar>
   <AppBody>{/* page */}</AppBody>
 </AppLayout>
 ```
 
-Props: `AppLayout` — `children`, `className`. `AppSidebar` — `children`, `className`. `AppBody` — `children`, `className`. Exported types: `AppLayoutProps`, `AppSidebarProps`, `AppBodyProps`.
+`AppLayout` (default) + `Sidebar variant="primary"` + `AppHeader variant="plain"` is the layout shell, adopted as a set. Upgrading an app already on the old shell: `npx rfdui migrate` rewrites the variants (dry run until `--write`), or `npx rfdui migrate --preserve` pins the previous look.
+
+Props: `AppLayout`, `children`, `className`, `variant`. `AppSidebar`, `children`, `className`. `AppBody`, `children`, `className`. Exported types: `AppLayoutProps`, `AppSidebarProps`, `AppBodyProps`.
 
 ## AppSwitcher
 
@@ -917,7 +922,7 @@ Exports: `Draggable`, `DraggableHandle`, `useDraggable`, `clampPosition`. Types:
 
 ## MetricCard
 
-Compact dashboard card for displaying a metric value, label, trend indicator, and optional icon or description. Three `variant` options: `"default"` (filled card), `"outline"` (bordered no-fill card with chevron trend icons), and `"bordered"` (default layout with a 1px border). Supports count-up animation via the `animate` prop.
+Compact dashboard card for displaying a metric value, label, trend indicator, and optional icon or description. Four `variant` options: `"soft"` (the current preferred card, borderless on a shadow, with a brand watermark bleeding off the bottom-right corner), `"default"` (filled card), `"outline"` (bordered no-fill card with chevron trend icons), and `"bordered"` (default layout with a 1px border). On `"soft"`, `mark` picks one of five bundled watermarks; leave it off and one is chosen by hashing the label. Supports count-up animation via the `animate` prop.
 
 See the [MetricCard](/docs/metric-card) docs page for props and exported types.
 
@@ -1156,7 +1161,7 @@ Exports: `RouterAdapterProvider`, `setRouterAdapter`, `getRouterAdapter`. Types:
 
 ## Sidebar
 
-Compound sidebar primitives for app shells and section navigation. Desktop uses a sticky card-style rail with optional collapse; mobile uses an offcanvas drawer with trigger and overlay. `SidebarGroup` supports a `collapsible` flag that turns the group label into a button toggle with an animated open/close for the group's content. See the [Sidebar](/docs/sidebar) docs page for props and exported types.
+Compound sidebar primitives for app shells and section navigation. Desktop uses a sticky card-style rail with optional collapse; mobile uses an offcanvas drawer with trigger and overlay. `SidebarGroup` supports a `collapsible` flag that turns the group label into a button toggle with an animated open/close for the group's content. `variant` picks the surface: `"default"` is a card panel, `"plain"` is transparent with a right border, `"primary"` is the flush brand rail used by the layout shell. See the [Sidebar](/docs/sidebar) docs page for props and exported types.
 
 ```tsx
 import {
@@ -1318,7 +1323,7 @@ Props: `checked`, `defaultChecked`, `onCheckedChange`, `label`, `labelPosition`,
 
 ## Table
 
-Compound table with URL-driven search, pagination, filter, sort, row selection, bulk actions, and loading skeletons. See the [Table](/docs/table) docs page for props and exported types.
+Compound table with URL-driven search, pagination, filter, sort, row selection, bulk actions, and loading skeletons. `Table variant="soft"` is the current preferred look: it rounds the header's filter and search into pills, puts filters on the left and inputs on the right, and draws the current page as a filled `--clet-info` disc, all by restyling the controls the table already composes, so `Dropdown`, `TableSearch` and `TablePagination` keep their own APIs. Pair it with `TableContent variant="soft"`. See the [Table](/docs/table) docs page for props and exported types.
 
 ```tsx
 import { useState } from "react";

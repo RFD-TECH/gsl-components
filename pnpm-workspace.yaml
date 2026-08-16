@@ -1,3 +1,8 @@
 allowBuilds:
   esbuild: true
   sharp: true
+
+# ajv 8.18 (deep under vite-plugin-dts) pins a fast-uri with CVE-2026-18446.
+# The patch is semver-compatible, so every copy is lifted to it.
+overrides:
+  fast-uri: '^3.1.5'

@@ -6,6 +6,9 @@
   --color-primary-foreground: var(--gsl-on-primary, var(--clet-on-primary));
   --color-primary-light: var(--gsl-primary-light, var(--clet-primary-light));
 
+  /* Brand chrome. Equal to --color-primary in light, deepened in dark. */
+  --color-primary-surface: var(--gsl-primary-surface, var(--clet-primary-surface));
+
   /* NOTE: --color-secondary intentionally maps to the neutral surface-dark tone
      (existing Tailwind convention in this repo), NOT to the gold brand token
      --clet-secondary. The gold brand color is exposed separately below as
@@ -35,6 +38,10 @@
 
   --color-success: var(--gsl-success, var(--clet-success));
   --color-success-foreground: var(--gsl-on-primary, var(--clet-on-primary));
+
+  /* The "you are here" blue. Deliberately not --clet-primary. */
+  --color-info: var(--gsl-info, var(--clet-info));
+  --color-info-foreground: var(--gsl-on-info, var(--clet-on-info));
 
   --color-warning: var(--gsl-warning, var(--clet-warning));
   --color-warning-foreground: var(--gsl-text, var(--clet-text));
@@ -71,6 +78,7 @@
   --shadow-sm: var(--gsl-shadow-sm, var(--clet-shadow-sm));
   --shadow-md: var(--gsl-shadow-md, var(--clet-shadow-md));
   --shadow-lg: var(--gsl-shadow-lg, var(--clet-shadow-lg));
+  --shadow-soft: var(--gsl-shadow-soft, var(--clet-shadow-soft));
 }
 
 /* ── Global token → Tailwind coverage checklist ──
