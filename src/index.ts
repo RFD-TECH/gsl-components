@@ -8,7 +8,6 @@ setRouterAdapter(useReactRouterAdapter);
 export * from "./components/theme";
 export * from "./components/app-switcher";
 export * from "./components/launchpad";
-export * from "./components/logo-loader";
 export * from "./components/app-header";
 export * from "./components/app-layout";
 export * from "./components/avatar";

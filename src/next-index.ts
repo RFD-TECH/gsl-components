@@ -34,7 +34,6 @@ export * from "./components/metric-card";
 export * from "./components/modal";
 export * from "./components/network-operator";
 export * from "./components/popover";
-export * from "./components/logo-loader";
 export * from "./components/progress-bar";
 export * from "./components/radio-group";
 export * from "./components/sheet";
