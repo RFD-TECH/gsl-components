@@ -7,7 +7,8 @@ import * as codex from "./codex.js";
 import * as opencode from "./opencode.js";
 import {
   type InstallResult,
-  projectServerEntry,
+  MCP_SERVER_NAME,
+  mcpServerCommand,
   readJsonIfExists,
   writeJson,
 } from "./util.js";
@@ -80,13 +81,21 @@ export async function runSetup(cwd: string = process.cwd()): Promise<void> {
     console.log(
       "No supported AI tool detected (looked for .claude/, .mcp.json, .cursor/, ~/.codex/, " +
         "opencode.json, ~/.config/opencode).\n" +
-        "The MCP server is still available directly: run `rfdui mcp`, or point your tool at\n" +
-        `  node ${projectServerEntry(cwd)}`
+        "\nTo wire the rfdtech-ui MCP server by hand, add this to the project's .mcp.json:\n" +
+        `\n${JSON.stringify({ mcpServers: { [MCP_SERVER_NAME]: mcpServerCommand(cwd) } }, null, 2)}\n` +
+        "\nThen re-run `npx rfdui setup` to drop the skills alongside it."
     );
   } else {
     for (const r of results) {
       console.log(`${r.changed ? "✓" : "•"} ${r.name}: ${r.detail}`);
     }
+    // A written config is not a running server: hosts read it at startup, and
+    // Claude Code asks the user to approve a project-scoped one before it
+    // connects. Saying so here saves an agent debugging absent tools.
+    console.log(
+      `\nRestart your AI tool to connect the ${MCP_SERVER_NAME} MCP server ` +
+        "(Claude Code will ask the user to approve it once)."
+    );
   }
 
   // A first install has nothing to migrate; only a version that moved does.
