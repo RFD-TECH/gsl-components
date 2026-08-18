@@ -17,7 +17,7 @@ export const docNavSections: DocNavSection[] = [
 			{ slug: "theme", title: "Theme" },
 			{ slug: "router-adapter", title: "RouterAdapter" },
 			{ slug: "changelog", title: "Changelog" },
-			{ slug: "migration-v2", title: "Migration guide: v1 → v2" },
+			{ slug: "migration-v2", title: "Migration guide: update to latest" },
 		],
 	},
 	{

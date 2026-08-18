@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Upgrading from `1.22.0`? See [`demo/docs/pages/migration-v2.mdx`](demo/docs/pages/migration-v2.mdx) for a step-by-step walkthrough of every breaking change below.
+Upgrading from any earlier version? See [`demo/docs/pages/migration-v2.mdx`](demo/docs/pages/migration-v2.mdx) for the one upgrade path: run the codemod, then the few things it cannot decide.
 
 ## [Unreleased]
 

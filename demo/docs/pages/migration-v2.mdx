@@ -1,6 +1,6 @@
 export const meta = {
-  title: "Migration guide: v1 → v2",
-  description: "Agent instructions for upgrading to v2 and the new design system",
+  title: "Migration guide: update to latest",
+  description: "Agent instructions for updating to the latest release: run the codemod, then the handful of things it cannot decide for you",
   category: "Guide",
   keywords: ["migration", "upgrade", "v2", "breaking changes", "deprecated", "new design system", "AppHeaderProfile", "ProfilePopover", "Launchpad", "AppSwitcher", "rebrand", "AppLayout", "Sidebar", "RoleSelect", "stacked layout", "CountrySelector", "Combobox", "NetworkOperator", "gsl-to-clet", "cletTheme", "gslTheme", "rename", "TableFooter", "noBorder"],
   since: "2.0.0",
@@ -8,9 +8,12 @@ export const meta = {
   related: ["changelog", "getting-started", "theme", "app-header", "app-switcher", "launchpad", "table", "sidebar", "profile-popover", "role-select", "app-layout", "metric-card", "tabs", "country-selector", "combobox", "network-operator"],
 };
 
-# Migration guide: v1 → v2 — Agent Instructions
+# Migration guide: update to latest (Agent Instructions)
 
-Agent-only. All breaking changes and deprecations between `1.22.0` and current, organized as directives. See [Changelog](/docs/changelog) for dated list.
+Agent-only. Every breaking change and deprecation between `1.22.0` and the latest release,
+organised as directives. There is one upgrade path, whatever version you are coming from: install
+the latest, run the codemod, then work through the short list of things it is not entitled to
+decide. See [Changelog](/docs/changelog) for the dated list.
 
 ## Upgrading: run the codemod
 
@@ -20,6 +23,8 @@ TypeScript compiler resolved from your own app, so multi-line props, aliased imp
 anything needing a judgement call is reported with a file and line rather than guessed at.
 
 ```bash
+npm install @rfdtech/components@latest  # or pnpm add / yarn add
+
 npx rfdui migrate                      # dry run: prints every change it would make
 npx rfdui migrate --write              # apply
 npx rfdui migrate --preserve --write   # apply, but pin the pre-2.3 appearance
@@ -27,6 +32,10 @@ npx rfdui migrate --path apps/web      # limit to one directory or file
 ```
 
 It never writes without `--write`, and it never touches CSS.
+
+In a pnpm workspace where the root does not itself depend on `@rfdtech/components`, `npx` cannot
+see the local binary and goes looking on the registry. Run `pnpm exec rfdui migrate` from the
+package that does depend on it.
 
 ### What it rewrites
 
@@ -101,6 +110,47 @@ The codemod's job is to change names, not behaviour. After `--write`:
    change (the brand colour moves from the header to the rail); anything else that moved is a bug
    worth reporting, not something to patch around.
 
+### Removals the codemod does not cover
+
+A removed component has no mechanical replacement to rewrite to, so these are hand edits. The
+compiler finds all of them: after the upgrade, a typecheck lists every site.
+
+**2.3: `LogoLoader` is gone**, with its tokens and its docs page. There is no branded loader in the
+kit any more. Wherever one covered a gap, use the loading state of the component that owns the
+region (`TableContent`, `MetricCard`, `Launchpad`, `ProfilePopover`, `SidebarLink`), which keeps
+the layout stable and knows what the finished content looks like. A whole-route or app-boot loader
+is the app's own to supply.
+
+**2.3: `Card` lost `loading`, `loadingLabel` and `loadingMinHeight`.** A card no longer swaps its
+children for a loader. Move the loading state inside:
+
+```tsx
+// before
+<Card bordered loading={isLoading} loadingLabel="Loading members…" loadingMinHeight={420}>
+  <Table>…</Table>
+</Card>
+
+// after
+<Card bordered>
+  <Table>
+    <TableContent loading={isLoading} loadingRows={10} columns={columns} data={rows} />
+  </Table>
+</Card>
+```
+
+**2.3: every `TableFilter` field needs a `name`, and needs seeding from the URL.** A filter field
+reaches the table's state only through the named form control it renders, so a field without a
+`name` holds its own value, filters nothing and is left behind by "clear". Both requirements are
+checked in development and reported to the console with the field and the fix:
+
+```tsx
+const { filters } = useTableState({ paramPrefix: "members" });
+const [status, setStatus] = useState(filters.status ?? "");
+
+<TableFilter variant="spread">
+  <Combobox name="status" value={status || null} onValueChange={(v) => setStatus(v ?? "")} … />
+</TableFilter>;
+```
 
 ## Adopting the new design system
 
@@ -336,9 +386,11 @@ All variants above are additive — no deadline to migrate old screens. But any 
 
 **Compatibility (keeps existing screens compiling):**
 
-- [ ] Run `npx rfdui migrate` and read the dry run, then `--write` (or `--preserve --write` to keep the current look)
+- [ ] Install the latest release, then run `npx rfdui migrate` and read the dry run, then `--write` (or `--preserve --write` to keep the current look)
 - [ ] Confirm the run: `git diff` shows only what it printed, and typecheck, lint and tests pass
 - [ ] Work through everything under "What it reports instead of rewriting": each names a file and line
+- [ ] Replace every `LogoLoader` and every `<Card loading>` by hand ("Removals the codemod does not cover"); typecheck lists them
+- [ ] Give every `TableFilter` field a `name` and seed it from `useTableState().filters`; the dev console reports any that are missed
 - [ ] Convert every `AppSwitcher` → `Launchpad` when possible (§6) — `AppSwitcher` is deprecated
 - [ ] Pass `maxItems={apps.length}` to any `AppSwitcher` you keep with >6 apps (§3)
 - [ ] Add explicit `rowActions` Select/Deselect to `selectable`-only tables that need it (§4)
