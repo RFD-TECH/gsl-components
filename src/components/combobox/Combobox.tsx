@@ -1,7 +1,8 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Command as CommandPrimitive } from "cmdk";
 import { Check, ChevronDown, Loader2, Search, XCircle } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useTableFilterReset } from "../../hooks/useTableFilterReset";
 import type { ComboboxProps } from "../../types/combobox";
 import { cn } from "../../utils/cn";
 import "./styles/combobox.css";
@@ -65,17 +66,26 @@ export function Combobox(props: ComboboxProps) {
     [multiple, value, onValueChange],
   );
 
+  const clearValue = useCallback(() => {
+    if (multiple) {
+      (onValueChange as (v: string[]) => void)([]);
+    } else {
+      (onValueChange as (v: string | null) => void)(null);
+    }
+  }, [multiple, onValueChange]);
+
   const handleClear = useCallback(
     (event: React.MouseEvent) => {
       event.stopPropagation();
-      if (multiple) {
-        (onValueChange as (v: string[]) => void)([]);
-      } else {
-        (onValueChange as (v: string | null) => void)(null);
-      }
+      clearValue();
     },
-    [multiple, onValueChange],
+    [clearValue],
   );
+
+  // Named Comboboxes take part in table state, so a TableFilter's "clear" has
+  // to empty this one. A form reset cannot reach a value held in React.
+  const rootRef = useRef<HTMLSpanElement>(null);
+  useTableFilterReset(rootRef, clearValue, Boolean(name));
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     const el = e.currentTarget as HTMLElement;
@@ -89,7 +99,10 @@ export function Combobox(props: ComboboxProps) {
 
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={setOpen}>
-      <span className={cn("clet-combobox gsl-combobox", classNames?.root, className)}>
+      <span
+        ref={rootRef}
+        className={cn("clet-combobox gsl-combobox", classNames?.root, className)}
+      >
         <PopoverPrimitive.Trigger asChild>
           <button
             type="button"

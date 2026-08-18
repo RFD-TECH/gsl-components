@@ -1,16 +1,21 @@
 import {
+  Children,
+  Fragment,
   forwardRef,
+  isValidElement,
   useRef,
   useCallback,
   useMemo,
   useState,
   useEffect,
   type ChangeEvent,
+  type ReactNode,
 } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Search, FilterIcon, XCircle } from "lucide-react";
 import { getRouterAdapter } from "../../hooks/../adapters/registry";
 import { useDebounce } from "../../hooks/useDebounce";
+import { TABLE_FILTER_RESET_EVENT } from "../../hooks/useTableFilterReset";
 import type {
   TableSearchProps,
   TableFilterProps,
@@ -26,6 +31,98 @@ const FILTER_PREFIX = "f_";
 
 function paramKey(prefix: string | undefined, key: string): string {
   return prefix ? `${prefix}.${key}` : key;
+}
+
+// Bundlers replace `process.env.NODE_ENV` in library code, so a production
+// build resolves this to false and drops the checks. A browser dev server
+// leaves `process` undefined entirely. Unknown means dev, not silence.
+const DEV =
+  typeof process === "undefined" || process.env?.NODE_ENV !== "production";
+
+/**
+ * A TableFilter collects its values from the DOM: it snapshots `FormData` over
+ * the fields it wraps, so a field only reaches the URL, and therefore the
+ * table's state, when it renders a *named* form control. A field left without
+ * `name` looks like it works (it holds its own value) while filtering nothing,
+ * so the two invariants that make the mechanism sound are checked in dev and
+ * reported loudly rather than left to be discovered on a screen.
+ */
+
+function displayNameOf(type: unknown): string {
+  if (typeof type === "function") {
+    const fn = type as { displayName?: string; name?: string };
+    return fn.displayName || fn.name || "field";
+  }
+  if (typeof type === "string") return `<${type}>`;
+  return "field";
+}
+
+/**
+ * Invariant 1: every value-carrying field declares `name`.
+ *
+ * Walks the children the filter was handed, through fragments and plain markup
+ * wrappers, and flags any component that takes an `onValueChange` (the kit's
+ * select-like fields: Dropdown, Combobox, and anything following that contract)
+ * without a `name`. Fields driven by an explicit `onApply`/`onReset` pair are a
+ * deliberate manual pattern and are not walked.
+ */
+function collectUnnamedFields(node: ReactNode, found: string[] = []): string[] {
+  Children.forEach(node, (child) => {
+    if (!isValidElement(child)) return;
+
+    const props = child.props as Record<string, unknown>;
+
+    if (child.type === Fragment || typeof child.type === "string") {
+      collectUnnamedFields(props.children as ReactNode, found);
+      return;
+    }
+
+    if (typeof props.onValueChange === "function" && !props.name) {
+      found.push(displayNameOf(child.type));
+    }
+  });
+  return found;
+}
+
+/**
+ * Invariant 2: the fields are seeded from the URL.
+ *
+ * A filter param that no field carries, or that a field disagrees with, means
+ * the screen renders one state while the URL claims another; the next snapshot
+ * then rewrites the URL from the DOM and the param is lost on reload.
+ */
+function reportUnseededFilters(
+  form: HTMLFormElement,
+  searchParams: URLSearchParams,
+  filterPrefix: string,
+): void {
+  const data = new FormData(form);
+
+  for (const [key, paramValue] of searchParams.entries()) {
+    if (!key.startsWith(filterPrefix)) continue;
+    const fieldName = key.slice(filterPrefix.length);
+    if (!fieldName) continue;
+
+    if (!data.has(fieldName)) {
+      console.error(
+        `[TableFilter] The URL carries "${key}" but no field inside this ` +
+          `TableFilter is named "${fieldName}", so the filter is not applied ` +
+          `and the param is dropped on the next change. Add name="${fieldName}" ` +
+          `to the field that owns it.`,
+      );
+      continue;
+    }
+
+    const fieldValue = data.get(fieldName);
+    if (typeof fieldValue === "string" && fieldValue !== paramValue) {
+      console.error(
+        `[TableFilter] The field named "${fieldName}" rendered as ` +
+          `"${fieldValue}" while the URL says "${paramValue}". Seed its initial ` +
+          `value from the URL, useTableState({ paramPrefix }).filters.${fieldName}, ` +
+          `so a reload restores what the user had selected.`,
+      );
+    }
+  }
 }
 
 export const TableActions = forwardRef<HTMLDivElement, TableActionsProps>(
@@ -188,12 +285,18 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
       const form = formRef.current;
       if (form) {
         const data = new FormData(form);
+        const owned = new Set(data.keys());
         setSearchParams(
           (prev) => {
             const next = new URLSearchParams(prev);
-            // Remove existing filter params
+            // Clear the filter params this form owns. A param with no field
+            // behind it belongs to something else (or to a field that has not
+            // mounted yet) and is left alone rather than wiped.
             for (const key of [...next.keys()]) {
-              if (key.startsWith(filterPrefix)) {
+              if (
+                key.startsWith(filterPrefix) &&
+                owned.has(key.slice(filterPrefix.length))
+              ) {
                 next.delete(key);
               }
             }
@@ -227,11 +330,48 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
         },
         { replace: true },
       );
-      // Reset form fields
-      formRef.current?.reset();
+      // Native controls reset themselves; controlled fields (Dropdown,
+      // Combobox, anything holding its value in React) cannot be reached that
+      // way, so the reset is announced to them as well.
+      const form = formRef.current;
+      form?.reset();
+      form?.dispatchEvent(new CustomEvent(TABLE_FILTER_RESET_EVENT));
       onReset?.();
       setOpen(false);
     }, [setSearchParams, filterPrefix, onReset]);
+
+    // Invariant 1: no unnamed field. Checked from the elements themselves, so
+    // it fires on the first render whether or not any filter is applied yet.
+    useEffect(() => {
+      if (!DEV) return;
+      const unnamed = collectUnnamedFields(children);
+      if (unnamed.length === 0) return;
+      console.error(
+        `[TableFilter] ${unnamed.join(", ")} ${
+          unnamed.length === 1 ? "is" : "are"
+        } missing a "name". A filter field without a name is never collected ` +
+          `into the table's state: it holds its own value, filters nothing, and ` +
+          `is untouched by clear. Give every field a name matching its filter key.`,
+      );
+    }, [children]);
+
+    // Invariant 2: the fields agree with the URL they were loaded with. Radix
+    // mounts its hidden native <select> after the trigger paints, so this waits
+    // a tick for the form to be fully populated, and reports once per form.
+    const devCheckedFormRef = useRef<HTMLFormElement | null>(null);
+
+    useEffect(() => {
+      if (!DEV) return;
+      const form = formRef.current;
+      if (!form || devCheckedFormRef.current === form) return;
+      const id = setTimeout(() => {
+        const current = formRef.current;
+        if (!current) return;
+        devCheckedFormRef.current = current;
+        reportUnseededFilters(current, searchParams, filterPrefix);
+      }, 0);
+      return () => clearTimeout(id);
+    }, [children, open, searchParams, filterPrefix]);
 
     // Spread variant has no Apply button — auto-apply whenever a field's
     // value changes. Field changes may come from a Dropdown driving a
@@ -279,25 +419,29 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
             </form>
           )}
 
-          <div
-            className={cn(
-              "clet-table__filter-actions gsl-table__filter-actions",
-              "clet-table__filter-actions--spread gsl-table__filter-actions--spread",
-              classNames?.actions,
-            )}
-          >
-            <button
-              type="button"
+          {/* Inline variant: the reset only exists when a filter is actually
+              applied, so the row never carries a control with nothing to do. */}
+          {activeCount != null && activeCount > 0 && (
+            <div
               className={cn(
-                "clet-table__filter-btn--reset gsl-table__filter-btn--reset",
-                classNames?.resetButton,
+                "clet-table__filter-actions gsl-table__filter-actions",
+                "clet-table__filter-actions--spread gsl-table__filter-actions--spread",
+                classNames?.actions,
               )}
-              onClick={handleReset}
             >
-              clear
-              <XCircle size={14} strokeWidth={1.5} />
-            </button>
-          </div>
+              <button
+                type="button"
+                className={cn(
+                  "clet-table__filter-btn--reset gsl-table__filter-btn--reset",
+                  classNames?.resetButton,
+                )}
+                onClick={handleReset}
+              >
+                clear
+                <XCircle size={14} strokeWidth={1.5} />
+              </button>
+            </div>
+          )}
         </div>
       );
     }

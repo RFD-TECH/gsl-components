@@ -402,6 +402,7 @@ export function Dashboard2Page() {
                       aria-label="Filter by role"
                     />
                     <Combobox
+                      name="status"
                       value={statusValue || null}
                       onValueChange={(v) => setStatusValue(v ?? "")}
                       options={gslStatuses}

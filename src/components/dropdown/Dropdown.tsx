@@ -3,7 +3,8 @@ import { ChevronDown } from "lucide-react";
 import type { DropdownProps } from "../../types/dropdown";
 import { cn } from "../../utils/cn";
 import "./styles/dropdown.css";
-import { useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
+import { useTableFilterReset } from "../../hooks/useTableFilterReset";
 
 const EMPTY_VALUE = "__clet_dropdown_none__";
 
@@ -23,6 +24,15 @@ export function Dropdown({
   required,
   form,
 }: DropdownProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Named Dropdowns take part in table state, so a TableFilter's "clear" has to
+  // empty this one rather than let Radix restore the value it mounted with.
+  const handleFilterReset = useCallback(() => onValueChange(null), [
+    onValueChange,
+  ]);
+  useTableFilterReset(rootRef, handleFilterReset, Boolean(name));
+
   const selectedOption = useMemo(
     () => options.find((option) => option.value === value),
     [options, value],
@@ -55,7 +65,10 @@ export function Dropdown({
       required={required}
       form={form}
     >
-      <div className={cn("clet-dropdown gsl-dropdown", classNames?.root, className)}>
+      <div
+        ref={rootRef}
+        className={cn("clet-dropdown gsl-dropdown", classNames?.root, className)}
+      >
         <Select.Trigger
           className={cn(
             "clet-dropdown__trigger gsl-dropdown__trigger",

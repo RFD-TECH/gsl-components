@@ -91,7 +91,7 @@ function statusVariant(status: string) {
 export function Dashboard3Page() {
   const { page, pageSize, pageSizeOptions, search, filters } = useTableState({
     defaultPageSize: 10,
-    paramPrefix: "dash2-members",
+    paramPrefix: "dash3-members",
   });
   const [roleValue, setRoleValue] = useState(filters.role ?? "");
   const [statusValue, setStatusValue] = useState(filters.status ?? "");
@@ -398,6 +398,7 @@ export function Dashboard3Page() {
                       aria-label="Filter by role"
                     />
                     <Combobox
+                      name="status"
                       value={statusValue || null}
                       onValueChange={(v) => setStatusValue(v ?? "")}
                       options={gslStatuses}
