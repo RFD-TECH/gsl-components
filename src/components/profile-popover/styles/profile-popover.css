@@ -70,6 +70,21 @@
   padding: 4px;
 }
 
+/* Below the sidebar breakpoint variant="full" folds to the avatar shape rather
+   than push a name and email off the edge. Presentational only: the popover
+   still carries the full identity once opened. */
+@media (width <= 768px) {
+  .clet-app-header__profile {
+    gap: 0;
+    padding: 4px;
+  }
+
+  .clet-app-header__profile .clet-app-header__user-info,
+  .clet-app-header__profile .clet-app-header__profile-chevron {
+    display: none;
+  }
+}
+
 .clet-app-header__user-info {
   display: flex;
   flex: 1;
