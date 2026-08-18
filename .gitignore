@@ -34,3 +34,4 @@ yarn.lock
 .mcp.json
 .cursor/
 opencode.json
+.ai/
