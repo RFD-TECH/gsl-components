@@ -5,7 +5,7 @@ import * as claude from "./claude.js";
 import * as cursor from "./cursor.js";
 import * as codex from "./codex.js";
 import * as opencode from "./opencode.js";
-import type { InstallResult } from "./util.js";
+import { type InstallResult, projectServerEntry } from "./util.js";
 
 export async function runSetup(cwd: string = process.cwd()): Promise<void> {
   console.log("rfdui setup — detecting AI tools...\n");
@@ -26,10 +26,14 @@ export async function runSetup(cwd: string = process.cwd()): Promise<void> {
   if (opencode.detect(cwd)) results.push(await opencode.install(cwd));
 
   if (results.length === 0) {
+    // Deliberately not `npx components-mcp`: that name belongs to an unrelated
+    // package on the public registry, and npx reaches for it whenever the local
+    // bin is not resolvable, which is exactly the case here.
     console.log(
       "No supported AI tool detected (looked for .claude/, .mcp.json, .cursor/, ~/.codex/, " +
         "opencode.json, ~/.config/opencode).\n" +
-        "The MCP server is still available directly: `npx components-mcp` or `rfdui mcp`."
+        "The MCP server is still available directly: run `rfdui mcp`, or point your tool at\n" +
+        `  node ${projectServerEntry(cwd)}`
     );
     return;
   }
