@@ -73,10 +73,8 @@
 }
 
 /* ── Branding (logo + title/subtitle) ──
-   All values are exposed as overridable custom properties; set them on
-   .clet-app-header__branding (or an ancestor) to re-theme without extra CSS.
-   The branding block itself (and the subtitle) read as body text — only the
-   title uses the heading font, at its own larger size. */
+   Every value is an overridable custom property, so re-theming needs no extra
+   CSS. Only the title uses the heading font; the rest reads as body text. */
 
 .clet-app-header__branding {
   /* Overridable tokens */
@@ -198,11 +196,14 @@
 .clet-app-header-search.clet-app-header-search.clet-command {
   --clet-app-header-search-width: 260px;
   --clet-app-header-search-active-width: 400px;
+  --clet-app-header-search-height: 40px;
 
   display: flex;
-  /* Not `height: stretch` — Safari resolves it against the block containing
-     block rather than the header row and the field fills the page. */
-  align-self: stretch;
+  /* Fixed height, centred on the header row like every other control in it.
+     The results list is a static child that overflows this box, so an auto
+     height would grow the header every time the list opened. */
+  align-self: center;
+  height: var(--gsl-app-header-search-height, var(--clet-app-header-search-height));
   width: var(--gsl-app-header-search-width, var(--clet-app-header-search-width));
   max-width: 100%;
   transition: width 200ms ease;
@@ -314,10 +315,8 @@
 }
 
 /* ── Profile ──
-   Base trigger styling (.clet-app-header__profile, .clet-app-header__user-*,
-   skeletons) lives in profile-popover.css — ProfilePopover owns the
-   `user`/`variant` header-style trigger now. Only header-context overrides
-   stay here. */
+   Base trigger styling lives in profile-popover.css, which owns the
+   `user`/`variant` trigger. Only header-context overrides stay here. */
 
 .clet-app-header__avatar {
   display: flex;
