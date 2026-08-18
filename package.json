@@ -1,6 +1,6 @@
 {
   "name": "@rfdtech/components",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "packageManager": "pnpm@11.10.0",
   "description": "Shared React component library for Clet projects",
   "type": "module",
