@@ -21,10 +21,15 @@ export interface AppLayoutInnerProps {
   children?: ReactNode;
   className?: string;
   variant?: "default" | "panel" | "stacked";
+  hideHeader?: boolean;
+  hideSidebar?: boolean;
 }
 
 export const AppLayoutInner = forwardRef<HTMLDivElement, AppLayoutInnerProps>(
-  function AppLayoutInner({ children, className, variant = "default" }, ref) {
+  function AppLayoutInner(
+    { children, className, variant = "default", hideHeader, hideSidebar },
+    ref,
+  ) {
     const { items } = useBreadcrumbContext();
     const { Link } = getRouterAdapter();
 
@@ -43,6 +48,11 @@ export const AppLayoutInner = forwardRef<HTMLDivElement, AppLayoutInnerProps>(
         bodyEl = child;
       }
     });
+
+    // Hidden means not rendered at all: no wrapper, no reserved track, so the
+    // body takes the width and the content starts at the top.
+    if (hideHeader) headerEl = null;
+    if (hideSidebar) sidebarEl = null;
 
     const extractProps = (el: ReactElement | null) => {
       if (!el) return { className: undefined, children: null, rest: {} };

@@ -19,6 +19,19 @@ export interface AppLayoutProps {
    * - `"stacked"`: header spans the full width on top, with sidebar and content side by side below it.
    */
   variant?: "default" | "panel" | "stacked";
+  /**
+   * Drops the header, whatever children were passed. Nothing is rendered in
+   * its place and no space is held, so the content starts at the top.
+   *
+   * For an app that is a remote in a federated shell: the host already draws
+   * the chrome, so the remote renders the same tree with the flag on.
+   */
+  hideHeader?: boolean;
+  /**
+   * Drops the sidebar, whatever children were passed. Nothing is rendered in
+   * its place and no space is held, so the content spans the full width.
+   */
+  hideSidebar?: boolean;
 }
 
 /**
@@ -27,11 +40,20 @@ export interface AppLayoutProps {
  * by componentId. Breadcrumbs render automatically from context.
  */
 export const AppLayout = forwardRef<HTMLDivElement, AppLayoutProps>(
-  function AppLayout({ children, className, variant = "default" }, ref) {
+  function AppLayout(
+    { children, className, variant = "default", hideHeader, hideSidebar },
+    ref,
+  ) {
     return (
       <BreadcrumbProvider>
         <SidebarProvider>
-          <AppLayoutInner className={className} variant={variant} ref={ref}>
+          <AppLayoutInner
+            className={className}
+            variant={variant}
+            hideHeader={hideHeader}
+            hideSidebar={hideSidebar}
+            ref={ref}
+          >
             {children}
           </AppLayoutInner>
         </SidebarProvider>
