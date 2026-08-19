@@ -223,6 +223,8 @@ export interface TableSearchProps extends Omit<
 export interface TableFilterClassNames {
   root?: string;
   trigger?: string;
+  /** The trigger's chevron, which rotates while the panel is open. */
+  triggerIcon?: string;
   badge?: string;
   content?: string;
   header?: string;

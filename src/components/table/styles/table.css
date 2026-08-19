@@ -133,6 +133,16 @@
 		background-color 150ms ease;
 }
 
+.clet-table__filter-trigger-icon {
+	flex-shrink: 0;
+	color: var(--gsl-text-secondary, var(--clet-text-secondary));
+	transition: transform 150ms ease;
+}
+
+.clet-table__filter-trigger-icon[data-state="open"] {
+	transform: rotate(180deg);
+}
+
 .clet-table__filter-badge {
 	display: inline-flex;
 	align-items: center;

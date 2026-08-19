@@ -12,7 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import * as Popover from "@radix-ui/react-popover";
-import { Search, FilterIcon, XCircle } from "lucide-react";
+import { ChevronDown, Search, FilterIcon, XCircle } from "lucide-react";
 import { getRouterAdapter } from "../../hooks/../adapters/registry";
 import { useDebounce } from "../../hooks/useDebounce";
 import { TABLE_FILTER_RESET_EVENT } from "../../hooks/useTableFilterReset";
@@ -33,9 +33,8 @@ function paramKey(prefix: string | undefined, key: string): string {
   return prefix ? `${prefix}.${key}` : key;
 }
 
-// Bundlers replace `process.env.NODE_ENV` in library code, so a production
-// build resolves this to false and drops the checks. A browser dev server
-// leaves `process` undefined entirely. Unknown means dev, not silence.
+// Bundlers replace `process.env.NODE_ENV`, so a production build drops these
+// checks. Unknown (a dev server leaves `process` undefined) means dev.
 const DEV =
   typeof process === "undefined" || process.env?.NODE_ENV !== "production";
 
@@ -326,9 +325,8 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
         setSearchParams(
           (prev) => {
             const next = new URLSearchParams(prev);
-            // Clear the filter params this form owns. A param with no field
-            // behind it belongs to something else (or to a field that has not
-            // mounted yet) and is left alone rather than wiped.
+            // Clear only the params this form owns: one with no field behind
+            // it belongs to something else and is left alone.
             for (const key of [...next.keys()]) {
               if (
                 key.startsWith(filterPrefix) &&
@@ -367,9 +365,8 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
         },
         { replace: true },
       );
-      // Native controls reset themselves; controlled fields (Dropdown,
-      // Combobox, anything holding its value in React) cannot be reached that
-      // way, so the reset is announced to them as well.
+      // A form reset cannot reach a value held in React, so controlled fields
+      // are told about it separately.
       const form = formRef.current;
       form?.reset();
       form?.dispatchEvent(new CustomEvent(TABLE_FILTER_RESET_EVENT));
@@ -392,9 +389,8 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
       );
     }, [children]);
 
-    // Invariant 2: the fields agree with the URL they were loaded with. Radix
-    // mounts its hidden native <select> after the trigger paints, so this waits
-    // a tick for the form to be fully populated, and reports once per form.
+    // Invariant 2: the fields agree with the URL they loaded with. Radix mounts
+    // its hidden <select> after paint, so this waits a tick and reports once.
     const devCheckedFormRef = useRef<HTMLFormElement | null>(null);
 
     useEffect(() => {
@@ -411,8 +407,7 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
     }, [children, open, searchParams, filterPrefix]);
 
     // "spread" is a request, not a guarantee: past the limit the fields group
-    // back into the popover, which renders them under the same names and the
-    // same URL keys.
+    // back into the popover, under the same names and URL keys.
     const fieldCount = useMemo(() => countFilterFields(children), [children]);
     const outgrewSpread =
       variant === "spread" && fieldCount > MAX_SPREAD_FILTERS;
@@ -520,6 +515,18 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
                   {activeCount}
                 </span>
               )}
+              {/* The trigger opens a panel, so it carries the same chevron
+                  every other opener in the kit does. */}
+              <ChevronDown
+                size={16}
+                strokeWidth={2}
+                className={cn(
+                  "clet-table__filter-trigger-icon gsl-table__filter-trigger-icon",
+                  classNames?.triggerIcon,
+                )}
+                data-state={open ? "open" : "closed"}
+                aria-hidden
+              />
             </Button>
           </Popover.Trigger>
 

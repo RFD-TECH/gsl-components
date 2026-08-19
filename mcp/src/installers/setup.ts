@@ -75,9 +75,8 @@ export async function runSetup(cwd: string = process.cwd()): Promise<void> {
   await writeJson(path.join(cwd, ...VERSION_STAMP), { version: PACKAGE_VERSION });
 
   if (results.length === 0) {
-    // Deliberately not `npx components-mcp`: that name belongs to an unrelated
-    // package on the public registry, and npx reaches for it whenever the local
-    // bin is not resolvable, which is exactly the case here.
+    // Deliberately not `npx components-mcp`: that name is an unrelated package
+    // on the registry, which npx reaches for when the local bin is missing.
     console.log(
       "No supported AI tool detected (looked for .claude/, .mcp.json, .cursor/, ~/.codex/, " +
         "opencode.json, ~/.config/opencode).\n" +
@@ -90,8 +89,7 @@ export async function runSetup(cwd: string = process.cwd()): Promise<void> {
       console.log(`${r.changed ? "✓" : "•"} ${r.name}: ${r.detail}`);
     }
     // A written config is not a running server: hosts read it at startup, and
-    // Claude Code asks the user to approve a project-scoped one before it
-    // connects. Saying so here saves an agent debugging absent tools.
+    // Claude Code asks the user to approve a project-scoped one first.
     console.log(
       `\nRestart your AI tool to connect the ${MCP_SERVER_NAME} MCP server ` +
         "(Claude Code will ask the user to approve it once)."
