@@ -85,6 +85,11 @@
   z-index: 1;
 }
 
+/* The shadow does not read on a dark ground, so the edge gets a border. */
+[data-clet-theme="dark"] .clet-metric-card--soft {
+  border: 1px solid var(--gsl-border, var(--clet-border));
+}
+
 /* ── Outline variant: no fill, bordered, larger value, unified 8px gaps ── */
 
 .clet-metric-card--outline {
