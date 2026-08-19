@@ -308,8 +308,15 @@ Neither `ProfilePopover` above passes `items` — both render the default "My Pr
 | Component | Prefer | Over |
 | ----------- | -------- | ------ |
 | `TableContent` | `variant="panel"` | `"default"` |
-| `TableFilter` | `variant="spread"` | `"popover"` (default) |
+| `TableFilter` | `variant="spread"`, up to two fields | `"popover"` (default) |
 | `TableFooter` | `noBorder` | default top border |
+
+`variant="spread"` is honoured for one or two fields. A `TableFilter` holding a third groups itself
+back into the popover, whatever the markup asks for, and says so once in the dev console: three
+controls laid out inline stop reading as a filter row and start competing with the search field
+next to them. The fields, their names, their URL keys and "clear" are identical in both variants,
+so nothing but the presentation moves, and screens already carrying four spread filters quietly
+become a single Filters trigger on upgrade.
 
 ```diff
  <Table paramPrefix="members">

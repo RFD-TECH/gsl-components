@@ -685,6 +685,113 @@ describe("TableFilter spread: fields and table state", () => {
     );
   }
 
+  it("keeps two fields inline", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <Filters />
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    expect(document.querySelector(".clet-table__filter--spread")).not.toBeNull();
+    expect(screen.queryByLabelText("Filter")).toBeNull();
+  });
+
+  it("groups a third field into the popover, whatever the variant asked for", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(console, "info").mockImplementation(() => {});
+
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <TableFilter variant="spread">
+              <Dropdown
+                name="role"
+                value={null}
+                onValueChange={() => {}}
+                options={ROLE_OPTIONS}
+                placeholder="All roles"
+                aria-label="Filter by role"
+              />
+              <Dropdown
+                name="status"
+                value={null}
+                onValueChange={() => {}}
+                options={STATUS_OPTIONS}
+                placeholder="All statuses"
+                aria-label="Filter by status"
+              />
+              <Dropdown
+                name="department"
+                value={null}
+                onValueChange={() => {}}
+                options={ROLE_OPTIONS}
+                placeholder="All departments"
+                aria-label="Filter by department"
+              />
+            </TableFilter>
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    // No inline row: the fields are behind the popover's own trigger.
+    expect(document.querySelector(".clet-table__filter--spread")).toBeNull();
+    const trigger = screen.getByLabelText("Filter");
+    expect(screen.queryByLabelText("Filter by department")).toBeNull();
+
+    await user.click(trigger);
+    expect(screen.getByLabelText("Filter by department")).toBeInTheDocument();
+    expect(screen.getByText("Apply Filter")).toBeInTheDocument();
+  });
+
+  it("counts fields through a layout wrapper", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <TableFilter variant="spread">
+              <div>
+                <Dropdown
+                  name="role"
+                  value={null}
+                  onValueChange={() => {}}
+                  options={ROLE_OPTIONS}
+                  placeholder="All roles"
+                  aria-label="Filter by role"
+                />
+                <Dropdown
+                  name="status"
+                  value={null}
+                  onValueChange={() => {}}
+                  options={STATUS_OPTIONS}
+                  placeholder="All statuses"
+                  aria-label="Filter by status"
+                />
+                <Dropdown
+                  name="department"
+                  value={null}
+                  onValueChange={() => {}}
+                  options={ROLE_OPTIONS}
+                  placeholder="All departments"
+                  aria-label="Filter by department"
+                />
+              </div>
+            </TableFilter>
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    // One child element, three fields inside it: the fields are what counts.
+    expect(document.querySelector(".clet-table__filter--spread")).toBeNull();
+    expect(screen.getByLabelText("Filter")).toBeInTheDocument();
+  });
+
   it("writes a named Combobox's selection to the URL", async () => {
     const user = userEvent.setup();
     render(

@@ -58,6 +58,43 @@ function displayNameOf(type: unknown): string {
 }
 
 /**
+ * How many fields a spread row lays out inline before it stops reading as a
+ * row. Past this the filter groups itself back into the popover: the two
+ * variants render the same fields under the same names and URL keys, so a row
+ * that has outgrown itself costs nothing to fold away.
+ */
+const MAX_SPREAD_FILTERS = 2;
+
+/**
+ * The fields a filter is rendering. Walks fragments and markup wrappers so a
+ * field counts where it sits rather than where it was declared, and falls back
+ * to the direct children when nothing announces itself as a field, which is
+ * what a consumer's own wrapper component looks like from here.
+ */
+function countFilterFields(node: ReactNode): number {
+  let fields = 0;
+
+  const walk = (current: ReactNode): void => {
+    Children.forEach(current, (child) => {
+      if (!isValidElement(child)) return;
+      const props = child.props as Record<string, unknown>;
+      const isField =
+        typeof props.onValueChange === "function" ||
+        (typeof props.name === "string" && props.name !== "");
+      if (isField) {
+        fields += 1;
+        return;
+      }
+      walk(props.children as ReactNode);
+    });
+  };
+
+  walk(node);
+  if (fields > 0) return fields;
+  return Children.toArray(node).filter((child) => isValidElement(child)).length;
+}
+
+/**
  * Invariant 1: every value-carrying field declares `name`.
  *
  * Walks the children the filter was handed, through fragments and plain markup
@@ -373,6 +410,23 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
       return () => clearTimeout(id);
     }, [children, open, searchParams, filterPrefix]);
 
+    // "spread" is a request, not a guarantee: past the limit the fields group
+    // back into the popover, which renders them under the same names and the
+    // same URL keys.
+    const fieldCount = useMemo(() => countFilterFields(children), [children]);
+    const outgrewSpread =
+      variant === "spread" && fieldCount > MAX_SPREAD_FILTERS;
+    const effectiveVariant = outgrewSpread ? "popover" : variant;
+
+    useEffect(() => {
+      if (!DEV || !outgrewSpread) return;
+      console.info(
+        `[TableFilter] ${fieldCount} filter fields is more than the ${MAX_SPREAD_FILTERS} ` +
+          "a spread row stays readable at, so they are grouped into the filter popover " +
+          'instead. Drop variant="spread" to say so in the markup.',
+      );
+    }, [outgrewSpread, fieldCount]);
+
     // Spread variant has no Apply button — auto-apply whenever a field's
     // value changes. Field changes may come from a Dropdown driving a
     // hidden input (no native "change" event fires for that), so this
@@ -381,7 +435,7 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
     const spreadSnapshotRef = useRef<string | null>(null);
 
     useEffect(() => {
-      if (variant !== "spread") return;
+      if (effectiveVariant !== "spread") return;
       const form = formRef.current;
       if (!form) return;
       const snapshot = JSON.stringify([...new FormData(form).entries()]);
@@ -395,7 +449,7 @@ export const TableFilter = forwardRef<HTMLDivElement, TableFilterProps>(
       }
     });
 
-    if (variant === "spread") {
+    if (effectiveVariant === "spread") {
       return (
         <div
           ref={ref}
