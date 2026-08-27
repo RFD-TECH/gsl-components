@@ -626,4 +626,51 @@ describe("Table", () => {
     expect(screen.queryByText("Edit")).not.toBeInTheDocument();
     expect(onAction).toHaveBeenCalledTimes(1);
   });
+
+  it("draws no trigger on a row whose every action fails its condition", () => {
+    render(
+      <Table paramPrefix="test">
+        <TableContent
+          columns={[{ id: "name", header: "Name", accessorKey: "name" }]}
+          data={[
+            { id: "1", name: "Alpha", editable: true },
+            { id: "2", name: "Beta", editable: false },
+          ]}
+          rowKey={(row: { id: string }) => row.id}
+          rowActions={[
+            {
+              id: "edit",
+              label: "Edit",
+              onClick: vi.fn(),
+              condition: (row: { editable: boolean }) => row.editable,
+            },
+          ]}
+        />
+      </Table>,
+    );
+
+    // One qualifying row, one not — so exactly one trigger, not two. A kebab on
+    // the second row would open an empty menu, which reads as a broken control
+    // rather than an unavailable one.
+    expect(screen.getAllByLabelText("Row actions")).toHaveLength(1);
+  });
+
+  it("keeps the trigger when the row is selectable but has no actions", () => {
+    render(
+      <Table paramPrefix="test">
+        <TableContent
+          selectable
+          columns={[{ id: "name", header: "Name", accessorKey: "name" }]}
+          data={[{ id: "1", name: "Alpha" }]}
+          rowKey={(row: { id: string }) => row.id}
+          rowActions={[
+            { id: "edit", label: "Edit", onClick: vi.fn(), condition: () => false },
+          ]}
+        />
+      </Table>,
+    );
+
+    // The menu still carries Select, so it is not empty.
+    expect(screen.getAllByLabelText("Row actions")).toHaveLength(1);
+  });
 });
