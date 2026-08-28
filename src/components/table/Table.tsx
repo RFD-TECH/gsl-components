@@ -62,7 +62,15 @@ function colStyle(col: {
 }
 
 export const Table = forwardRef<HTMLDivElement, TableProps>(function Table(
-  { className, classNames, paramPrefix, height, variant = "default", children, ...props },
+  {
+    className,
+    classNames,
+    paramPrefix,
+    height,
+    variant = "default",
+    children,
+    ...props
+  },
   ref,
 ) {
   const style =
@@ -268,12 +276,11 @@ function TableContentRender<T>(
   // there's nothing for it to show — don't render an empty kebab column.
   const hasActionsColumn = hasRowActions || hasBulkActions;
 
-	// The header row always renders a checkbox cell (even when selectable=false)
-	// and an actions cell when hasActionsColumn is true. colSpan must match
-	// the actual number of <th> elements in the header row to avoid rendering
-	// an empty-state cell that is one column short.
-	const colSpan =
-		columns.length + 1 + (hasActionsColumn ? 1 : 0);
+  // The header row always renders a checkbox cell (even when selectable=false)
+  // and an actions cell when hasActionsColumn is true. colSpan must match
+  // the actual number of <th> elements in the header row to avoid rendering
+  // an empty-state cell that is one column short.
+  const colSpan = columns.length + 1 + (hasActionsColumn ? 1 : 0);
 
   const sorted = [...data].sort((a, b) => {
     if (!sort) return 0;
@@ -303,6 +310,11 @@ function TableContentRender<T>(
       : null;
     const hasCustomActions = actions && actions.length > 0;
     const showBulkSection = hasBulkActions;
+    // Whether this row's menu would have anything in it. `actions` is already
+    // filtered by each action's `condition`, so a row qualifying for none of them
+    // leaves the menu empty — and a trigger that opens onto nothing reads as a
+    // broken control rather than an unavailable one.
+    const hasMenuContent = selectable || hasCustomActions || showBulkSection;
     const hasSelection = selectedIds.size > 0;
 
     const expandable = !!getRowDetail;
@@ -324,150 +336,111 @@ function TableContentRender<T>(
 
     return (
       <Fragment key={key}>
-      <tr
-        onClick={(e) => {
-          if (selectable) handleToggleRow(key);
-          if (expandable) toggleExpanded(key);
-          onRowClick?.(row, e);
-        }}
-        onPointerDownCapture={(e) => {
-          if (e.button === 2) wasOpenKeyRef.current = openPopoverKey;
-        }}
-        onContextMenu={(e) => {
-          if (!hasActionsColumn) return;
-          e.preventDefault();
-          if (wasOpenKeyRef.current === key) {
-            setOpenPopoverKey(null);
-            setOpenTrigger(null);
-            return;
-          }
-          anchorRectRef.current = {
-            x: e.clientX,
-            y: e.clientY,
-            width: 0,
-            height: 0,
-          };
-          setOpenTrigger("context");
-          setOpenPopoverKey(key);
-        }}
-        className={cn(
-          (selectable || onRowClick || expandable) && "clet-table__row--clickable gsl-table__row--clickable",
-        )}
-      >
-        <td
-          className={cn("clet-table__checkbox-cell gsl-table__checkbox-cell", classNames?.checkboxCell)}
-          onClick={(e) => e.stopPropagation()}
+        <tr
+          onClick={(e) => {
+            if (selectable) handleToggleRow(key);
+            if (expandable) toggleExpanded(key);
+            onRowClick?.(row, e);
+          }}
+          onPointerDownCapture={(e) => {
+            if (e.button === 2) wasOpenKeyRef.current = openPopoverKey;
+          }}
+          onContextMenu={(e) => {
+            if (!hasActionsColumn) return;
+            e.preventDefault();
+            if (wasOpenKeyRef.current === key) {
+              setOpenPopoverKey(null);
+              setOpenTrigger(null);
+              return;
+            }
+            anchorRectRef.current = {
+              x: e.clientX,
+              y: e.clientY,
+              width: 0,
+              height: 0,
+            };
+            setOpenTrigger("context");
+            setOpenPopoverKey(key);
+          }}
+          className={cn(
+            (selectable || onRowClick || expandable) &&
+              "clet-table__row--clickable gsl-table__row--clickable",
+          )}
         >
-          <Checkbox
-            checked={isSelected}
-            onCheckedChange={() => handleToggleRow(key)}
-            aria-label="Select row"
-          />
-        </td>
-
-        {columns.map((col) => {
-          const rawValue = getCellValue(row, col);
-          const cellContent = col.cell
-            ? col.cell({ row, value: rawValue })
-            : rawValue;
-          return (
-            <td key={col.id} style={colStyle(col)}>
-              {cellContent}
-            </td>
-          );
-        })}
-
-        {hasActionsColumn && (
           <td
-            className={cn("clet-table__actions-cell gsl-table__actions-cell", classNames?.actionsCell)}
+            className={cn(
+              "clet-table__checkbox-cell gsl-table__checkbox-cell",
+              classNames?.checkboxCell,
+            )}
             onClick={(e) => e.stopPropagation()}
           >
-            <Popover
-              open={openPopoverKey === key}
-              onOpenChange={(open) => {
-                setOpenPopoverKey(open ? key : null);
-                if (!open) setOpenTrigger(null);
-              }}
-            >
-              {openTrigger === "context" && (
-                <PopoverAnchor virtualRef={virtualAnchorRef} />
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={() => handleToggleRow(key)}
+              aria-label="Select row"
+            />
+          </td>
+
+          {columns.map((col) => {
+            const rawValue = getCellValue(row, col);
+            const cellContent = col.cell
+              ? col.cell({ row, value: rawValue })
+              : rawValue;
+            return (
+              <td key={col.id} style={colStyle(col)}>
+                {cellContent}
+              </td>
+            );
+          })}
+
+          {hasActionsColumn && (
+            <td
+              className={cn(
+                "clet-table__actions-cell gsl-table__actions-cell",
+                classNames?.actionsCell,
               )}
-              <PopoverTrigger
-                className={cn(
-                  "clet-table__actions-trigger gsl-table__actions-trigger",
-                  classNames?.actionsTrigger,
-                )}
-                aria-label="Row actions"
-                onClick={() => {
-                  setOpenTrigger("kebab");
+              onClick={(e) => e.stopPropagation()}
+            >
+            {hasMenuContent && (
+            <Popover
+                open={openPopoverKey === key}
+                onOpenChange={(open) => {
+                  setOpenPopoverKey(open ? key : null);
+                  if (!open) setOpenTrigger(null);
                 }}
               >
-                <MoreHorizontal size={14} strokeWidth={1.5} />
-              </PopoverTrigger>
-              <PopoverPortal>
-                <PopoverContent
+                {openTrigger === "context" && (
+                  <PopoverAnchor virtualRef={virtualAnchorRef} />
+                )}
+                <PopoverTrigger
                   className={cn(
-                    "clet-table__actions-menu gsl-table__actions-menu",
-                    classNames?.actionsMenu,
+                    "clet-table__actions-trigger gsl-table__actions-trigger",
+                    classNames?.actionsTrigger,
                   )}
-                  side="bottom"
-                  align="end"
-                  sideOffset={4}
-                  onContextMenu={(e) => {
-                    // Second right-click often lands on the open menu, not the row.
-                    e.preventDefault();
-                    setOpenPopoverKey(null);
-                    setOpenTrigger(null);
+                  aria-label="Row actions"
+                  onClick={() => {
+                    setOpenTrigger("kebab");
                   }}
                 >
-                  {selectable && (
-                    <button
-                      type="button"
-                      className={cn(
-                        "clet-table__actions-item gsl-table__actions-item",
-                        classNames?.actionsItem,
-                      )}
-                      onClick={(e) =>
-                        handleActionClick(e, () => handleToggleRow(key))
-                      }
-                    >
-                      {isSelected ? "Deselect" : "Select"}
-                    </button>
-                  )}
-                  {selectable && hasCustomActions && (
-                    <div className="clet-table__actions-separator gsl-table__actions-separator" />
-                  )}
-                  {actions?.map((action) => (
-                    <button
-                      key={action.id}
-                      type="button"
-                      className={cn(
-                        "clet-table__actions-item gsl-table__actions-item",
-                        action.variant === "destructive" &&
-                          "clet-table__actions-item--destructive gsl-table__actions-item--destructive",
-                        classNames?.actionsItem,
-                      )}
-                      onClick={(e) =>
-                        handleActionClick(e, () => action.onClick(row))
-                      }
-                    >
-                      {action.icon}
-                      {action.label}
-                    </button>
-                  ))}
-                  {showBulkSection && (selectable || hasCustomActions) && (
-                    <div className="clet-table__actions-separator gsl-table__actions-separator" />
-                  )}
-                  {showBulkSection && (
-                    <>
-                      <div
-                        className={cn(
-                          "clet-table__actions-section-label gsl-table__actions-section-label",
-                          classNames?.actionsSectionLabel,
-                        )}
-                      >
-                        Bulk actions
-                      </div>
+                  <MoreHorizontal size={14} strokeWidth={1.5} />
+                </PopoverTrigger>
+                <PopoverPortal>
+                  <PopoverContent
+                    className={cn(
+                      "clet-table__actions-menu gsl-table__actions-menu",
+                      classNames?.actionsMenu,
+                    )}
+                    side="bottom"
+                    align="end"
+                    sideOffset={4}
+                    onContextMenu={(e) => {
+                      // Second right-click often lands on the open menu, not the row.
+                      e.preventDefault();
+                      setOpenPopoverKey(null);
+                      setOpenTrigger(null);
+                    }}
+                  >
+                    {selectable && (
                       <button
                         type="button"
                         className={cn(
@@ -475,60 +448,113 @@ function TableContentRender<T>(
                           classNames?.actionsItem,
                         )}
                         onClick={(e) =>
-                          handleActionClick(e, () =>
-                            handleSelectAll(!allSelected),
-                          )
+                          handleActionClick(e, () => handleToggleRow(key))
                         }
                       >
-                        {allSelected ? "Deselect all" : "Select all"}
+                        {isSelected ? "Deselect" : "Select"}
                       </button>
-                      {hasSelection &&
-                        bulkActions!.map((action) => (
-                          <button
-                            key={action.id}
-                            type="button"
-                            className={cn(
-                              "clet-table__actions-item gsl-table__actions-item",
-                              action.destructive &&
-                                "clet-table__actions-item--destructive gsl-table__actions-item--destructive",
-                              classNames?.actionsItem,
-                            )}
-                            onClick={(e) =>
-                              handleActionClick(e, () =>
-                                action.onClick(selectedIds),
-                              )
-                            }
-                          >
-                            {action.icon}
-                            {action.label}
-                          </button>
-                        ))}
-                    </>
-                  )}
-                </PopoverContent>
-              </PopoverPortal>
+                    )}
+                    {selectable && hasCustomActions && (
+                      <div className="clet-table__actions-separator gsl-table__actions-separator" />
+                    )}
+                    {actions?.map((action) => (
+                      <button
+                        key={action.id}
+                        type="button"
+                        className={cn(
+                          "clet-table__actions-item gsl-table__actions-item",
+                          action.variant === "destructive" &&
+                            "clet-table__actions-item--destructive gsl-table__actions-item--destructive",
+                          classNames?.actionsItem,
+                        )}
+                        onClick={(e) =>
+                          handleActionClick(e, () => action.onClick(row))
+                        }
+                      >
+                        {action.icon}
+                        {action.label}
+                      </button>
+                    ))}
+                    {showBulkSection && (selectable || hasCustomActions) && (
+                      <div className="clet-table__actions-separator gsl-table__actions-separator" />
+                    )}
+                    {showBulkSection && (
+                      <>
+                        <div
+                          className={cn(
+                            "clet-table__actions-section-label gsl-table__actions-section-label",
+                            classNames?.actionsSectionLabel,
+                          )}
+                        >
+                          Bulk actions
+                        </div>
+                        <button
+                          type="button"
+                          className={cn(
+                            "clet-table__actions-item gsl-table__actions-item",
+                            classNames?.actionsItem,
+                          )}
+                          onClick={(e) =>
+                            handleActionClick(e, () =>
+                              handleSelectAll(!allSelected),
+                            )
+                          }
+                        >
+                          {allSelected ? "Deselect all" : "Select all"}
+                        </button>
+                        {hasSelection &&
+                          bulkActions!.map((action) => (
+                            <button
+                              key={action.id}
+                              type="button"
+                              className={cn(
+                                "clet-table__actions-item gsl-table__actions-item",
+                                action.destructive &&
+                                  "clet-table__actions-item--destructive gsl-table__actions-item--destructive",
+                                classNames?.actionsItem,
+                              )}
+                              onClick={(e) =>
+                                handleActionClick(e, () =>
+                                  action.onClick(selectedIds),
+                                )
+                              }
+                            >
+                              {action.icon}
+                              {action.label}
+                            </button>
+                          ))}
+                      </>
+                    )}
+                  </PopoverContent>
+                </PopoverPortal>
             </Popover>
-          </td>
-        )}
-      </tr>
-      {expandable && isExpanded && (
-        <ExpandableDetailRow
-          colSpan={detailColSpan}
-          className={cn(
-            "clet-table__detail-row gsl-table__detail-row",
-            classNames?.detailRow,
+            )}
+            </td>
           )}
-        >
-          {getRowDetail!(row)}
-        </ExpandableDetailRow>
-      )}
+        </tr>
+        {expandable && isExpanded && (
+          <ExpandableDetailRow
+            colSpan={detailColSpan}
+            className={cn(
+              "clet-table__detail-row gsl-table__detail-row",
+              classNames?.detailRow,
+            )}
+          >
+            {getRowDetail!(row)}
+          </ExpandableDetailRow>
+        )}
       </Fragment>
     );
   }
 
   const headerRow = (
     <tr>
-      <th className={cn("clet-table__checkbox-cell gsl-table__checkbox-cell", classNames?.checkboxCell)}>
+      <th
+        className={cn(
+          "clet-table__checkbox-cell gsl-table__checkbox-cell",
+          classNames?.checkboxCell,
+        )}
+      >
         <Checkbox
           checked={allSelected}
           onCheckedChange={handleSelectAll}
@@ -544,7 +570,8 @@ function TableContentRender<T>(
             key={col.id}
             style={colStyle(col)}
             className={cn(
-              col.sortable && "clet-table__th--sortable gsl-table__th--sortable",
+              col.sortable &&
+                "clet-table__th--sortable gsl-table__th--sortable",
               isSorted && "clet-table__th--sorted gsl-table__th--sorted",
               classNames?.th,
             )}
@@ -555,12 +582,20 @@ function TableContentRender<T>(
               setSort({ column: col.id, direction: next });
             }}
           >
-            <span className={cn("clet-table__th-label gsl-table__th-label", classNames?.thLabel)}>
+            <span
+              className={cn(
+                "clet-table__th-label gsl-table__th-label",
+                classNames?.thLabel,
+              )}
+            >
               {col.header}
             </span>
             {col.sortable && (
               <span
-                className={cn("clet-table__sort-icon gsl-table__sort-icon", classNames?.sortIcon)}
+                className={cn(
+                  "clet-table__sort-icon gsl-table__sort-icon",
+                  classNames?.sortIcon,
+                )}
               >
                 {isSorted ? (
                   dir === "asc" ? (
@@ -578,7 +613,10 @@ function TableContentRender<T>(
       })}
       {hasActionsColumn && (
         <th
-          className={cn("clet-table__actions-cell gsl-table__actions-cell", classNames?.actionsCell)}
+          className={cn(
+            "clet-table__actions-cell gsl-table__actions-cell",
+            classNames?.actionsCell,
+          )}
         />
       )}
     </tr>
@@ -590,8 +628,10 @@ function TableContentRender<T>(
         ref={ref}
         className={cn(
           "clet-table__content gsl-table__content",
-          variant === "panel" && "clet-table__content--panel gsl-table__content--panel",
-          variant === "soft" && "clet-table__content--soft gsl-table__content--soft",
+          variant === "panel" &&
+            "clet-table__content--panel gsl-table__content--panel",
+          variant === "soft" &&
+            "clet-table__content--soft gsl-table__content--soft",
           selectable &&
             selectedIds.size > 0 &&
             "clet-table__content--has-selected gsl-table__content--has-selected",
@@ -707,7 +747,10 @@ function TableContentRender<T>(
           isVirtual ? (
             <div
               ref={scrollRef}
-              className={cn("clet-table__viewport gsl-table__viewport", classNames?.viewport)}
+              className={cn(
+                "clet-table__viewport gsl-table__viewport",
+                classNames?.viewport,
+              )}
               style={{ overflow: "auto", flex: 1, minHeight: 0 }}
             >
               <table
@@ -772,7 +815,12 @@ function TableContentRender<T>(
             <tbody>
               <tr>
                 <td colSpan={colSpan || 1}>
-                  <div className={cn("clet-table__empty gsl-table__empty", classNames?.empty)}>
+                  <div
+                    className={cn(
+                      "clet-table__empty gsl-table__empty",
+                      classNames?.empty,
+                    )}
+                  >
                     <div
                       className={cn(
                         "clet-table__empty-icon gsl-table__empty-icon",
@@ -812,7 +860,10 @@ export const TableContent = forwardRef(TableContentRender) as <T>(
 ) => React.ReactElement;
 
 export const TableFooter = forwardRef<HTMLDivElement, TableFooterProps>(
-  function TableFooter({ classNames, className, noBorder, children, ...props }, ref) {
+  function TableFooter(
+    { classNames, className, noBorder, children, ...props },
+    ref,
+  ) {
     return (
       <div
         ref={ref}
