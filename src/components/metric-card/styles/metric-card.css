@@ -1,3 +1,13 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-metric-card-outline-label-text-size: calc(10px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-metric-card {
   --clet-default-metric-card-bg: var(
     --gsl-surface-card,
@@ -12,9 +22,13 @@
     --gsl-font-header,
     var(--clet-font-header)
   );
-  --clet-metric-card-value-size: 28px;
+  --clet-metric-card-value-size: calc(
+    28px * var(--gsl-text-scale, var(--clet-text-scale, 1))
+  );
   --clet-metric-card-value-color: var(--gsl-text, var(--clet-text));
-  --clet-metric-card-description-size: 12px;
+  --clet-metric-card-description-size: calc(
+    12px * var(--gsl-text-scale, var(--clet-text-scale, 1))
+  );
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -93,7 +107,9 @@
 /* ── Outline variant: no fill, bordered, larger value, unified 8px gaps ── */
 
 .clet-metric-card--outline {
-  --clet-metric-card-value-size: 32px;
+  --clet-metric-card-value-size: calc(
+    32px * var(--gsl-text-scale, var(--clet-text-scale, 1))
+  );
   gap: 8px;
   padding: 24px;
   border: 1px solid var(--gsl-border, var(--clet-border));
@@ -108,7 +124,7 @@
 }
 
 .clet-metric-card--outline .clet-metric-card__label {
-  font-size: 10px;
+  font-size: var(--gsl-metric-card-outline-label-text-size, var(--clet-metric-card-outline-label-text-size));
   color: var(
     --gsl-metric-card-label-color,
     var(--clet-metric-card-label-color, var(--clet-secondary))
@@ -129,7 +145,7 @@
 .clet-metric-card__trend-glyph {
   display: inline-flex;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   line-height: 1;
 }
 
@@ -155,7 +171,7 @@
 /* Icon always muted — no variant coloring */
 
 .clet-metric-card__label {
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   font-weight: 500;
   line-height: 1.4;
   color: var(--gsl-secondary, var(--clet-text-secondary));
@@ -201,7 +217,7 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   font-weight: 500;
   line-height: 1.4;
   white-space: nowrap;
@@ -282,7 +298,9 @@
 
 @media (width <= 768px) {
   .clet-metric-card {
-    --clet-metric-card-value-size: 24px;
+    --clet-metric-card-value-size: calc(
+      24px * var(--gsl-text-scale, var(--clet-text-scale, 1))
+    );
     padding: 16px;
   }
 }

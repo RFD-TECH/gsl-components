@@ -21,7 +21,7 @@
   background: var(--gsl-surface-subtle, var(--clet-surface-subtle, var(--clet-bg)));
   color: var(--gsl-text, var(--clet-text));
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   text-align: left;
   cursor: pointer;
   transition:
@@ -94,7 +94,7 @@
   background: transparent;
   color: var(--gsl-text, var(--clet-text));
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   text-align: left;
   cursor: pointer;
   transition: background-color 0.15s ease;

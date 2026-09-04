@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   position: relative;
-  height: var(--gsl-phone-number-input-height, var(--clet-phone-number-input-height));
+  min-height: var(--gsl-phone-number-input-height, var(--clet-phone-number-input-height));
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));
   background: var(--gsl-bg, var(--clet-bg));
@@ -141,7 +141,7 @@
 
 .clet-phone-number-input__search-input {
   width: 100%;
-  height: 36px;
+  min-height: 36px;
   padding: 0 10px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));

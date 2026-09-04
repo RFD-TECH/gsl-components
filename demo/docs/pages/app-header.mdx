@@ -2,7 +2,7 @@ export const meta = {
   title: "AppHeader",
   description: "Top bar with search and profile",
   category: "Components",
-  keywords: ["app header", "header bar", "top bar", "navbar", "search bar", "profile menu", "notifications"],
+  keywords: ["app header", "header bar", "top bar", "navbar", "search bar", "profile menu", "notifications", "font size", "text size", "accessibility"],
   since: "1.9.0",
   status: "stable",
   related: ["app-layout", "app-switcher", "sidebar"],
@@ -18,6 +18,8 @@ import appHeaderSource from "../previews/examples/app-header.example.tsx?raw";
 import appHeaderPlainSource from "../previews/examples/app-header-plain.example.tsx?raw";
 import appHeaderPrimarySource from "../previews/examples/app-header-primary.example.tsx?raw";
 import appHeaderBrandingDeclarativeSource from "../previews/examples/app-header-branding-declarative.example.tsx?raw";
+import { AppHeaderFontSizePreview } from "../previews/code/AppHeaderFontSizePreview";
+import appHeaderFontSizeSource from "../previews/examples/app-header-font-size.example.tsx?raw";
 
 # AppHeader
 
@@ -164,6 +166,27 @@ Render each notification as an [`AppHeaderNotificationItem`](#appheadernotificat
 </AppHeaderNotifications>
 ```
 
+### `AppHeaderFontSize`
+
+An "Aa" button that opens the accessibility text-size picker: Small, Normal, Large, Largest. Place it in `AppHeaderActions`, conventionally just before `AppHeaderNotifications`.
+
+It reads and writes the text size held by [`ThemeProvider`](/docs/theme#text-size-accessibility), so there is no extra provider to mount and the choice persists across sessions on its own. Without a `ThemeProvider` above it, it renders nothing rather than throwing.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `label` | `string` | `"Text size"` | Accessible label for the trigger button |
+| `title` | `string` | `"Text size"` | Heading shown above the options |
+| `classNames` | `AppHeaderFontSizeClassNames` | none | Part-level class overrides |
+| `className` | `string` | none | Merged onto the trigger button |
+
+<ExampleTabs
+  title="Text size picker in the header"
+  preview={<AppHeaderFontSizePreview />}
+  code={appHeaderFontSizeSource}
+/>
+
+Picking a step rescales every component that reads the `--clet-text-size-*` tokens, portaled menus and dialogs included.
+
 ### `AppHeaderNotificationItem`
 
 A single notification row — an unread dot (or a subtle read background), message text, and a time string. Becomes keyboard-focusable (`role="button"`, Enter/Space activate it) only when `onClick` is passed; without it, it's a static, non-interactive row.
@@ -260,6 +283,19 @@ Search props — see [`AppHeaderSearch`](#appheadersearch) props table.
 ### `AppHeaderNotificationItemProps`
 
 See the props table above.
+
+### `AppHeaderFontSizeProps`
+
+See the props table above.
+
+### `AppHeaderFontSizeClassNames`
+
+| Key | Applied to |
+|-----|------------|
+| `root` | Trigger button (`.clet-app-header__text-size-btn`) |
+| `content` | Popover surface (`.clet-text-size-popover`) |
+| `title` | Heading (`.clet-text-size-popover__title`) |
+| `option` | Each step (`.clet-text-size-popover__option`) |
 
 ### `AppHeaderNotificationItemClassNames`
 

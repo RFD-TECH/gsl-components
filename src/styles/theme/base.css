@@ -11,6 +11,13 @@ body {
   background: var(--gsl-main-bg, var(--clet-main-bg));
 }
 
+/* Multiplier behind every text size, declared on :root ALONE. The sizes below are
+   also declared on .clet-theme, so putting the default here too would let that
+   wrapper reset the scale to 1 for the whole app. */
+:root {
+  --clet-text-scale: 1;
+}
+
 :root,
 .clet-theme,
 .gsl-theme {
@@ -21,12 +28,14 @@ body {
     arial, sans-serif;
   --clet-font-header: "Roboto Serif", var(--gsl-font, var(--clet-font));
   --clet-font-body: "Lato", var(--gsl-font, var(--clet-font));
-  --clet-text-size-xs: 12px;
-  --clet-text-size-sm: 13px;
-  --clet-text-size-base: 14px;
-  --clet-text-size-md: 16px;
-  --clet-text-size-lg: 20px;
-  --clet-text-size-xl: 24px;
+  --clet-text-size-xs: calc(12px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-text-size-sm: calc(13px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-text-size-base: calc(
+    14px * var(--gsl-text-scale, var(--clet-text-scale, 1))
+  );
+  --clet-text-size-md: calc(16px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-text-size-lg: calc(20px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-text-size-xl: calc(24px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
   --clet-radius-base: 8px;
   --clet-radius-xl: 16px;
   --clet-radius-2xl: 24px;
@@ -46,6 +55,34 @@ body {
   --clet-z-alert-content: 1201;
   --clet-z-dropdown: 1300;
   --clet-surface-card: var(--gsl-bg, var(--clet-bg));
+}
+
+/* ── Accessibility font-size steps ──
+   Set data-clet-font-size on the documentElement, never on the .clet-theme
+   wrapper: Radix portals mount to document.body, which is a sibling of that
+   wrapper, so a scale set there would leave every menu, dialog and tooltip
+   unscaled. The wrapper selectors below exist only so a server-rendered or
+   pre-paint stamp on the wrapper still resolves.
+   "md" is the default and needs no rule. */
+:root[data-clet-font-size="sm"],
+:root[data-gsl-font-size="sm"],
+.clet-theme[data-clet-font-size="sm"],
+.gsl-theme[data-gsl-font-size="sm"] {
+  --clet-text-scale: 0.875;
+}
+
+:root[data-clet-font-size="lg"],
+:root[data-gsl-font-size="lg"],
+.clet-theme[data-clet-font-size="lg"],
+.gsl-theme[data-gsl-font-size="lg"] {
+  --clet-text-scale: 1.15;
+}
+
+:root[data-clet-font-size="xl"],
+:root[data-gsl-font-size="xl"],
+.clet-theme[data-clet-font-size="xl"],
+.gsl-theme[data-gsl-font-size="xl"] {
+  --clet-text-scale: 1.3;
 }
 
 /* ── Shared shimmer loading utility ──

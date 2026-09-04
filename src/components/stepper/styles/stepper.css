@@ -28,7 +28,7 @@
   gap: var(--gsl-stepper-gap, var(--clet-stepper-gap));
   min-width: 0;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
 }
 
 .clet-stepper__marker {
@@ -44,7 +44,7 @@
   background: var(--gsl-bg, var(--clet-bg));
   border: var(--gsl-stepper-marker-border, var(--clet-stepper-marker-border)) solid var(--gsl-border-strong, var(--clet-border-strong));
   color: var(--gsl-text-muted, var(--clet-text-muted));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 600;
   transition:
     background var(--gsl-stepper-transition, var(--clet-stepper-transition)) ease,
@@ -95,7 +95,7 @@
   line-height: 1.3;
   white-space: normal;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   transition: color var(--gsl-stepper-transition, var(--clet-stepper-transition)) ease;
 }
 

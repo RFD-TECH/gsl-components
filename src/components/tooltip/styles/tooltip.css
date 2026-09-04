@@ -1,3 +1,13 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-tooltip-content-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 @keyframes clet-tooltip-enter {
   from {
     opacity: 0;
@@ -15,7 +25,7 @@
   background: var(--gsl-text, var(--clet-text));
   color: var(--gsl-bg, var(--clet-bg));
   font-family: var(--gsl-tooltip-font, var(--clet-tooltip-font));
-  font-size: 11px;
+  font-size: var(--gsl-tooltip-content-text-size, var(--clet-tooltip-content-text-size));
   line-height: 1.35;
   text-align: center;
   white-space: normal;

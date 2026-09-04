@@ -8,6 +8,7 @@ import type {
   BulkImportResult,
   BulkImportValidationError,
 } from "../../../types/bulk-import-modal";
+import { useScaledRowHeight } from "../../../hooks/useTextScale";
 import { validateRowsChunked } from "../utils/validateRowsChunked";
 import { validateFieldValue } from "../utils/validateFieldValue";
 import { useDebounce } from "../../../hooks/useDebounce";
@@ -377,10 +378,14 @@ export function ValidateDataStep({
   }, [dirtyCellsRef]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Each row is pinned to this height below, so estimate and reality agree.
+  const rowHeight = useScaledRowHeight(ROW_HEIGHT);
+
   const virtualizer = useVirtualizer({
     count: visibleRows.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => ROW_HEIGHT,
+    estimateSize: () => rowHeight,
     overscan: 25,
   });
   const virtualRows = virtualizer.getVirtualItems();
@@ -393,15 +398,15 @@ export function ValidateDataStep({
       ? visibleRows.map((_, i) => ({
           key: i,
           index: i,
-          start: i * ROW_HEIGHT,
-          size: ROW_HEIGHT,
+          start: i * rowHeight,
+          size: rowHeight,
         }))
       : [];
 
   const totalHeight = hasVirtualRows
     ? virtualizer.getTotalSize()
     : isSmallDataset
-      ? visibleRows.length * ROW_HEIGHT
+      ? visibleRows.length * rowHeight
       : 0;
 
   const colCount = columns.length + 1;
@@ -524,7 +529,7 @@ export function ValidateDataStep({
                                 ]
                                   .filter(Boolean)
                                   .join(" ")}
-                                style={{ height: ROW_HEIGHT }}
+                                style={{ height: rowHeight }}
                               >
                                 <td className="clet-bulk-import__validate-td-checkbox gsl-bulk-import__validate-td-checkbox">
                                   <Checkbox

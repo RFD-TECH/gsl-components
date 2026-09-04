@@ -11,7 +11,7 @@
 }
 
 .clet-quick-actions__title {
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -80,23 +80,31 @@
 }
 
 .clet-quick-actions__item-label {
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 500;
   color: var(--gsl-text, var(--clet-text));
   line-height: 1.3;
 }
 
+/* Secondary, not muted: the tinted item background leaves muted text at ~2:1,
+   well under the 4.5:1 WCAG AA floor for text this size. */
 .clet-quick-actions__item-description {
-  font-size: 12px;
-  color: var(--gsl-text-muted, var(--clet-text-muted));
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
   line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* The hover tint darkens the surface enough to eat the contrast again, so the
+   description steps up a shade with it rather than the hover being weakened. */
+.clet-quick-actions__item:hover .clet-quick-actions__item-description {
+  color: var(--gsl-text, var(--clet-text));
+}
+
 .clet-quick-actions__empty {
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   color: var(--gsl-text-muted, var(--clet-text-muted));
   padding: 12px 0;
 }

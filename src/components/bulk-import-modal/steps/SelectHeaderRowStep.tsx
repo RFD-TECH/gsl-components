@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import * as RadioGroup from "@radix-ui/react-radio-group";
+import { useScaledRowHeight } from "../../../hooks/useTextScale";
 
 interface SelectHeaderRowStepProps {
   rows: string[][];
@@ -20,10 +21,13 @@ export function SelectHeaderRowStep({
   const columnCount = Math.max(...previewRows.map((row) => row.length), 1);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Each row is pinned to this height below, so estimate and reality agree.
+  const rowHeight = useScaledRowHeight(ROW_HEIGHT);
+
   const virtualizer = useVirtualizer({
     count: previewRows.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => ROW_HEIGHT,
+    estimateSize: () => rowHeight,
     overscan: 5,
   });
 
@@ -35,13 +39,13 @@ export function SelectHeaderRowStep({
     : previewRows.map((_, i) => ({
         key: i,
         index: i,
-        start: i * ROW_HEIGHT,
-        size: ROW_HEIGHT,
+        start: i * rowHeight,
+        size: rowHeight,
       }));
 
   const totalHeight = hasVirtualRows
     ? virtualizer.getTotalSize()
-    : previewRows.length * ROW_HEIGHT;
+    : previewRows.length * rowHeight;
 
   return (
     <div className="clet-bulk-import__step gsl-bulk-import__step clet-bulk-import__step--header gsl-bulk-import__step--header">

@@ -251,7 +251,12 @@ name for the same value:
 
 `BulkImportModal` also has its own component-scoped tokens (`--clet-bulk-import-primary`, etc., falling back to the shared tokens above when unset) — the legacy `--gsl-bulk-import-primary` spelling also still works.
 
-See the [Theme](/docs/theme) docs page for the full token reference (radius, shadows, z-index, fonts) and controlled mode.
+Text sizes (`--clet-text-size-xs` through `--clet-text-size-xl`) are each defined
+against `--clet-text-scale`, the accessibility multiplier `ThemeProvider` sets on
+the `documentElement`. Anything styled from those tokens follows the user's chosen
+text size for free; a hardcoded pixel font size opts out of it.
+
+See the [Theme](/docs/theme) docs page for the full token reference (radius, shadows, z-index, fonts), the text-size steps, and controlled mode.
 
 ## Hooks
 
@@ -280,7 +285,9 @@ Exports: `useSearchParamOverlay`, `useDialogSearchParam`, `useModalSearchParam`,
 
 ## AppHeader
 
-Compound header bar with `AppHeader`, `AppHeaderSearch`, `AppHeaderActions`, and `AppHeaderNotifications`. Nest search on the left and group switcher, notifications, and profile inside `AppHeaderActions` on the right. The profile trigger is [`ProfilePopover`](/docs/profile-popover) itself (pass `user`/`variant` for the compact header-style trigger): there's no separate `AppHeaderProfile` component. `variant` picks the surface: `"default"` is a rounded panel, `"plain"` is the page surface with a hairline underneath (the layout shell's top bar), `"primary"` is the brand-coloured bar.
+Compound header bar with `AppHeader`, `AppHeaderSearch`, `AppHeaderActions`, `AppHeaderFontSize`, and `AppHeaderNotifications`. Nest search on the left and group switcher, notifications, and profile inside `AppHeaderActions` on the right. The profile trigger is [`ProfilePopover`](/docs/profile-popover) itself (pass `user`/`variant` for the compact header-style trigger): there's no separate `AppHeaderProfile` component. `variant` picks the surface: `"default"` is a rounded panel, `"plain"` is the page surface with a hairline underneath (the layout shell's top bar), `"primary"` is the brand-coloured bar.
+
+`AppHeaderFontSize` is the accessibility text-size picker: an "Aa" trigger offering Small, Normal, Large and Largest, conventionally placed just before `AppHeaderNotifications`. It reads the size held by `ThemeProvider`, so there is no extra provider to mount.
 
 See the [AppHeader](/docs/app-header) docs page for props and exported types.
 

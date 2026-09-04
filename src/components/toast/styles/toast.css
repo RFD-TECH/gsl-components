@@ -93,7 +93,7 @@
 }
 
 .clet-toast__title {
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 600;
   line-height: 1.4;
   color: var(--gsl-text, var(--clet-text));
@@ -112,7 +112,7 @@
 }
 
 .clet-toast__description {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   line-height: 1.5;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }

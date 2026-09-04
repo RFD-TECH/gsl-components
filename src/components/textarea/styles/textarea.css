@@ -10,7 +10,7 @@
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));
   background-color: var(--gsl-bg, var(--clet-bg));
   font-family: var(--gsl-textarea-font, var(--clet-textarea-font));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.5;
   color: var(--gsl-text, var(--clet-text));
   resize: vertical;

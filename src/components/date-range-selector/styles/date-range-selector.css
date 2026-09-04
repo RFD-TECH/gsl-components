@@ -17,7 +17,7 @@
 	gap: 8px;
 	width: 100%;
 	min-width: 0;
-	height: var(--gsl-date-range-selector-trigger-height, var(--clet-date-range-selector-trigger-height));
+	min-height: var(--gsl-date-range-selector-trigger-height, var(--clet-date-range-selector-trigger-height));
 	padding: 0 12px;
 	border: 1px solid var(--gsl-border, var(--clet-border));
 	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
@@ -149,7 +149,7 @@
 .clet-date-range-selector__preset-item {
 	display: flex;
 	align-items: center;
-	height: 36px;
+	min-height: 36px;
 	padding: 0 10px;
 	border: none;
 	border-radius: calc(var(--gsl-radius-base, var(--clet-radius-base)) - 2px);

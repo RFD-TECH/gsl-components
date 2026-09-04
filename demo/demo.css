@@ -745,3 +745,54 @@ body {
     border-bottom: 1px solid var(--clet-border);
   }
 }
+
+/* ── Component showcase (kitchen sink) ── */
+
+.showcase {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.showcase__state {
+  margin: 0 0 16px;
+  color: var(--clet-text-secondary);
+  font-size: var(--clet-text-size-sm);
+}
+
+.showcase__item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--clet-border);
+  border-radius: var(--clet-radius-base);
+  background: var(--clet-bg);
+}
+
+.showcase__item-title {
+  margin: 0;
+  color: var(--clet-text-muted);
+  font-size: var(--clet-text-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.showcase__item-canvas {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+.showcase__extras {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}

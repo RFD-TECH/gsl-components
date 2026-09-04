@@ -12,8 +12,11 @@ function nameToInitials(name: string): string {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
-function fontSizeForSize(px: number): number {
-  return Math.round(px * 0.38);
+/* Only a numeric `size` needs this: the named sizes carry a class and are sized
+   from the text tokens in avatar.css, so they follow the accessibility scale. */
+function scaledInitialsSize(px: number): string {
+  const base = Math.round(px * 0.38);
+  return `calc(${base}px * var(--gsl-text-scale, var(--clet-text-scale, 1)))`;
 }
 
 function resolveSize(size: AvatarProps["size"]): number {
@@ -71,7 +74,9 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
           className={cn("clet-avatar__initials gsl-avatar__initials", classNames?.initials)}
           style={{
             background: resolvedBackground,
-            fontSize: fontSizeForSize(dimension),
+            ...(typeof size === "number"
+              ? { fontSize: scaledInitialsSize(dimension) }
+              : null),
           }}
         >
           {initials}

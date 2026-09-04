@@ -84,7 +84,7 @@
   font-family: var(--gsl-upload-field-font, var(--clet-upload-field-font));
   font-weight: 500;
   font-size: var(--gsl-text-size-md, var(--clet-text-size-md));
-  line-height: 24px;
+  line-height: 1.5;
   text-align: center;
   color: var(--gsl-text, var(--clet-text));
 }
@@ -96,7 +96,7 @@
   font-family: var(--gsl-upload-field-font, var(--clet-upload-field-font));
   font-weight: 400;
   font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
-  line-height: 20px;
+  line-height: 1.43;
   text-align: center;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
   margin-bottom: 16px;
@@ -148,7 +148,7 @@
   font-family: var(--gsl-upload-field-font, var(--clet-upload-field-font));
   font-weight: 400;
   font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
-  line-height: 20px;
+  line-height: 1.43;
   color: var(--gsl-primary, var(--clet-primary));
   white-space: nowrap;
   overflow: hidden;
@@ -162,7 +162,7 @@
   font-family: var(--gsl-upload-field-font, var(--clet-upload-field-font));
   font-weight: 400;
   font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
-  line-height: 16px;
+  line-height: 1.33;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
@@ -181,7 +181,7 @@
   gap: 6px;
   font-family: var(--gsl-upload-field-font, var(--clet-upload-field-font));
   font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
-  line-height: 16px;
+  line-height: 1.33;
   color: var(--gsl-error, var(--clet-error));
 }
 
@@ -251,7 +251,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 36px;
+  min-height: 36px;
   padding: 0 16px;
   border: none;
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));
@@ -260,7 +260,7 @@
   font-family: var(--gsl-upload-field-font, var(--clet-upload-field-font));
   font-weight: 500;
   font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
-  line-height: 20px;
+  line-height: 1.43;
   cursor: pointer;
   transition: background-color 150ms ease;
 }

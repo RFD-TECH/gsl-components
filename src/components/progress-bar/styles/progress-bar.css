@@ -50,7 +50,7 @@
 
 .clet-progress-bar__value {
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   line-height: 1.4;
 }
 

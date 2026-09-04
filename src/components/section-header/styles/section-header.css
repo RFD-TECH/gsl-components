@@ -1,8 +1,12 @@
 .clet-section-header {
   --clet-section-header-font: var(--gsl-font-body, var(--clet-font-body));
   --clet-section-header-title-font: var(--gsl-font-header, var(--clet-font-header));
-  --clet-section-header-title-size: 40px;
-  --clet-section-header-description-size: 14px;
+  --clet-section-header-title-size: calc(
+    40px * var(--gsl-text-scale, var(--clet-text-scale, 1))
+  );
+  --clet-section-header-description-size: calc(
+    14px * var(--gsl-text-scale, var(--clet-text-scale, 1))
+  );
   --clet-section-header-margin-bottom: 24px;
 
   display: grid;

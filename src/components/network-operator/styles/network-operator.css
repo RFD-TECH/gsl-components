@@ -5,7 +5,7 @@
   display: block;
   width: 100%;
   font-family: var(--gsl-network-operator-font, var(--clet-network-operator-font));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
 }
 
 .clet-network-operator--invalid .clet-network-operator__trigger {
@@ -23,14 +23,14 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  height: 40px;
+  min-height: 40px;
   padding: 0 12px 0 8px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));
   background: var(--gsl-bg, var(--clet-bg));
   color: var(--gsl-text, var(--clet-text));
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   cursor: pointer;
   min-width: 140px;
 }
@@ -80,7 +80,7 @@
   background: transparent;
   color: var(--gsl-text, var(--clet-text));
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 400;
   cursor: pointer;
   text-align: left;

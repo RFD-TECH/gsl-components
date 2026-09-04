@@ -1,3 +1,19 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-bulk-import-modal-validate-header-title-text-size: calc(18px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-bulk-import-modal-step-title-text-size: calc(28px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-bulk-import-modal-expected-title-text-size: calc(18px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-bulk-import-modal-expected-table-head-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-bulk-import-modal-match-heading-text-size: calc(18px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-bulk-import-modal-cell-error-tooltip-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-bulk-import-modal-stepper-label-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-bulk-import {
   --clet-bulk-import-primary: var(--gsl-primary, var(--clet-primary));
   --clet-bulk-import-primary-light: var(--gsl-primary-light, var(--clet-primary-light));
@@ -90,7 +106,7 @@
   gap: 10px;
   min-width: 0;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
 }
 
 .clet-bulk-import__stepper-item:last-child {
@@ -110,7 +126,7 @@
   background: var(--gsl-bg, var(--clet-bg));
   border: 2px solid var(--gsl-border, var(--clet-border));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   font-weight: 600;
   transition:
     background 250ms ease,
@@ -359,7 +375,7 @@
 
 .clet-bulk-import__step-note {
   margin: -16px 0 24px;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
@@ -435,14 +451,14 @@
 
 .clet-bulk-import__validate-header-title {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--gsl-bulk-import-modal-validate-header-title-text-size, var(--clet-bulk-import-modal-validate-header-title-text-size));
   font-weight: 700;
   color: var(--gsl-text, var(--clet-text));
   white-space: nowrap;
 }
 
 .clet-bulk-import__validate-footer-text {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   color: var(--gsl-text-muted, var(--clet-text-muted));
 }
 
@@ -511,7 +527,7 @@
   margin-bottom: 8px;
 }
 .clet-bulk-import__step-title {
-  font-size: 28px;
+  font-size: var(--gsl-bulk-import-modal-step-title-text-size, var(--clet-bulk-import-modal-step-title-text-size));
   font-weight: 700;
   color: var(--gsl-text, var(--clet-text));
   margin-block: 16px;
@@ -528,14 +544,14 @@
 
 .clet-bulk-import__expected-title {
   margin: 0 0 4px;
-  font-size: 18px;
+  font-size: var(--gsl-bulk-import-modal-expected-title-text-size, var(--clet-bulk-import-modal-expected-title-text-size));
   font-weight: 700;
   color: var(--gsl-text, var(--clet-text));
 }
 
 .clet-bulk-import__expected-note {
   margin: 0 0 20px;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
@@ -549,7 +565,7 @@
 .clet-bulk-import__expected-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 }
 
 .clet-bulk-import__expected-table th,
@@ -565,7 +581,7 @@
 }
 
 .clet-bulk-import__expected-table th {
-  font-size: 11px;
+  font-size: var(--gsl-bulk-import-modal-expected-table-head-text-size, var(--clet-bulk-import-modal-expected-table-head-text-size));
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
@@ -621,7 +637,7 @@
 }
 
 .clet-bulk-import__upload-file-name {
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   color: var(--gsl-text, var(--clet-text));
   font-family: var(--gsl-bulk-import-font, var(--clet-bulk-import-font));
 }
@@ -651,7 +667,7 @@
 
 .clet-bulk-import__dropzone-title {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--gsl-text-size-md, var(--clet-text-size-md));
   color: var(--gsl-text, var(--clet-text));
 }
 
@@ -662,14 +678,14 @@
 
 .clet-bulk-import__file-name {
   margin: 12px 0 0;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
 .clet-bulk-import__error {
   margin: 12px 0 0;
   color: var(--gsl-error, var(--clet-error));
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 }
 
 .clet-bulk-import__table-wrap {
@@ -691,7 +707,7 @@
 .clet-bulk-import__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 }
 
 .clet-bulk-import__table td,
@@ -823,7 +839,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 10px 12px;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   color: var(--gsl-text, var(--clet-text));
 }
 
@@ -843,7 +859,7 @@
 
 .clet-bulk-import__match-heading {
   margin: 0 0 12px;
-  font-size: 18px;
+  font-size: var(--gsl-bulk-import-modal-match-heading-text-size, var(--clet-bulk-import-modal-match-heading-text-size));
   font-weight: 500;
   color: var(--gsl-text, var(--clet-text));
   flex-shrink: 0;
@@ -871,7 +887,7 @@
 }
 
 .clet-bulk-import__source-column-label {
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 600;
   color: var(--gsl-text, var(--clet-text));
   line-height: 1.3;
@@ -883,12 +899,12 @@
   align-items: center;
   justify-content: center;
   width: 20px;
-  height: 20px;
+  min-height: 20px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: 50%;
   background: var(--gsl-bg, var(--clet-bg));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1;
   cursor: pointer;
 }
@@ -906,7 +922,7 @@
 .clet-bulk-import__source-column-preview-row {
   min-height: 20px;
   color: var(--gsl-text-muted, var(--clet-text-muted));
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   line-height: 1.4;
 }
 
@@ -967,7 +983,7 @@
 
 .clet-bulk-import__match-toolbar-hint {
   margin: 0 0 24px;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
   line-height: 1.4;
 }
@@ -980,7 +996,7 @@
 }
 
 .clet-bulk-import__validate-err-count {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   font-weight: 600;
   white-space: nowrap;
   color: var(--gsl-text-muted, var(--clet-text-muted));
@@ -1002,7 +1018,7 @@
 .clet-bulk-import__validate-empty {
   display: flex;
   margin: 0;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
   text-align: center;
 }
@@ -1065,7 +1081,7 @@
 }
 
 .clet-bulk-import__switch-label {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
@@ -1073,7 +1089,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  height: 44px;
+  min-height: 44px;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -1122,7 +1138,7 @@
 }
 
 .clet-bulk-import__validate-actions-count {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
@@ -1147,11 +1163,11 @@
   top: 0;
   z-index: 2;
   background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  height: 40px;
+  min-height: 40px;
   text-align: center;
   vertical-align: middle;
   padding: 0 12px;
@@ -1163,12 +1179,12 @@
   top: 0;
   z-index: 2;
   background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   font-weight: 600;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  height: 40px;
+  min-height: 40px;
   text-align: left;
   vertical-align: middle;
   padding: 0 16px;
@@ -1188,7 +1204,7 @@
 
 .clet-bulk-import__validate-td {
   padding: 0;
-  height: 44px;
+  min-height: 44px;
   position: relative;
   border-bottom: 1px solid var(--gsl-border, var(--clet-border));
   overflow: visible;
@@ -1232,7 +1248,7 @@
   background: var(--gsl-text, var(--clet-text));
   color: var(--gsl-on-primary, var(--clet-on-primary));
   padding: 6px 10px;
-  font-size: 11px;
+  font-size: var(--gsl-bulk-import-modal-cell-error-tooltip-text-size, var(--clet-bulk-import-modal-cell-error-tooltip-text-size));
   line-height: 1.35;
   border-radius: 6px;
   white-space: nowrap;
@@ -1268,7 +1284,7 @@
   }
 
   .clet-bulk-import__stepper-label {
-    font-size: 11px;
+    font-size: var(--gsl-bulk-import-modal-stepper-label-text-size, var(--clet-bulk-import-modal-stepper-label-text-size));
   }
 
   .clet-bulk-import__body {
@@ -1298,7 +1314,7 @@
   border-radius: 8px;
   background: var(--gsl-bg, var(--clet-bg));
   color: var(--gsl-text, var(--clet-text));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   cursor: pointer;
 }
 
@@ -1368,7 +1384,7 @@
   }
 
   .clet-bulk-import__stepper-label {
-    font-size: 11px;
+    font-size: var(--gsl-bulk-import-modal-stepper-label-text-size, var(--clet-bulk-import-modal-stepper-label-text-size));
   }
 
   .clet-bulk-import__body {
@@ -1429,7 +1445,7 @@
 
 .clet-bulk-import__loading-counter {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   color: var(--gsl-text-muted, var(--clet-text-muted));
 }
 

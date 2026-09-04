@@ -1,3 +1,13 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-button-lg-text-size: calc(15px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-button {
   --clet-button-font: var(--gsl-font-body, var(--clet-font-body));
 
@@ -10,7 +20,7 @@
   background: var(--gsl-bg, var(--clet-bg));
   color: var(--gsl-text, var(--clet-text));
   font-family: var(--gsl-button-font, var(--clet-button-font));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 500;
   line-height: 1.4;
   cursor: pointer;
@@ -34,7 +44,7 @@
 .clet-button--sm {
   min-height: 32px;
   padding: 4px 12px;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 }
 
 .clet-button--md {
@@ -45,7 +55,7 @@
 .clet-button--lg {
   min-height: 48px;
   padding: 12px 20px;
-  font-size: 15px;
+  font-size: var(--gsl-button-lg-text-size, var(--clet-button-lg-text-size));
 }
 
 .clet-button--primary {

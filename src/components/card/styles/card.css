@@ -24,7 +24,7 @@
 .clet-card__title {
   margin: 0;
   font-family: var(--gsl-card-title-font, var(--clet-card-title-font));
-  font-size: 20px;
+  font-size: var(--gsl-text-size-lg, var(--clet-text-size-lg));
   font-weight: 600;
   color: var(--gsl-text, var(--clet-text));
 }

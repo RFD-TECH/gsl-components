@@ -1,3 +1,13 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-sheet-title-text-size: calc(18px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-sheet {
   --clet-sheet-font: var(--gsl-font-body, var(--clet-font-body));
 
@@ -129,7 +139,7 @@
 
 .clet-sheet__title {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--gsl-sheet-title-text-size, var(--clet-sheet-title-text-size));
   font-weight: 500;
   line-height: 1.4;
   color: var(--gsl-text, var(--clet-text));
@@ -137,7 +147,7 @@
 
 .clet-sheet__description {
   margin: 6px 0 0;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.5;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
