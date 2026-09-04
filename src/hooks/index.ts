@@ -14,6 +14,10 @@ export { useDialogSearchParam } from "./useDialogSearchParam";
 export { useModalSearchParam } from "./useModalSearchParam";
 export { useSearchParamOverlay } from "./useSearchParamOverlay";
 export { useTableFilter } from "./useTableFilter";
+export {
+  TABLE_FILTER_RESET_EVENT,
+  useTableFilterReset,
+} from "./useTableFilterReset";
 export type {
   UseTableFilterOptions,
   UseTableFilterReturn,

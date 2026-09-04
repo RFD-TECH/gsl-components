@@ -3,6 +3,20 @@ name: rfdtech-ui
 description: Use before building or modifying UI with @rfdtech/components — search the component index, pull authoritative types and examples, and follow design rules instead of inventing APIs or styles.
 ---
 
+**Do you actually have the `rfdtech-ui` tools?** Everything below depends on them. If
+`search_components` / `get_component_types` / `get_rules` are not in your tool list, the server is
+not connected: run `npx rfdui setup` (it detects Claude Code, Cursor, Codex and OpenCode and writes
+each one's config), then restart the tool. Claude Code also asks the user to approve a
+project-scoped server the first time, so a declared server in `.mcp.json` is not yet a connected
+one. Say so and ask, rather than guessing at component APIs from memory.
+
+**Was the library upgraded since this project was last touched?** Compare the version in
+`.ai/rfdui.json` with the one in `package.json`. If they differ, or the install log showed an
+upgrade notice, run the codemod before editing UI code: the `migrate` MCP tool, or
+`npx rfdui migrate` (dry run) then `--write`. It rewrites the mechanical half of an upgrade and
+reports the rest with a file and line. What no codemod can rewrite is in
+`get_component("migration-v2")`.
+
 Before generating or editing UI code that uses `@rfdtech/components`:
 
 1. **Search first.** Call `search_components` (or `search_docs`) with the feature you're building

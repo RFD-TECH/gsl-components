@@ -1,5 +1,5 @@
 import path from "node:path";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const thisFileUrl = import.meta.url;
@@ -16,6 +16,21 @@ const isDevSource = thisFileUrl.endsWith(".ts");
 // installed from npm, this resolves into node_modules and none of those
 // sibling dirs exist — that absence is how we detect "published" mode.
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
+
+/** This package's own version. `REPO_ROOT` is the package root in both layouts
+ * (dev `mcp/src/`, published `dist/mcp/`), so the same lookup works for each.
+ * Setup compares it against the version a project was last set up with, which
+ * is the only moment anyone can be told an upgrade just happened. */
+export const PACKAGE_VERSION: string = (() => {
+  try {
+    const pkg = JSON.parse(readFileSync(path.join(REPO_ROOT, "package.json"), "utf8")) as {
+      version?: string;
+    };
+    return pkg.version ?? "unknown";
+  } catch {
+    return "unknown";
+  }
+})();
 
 export const SOURCE = {
   pages: path.join(REPO_ROOT, "demo/docs/pages"),

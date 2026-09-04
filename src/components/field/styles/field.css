@@ -9,7 +9,7 @@
 }
 
 .clet-field__label {
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 500;
   line-height: 1.4;
   color: var(--gsl-text, var(--clet-text));
@@ -17,14 +17,14 @@
 
 .clet-field__description {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   line-height: 1.5;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
 .clet-field__error {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   line-height: 1.5;
   color: var(--gsl-error-text, var(--clet-error-text));
 }

@@ -35,6 +35,7 @@ import {
   AppHeader,
   AppHeaderActions,
   AppHeaderBranding,
+  AppHeaderFontSize,
   AppHeaderNotifications,
   AppHeaderNotificationItem,
   Launchpad,
@@ -205,6 +206,7 @@ export function DemoLayout2({ basePath = "" }: DemoLayout2Props) {
                   onClickRole={(role) => setSelectedRole(role.id)}
                 />
               </Launchpad>
+              <AppHeaderFontSize />
               <AppHeaderNotifications loading={notifLoading}>
                 {notifData?.map((n: (typeof notifData)[number]) => (
                   <AppHeaderNotificationItem

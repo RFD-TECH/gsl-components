@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { type InstallResult, MCP_SERVER_COMMAND } from "./util.js";
+import { type InstallResult, GLOBAL_MCP_SERVER_COMMAND } from "./util.js";
 
 const CODEX_DIR = path.join(os.homedir(), ".codex");
 const CONFIG_PATH = path.join(CODEX_DIR, "config.toml");
@@ -24,7 +24,7 @@ export async function install(): Promise<InstallResult> {
     return { name: "Codex", changed: false, detail: "~/.codex/config.toml (already set)" };
   }
 
-  const block = `\n${MARKER}\ncommand = ${JSON.stringify(MCP_SERVER_COMMAND.command)}\nargs = ${JSON.stringify(MCP_SERVER_COMMAND.args)}\n`;
+  const block = `\n${MARKER}\ncommand = ${JSON.stringify(GLOBAL_MCP_SERVER_COMMAND.command)}\nargs = ${JSON.stringify(GLOBAL_MCP_SERVER_COMMAND.args)}\n`;
   await writeFile(CONFIG_PATH, existing.replace(/\s*$/, "") + "\n" + block, "utf8");
   return { name: "Codex", changed: true, detail: "~/.codex/config.toml (updated)" };
 }

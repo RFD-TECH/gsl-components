@@ -1,3 +1,14 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-app-switcher-icon-emoji-text-size: calc(18px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-app-switcher-badge-text-size: calc(10px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-app-switcher {
   --clet-shadow: var(--gsl-shadow-sm, var(--clet-shadow-sm));
   --clet-item-size: 80px;
@@ -81,7 +92,7 @@
 
 .clet-app-switcher__title {
   padding: 8px 24px 4px;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 500;
   color: var(--gsl-text, var(--clet-text));
 }
@@ -151,7 +162,7 @@
 }
 
 .clet-app-switcher__icon-emoji {
-  font-size: 18px;
+  font-size: var(--gsl-app-switcher-icon-emoji-text-size, var(--clet-app-switcher-icon-emoji-text-size));
   line-height: 1;
 }
 
@@ -181,7 +192,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   font-weight: 600;
   color: #fff;
   letter-spacing: 0.02em;
@@ -190,7 +201,7 @@
 .clet-app-switcher__status {
   padding: 24px 16px;
   text-align: center;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
@@ -209,7 +220,7 @@
 }
 
 .clet-app-switcher__loading-text {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 }
 
 .clet-app-switcher__spinner {
@@ -223,7 +234,7 @@
 }
 
 .clet-app-switcher__name {
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   line-height: 1.3;
   text-align: center;
   overflow-wrap: anywhere;
@@ -240,7 +251,7 @@
   top: 4px;
   right: 4px;
   padding: 1px 6px;
-  font-size: 10px;
+  font-size: var(--gsl-app-switcher-badge-text-size, var(--clet-app-switcher-badge-text-size));
   font-weight: 500;
   color: var(--gsl-on-primary, var(--clet-on-primary));
   background: var(--gsl-focus, var(--clet-focus));
@@ -255,7 +266,7 @@
   padding: 8px 16px;
   border-top: 1px solid var(--gsl-border, var(--clet-border));
   text-align: center;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 

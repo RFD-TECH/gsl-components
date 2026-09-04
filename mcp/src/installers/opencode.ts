@@ -3,8 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import {
   type InstallResult,
-  MCP_SERVER_COMMAND,
   appendPointerOnce,
+  mcpServerCommand,
   readJsonIfExists,
   writeJson,
 } from "./util.js";
@@ -26,9 +26,10 @@ export async function install(cwd: string): Promise<InstallResult> {
   const data = existing && typeof existing === "object" ? { ...existing } : {};
   if (isNewFile) data.$schema ??= "https://opencode.ai/config.json";
   const mcp = { ...(data.mcp as Record<string, unknown> | undefined) };
+  const command = mcpServerCommand(cwd);
   const desired = {
     type: "local",
-    command: [MCP_SERVER_COMMAND.command, ...MCP_SERVER_COMMAND.args],
+    command: [command.command, ...command.args],
     enabled: true,
   };
   const already = JSON.stringify(mcp["rfdtech-ui"]) === JSON.stringify(desired);

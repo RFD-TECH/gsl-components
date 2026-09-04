@@ -165,9 +165,9 @@ severity: do
 components: table
 
 New or touched `Table`s use all four together: `Table variant="soft"` on the root,
-`TableContent variant="soft"` (not `"panel"` or `"default"`), `TableFilter variant="spread"` (not
-the default `"popover"`), and `TableFooter noBorder` (a real `TableFooterProps` prop, not a demo
-hack).
+`TableContent variant="soft"` (not `"panel"` or `"default"`), `TableFilter variant="spread"` when
+the table has at most two filters (see `page-composition-table-filter-count`), and
+`TableFooter noBorder` (a real `TableFooterProps` prop, not a demo hack).
 
 `variant="soft"` on the root is what restyles the header's filter and search into pills and turns
 the current page into a filled `--clet-info` disc. It reaches those controls by drilling down from
@@ -175,6 +175,28 @@ the root class, so keep composing the ordinary `Dropdown`, `TableSearch` and `Ta
 there is no separate "soft" filter or pagination component to swap in, and hand-rolling one throws
 away their URL-state and keyboard behaviour. The header puts filters on the left and inputs on the
 right; that is the variant's own ordering, so don't reorder the children to force it.
+
+===RULE===
+id: page-composition-table-filter-count
+title: Spread a filter row only up to two fields, group the rest into the popover
+severity: do
+components: table, dropdown, combobox
+
+`TableFilter variant="spread"` lays every field out inline in the toolbar. That reads as a row
+while there are one or two of them. At three it stops being a row and becomes a wall of controls
+competing with the search field and the table itself, and on a narrow viewport it wraps into a
+stack of dropdowns above the data.
+
+Count the fields a screen actually renders, including the conditional ones:
+
+- **One or two** -> `variant="spread"`, inline, no trigger to open.
+- **Three or more** -> drop the variant. The default popover groups them behind a single Filters
+  trigger with a count badge, and the URL keys, field names and clear behaviour are identical.
+
+The component enforces this itself: a `TableFilter variant="spread"` holding a third field groups
+back into the popover on its own, and says so once in the dev console. Nothing to remember and
+nothing to run, so do not try to widen a row by wrapping the fields or splitting them across two
+`TableFilter`s.
 
 ===RULE===
 id: page-composition-other-preferred-variants
@@ -205,7 +227,7 @@ headers — never a hand-rolled `<div>`.
 id: page-composition-builtin-loading-states
 title: Use each component's real loading prop, never hand-rolled placeholders
 severity: do
-components: launchpad, app-header, profile-popover, sidebar, metric-card, table, logo-loader
+components: launchpad, app-header, profile-popover, sidebar, metric-card, table
 
 Every component that supports a real `loading` prop (with a shimmering skeleton) should use it —
 `Launchpad`, `AppHeaderNotifications`, `ProfilePopover` (`loading`/`loadingLabel`), `SidebarLink`
@@ -213,24 +235,7 @@ Every component that supports a real `loading` prop (with a shimmering skeleton)
 (`loading`/`loadingRows`). Never render `"..."` placeholders, a hand-rolled `<Spinner />`, or omit
 content until data is ready.
 
-Where no such prop exists — a whole route, a section that has not rendered yet, an initial app
-boot — reach for `LogoLoader` rather than rolling your own. Pick the variant by **how much of the
-UI is actually unavailable** (see `page-composition-logo-loader-scope`). Prefer the component's own
-skeleton when it has one; `LogoLoader` is for the gaps, not a replacement for in-place loading
-states.
-
-===RULE===
-id: page-composition-logo-loader-scope
-title: Scope the LogoLoader variant to what is actually unavailable
-severity: do
-components: logo-loader, card, app-layout, sidebar
-
-Pick by how much of the UI the user genuinely cannot use yet.
-
-- Whole app blocked, shell not yet interactive -> `variant="fullscreen"`.
-- Sidebar page change (lazy route); shell still usable -> `variant="block"` in the content region.
-  Never `fullscreen` here — it blurs out a sidebar the user can still click.
-- One pending section on a painted page -> `<Card loading>`, or `variant="fill"` on a
-  `position: relative` parent.
-
-Never over-scope: reaching for `fullscreen` because it is easiest blocks UI that was usable.
+The kit ships no general-purpose loader, so a gap no component covers, a whole route, a section
+that has not rendered yet, an initial app boot, is the app's own to fill. Reach for the owning
+component's loading state first: it is in place, keeps the layout stable, and is the only one that
+knows what the finished content looks like.

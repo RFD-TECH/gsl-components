@@ -1,3 +1,13 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-badge-sm-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-badge {
   --clet-badge-font: var(--gsl-font-body, var(--clet-font-body));
 
@@ -16,12 +26,12 @@
 
 .clet-badge--sm {
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: var(--gsl-badge-sm-text-size, var(--clet-badge-sm-text-size));
 }
 
 .clet-badge--md {
   padding: 2px 10px;
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
 }
 
 .clet-badge--default {

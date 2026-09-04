@@ -108,7 +108,6 @@ export function Dashboard2Page() {
     minutes: 30,
   });
   const { loading: metricsLoading } = useMockQuery(null, 1200);
-  const { loading: tableLoading } = useMockQuery(null, 1000);
 
   const filtered = useMemo(
     () =>
@@ -371,12 +370,7 @@ export function Dashboard2Page() {
       </PageSection>
 
       <PageSection>
-        <Card
-          bordered
-          loading={tableLoading}
-          loadingLabel="Loading members…"
-          loadingMinHeight={420}
-        >
+        <Card bordered>
           <Tabs variant="pill" defaultValue="members">
             <TabsList>
               <TabsTrigger value="members">Members</TabsTrigger>
@@ -402,6 +396,7 @@ export function Dashboard2Page() {
                       aria-label="Filter by role"
                     />
                     <Combobox
+                      name="status"
                       value={statusValue || null}
                       onValueChange={(v) => setStatusValue(v ?? "")}
                       options={gslStatuses}

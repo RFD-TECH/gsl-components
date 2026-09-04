@@ -20,7 +20,7 @@
   display: inline-flex;
   align-items: flex-start;
   gap: 8px;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.4;
   color: var(--gsl-text, var(--clet-text));
   cursor: pointer;
@@ -83,7 +83,7 @@
 }
 
 .clet-radio__description {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   line-height: 1.4;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }

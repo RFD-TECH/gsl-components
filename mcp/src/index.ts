@@ -19,7 +19,7 @@ import {
   searchRules,
 } from "./docs.js";
 import { buildIndex } from "./indexer.js";
-import { GENERATED_DIR, SOURCE, hasRepoSource } from "./paths.js";
+import { GENERATED_DIR, PACKAGE_VERSION, SOURCE, hasRepoSource } from "./paths.js";
 
 /**
  * The generated JSON knowledge base is a build artifact, not a second source
@@ -194,10 +194,24 @@ async function main() {
   await ensureFreshIndex();
   const idx = await loadIndex();
 
-  const server = new McpServer({
-    name: "gsl-components-docs",
-    version: "2.0.0",
-  });
+  const server = new McpServer(
+    {
+      name: "gsl-components-docs",
+      version: "2.0.0",
+    },
+    {
+      // Hosts surface this the moment the server connects, which is the only
+      // channel that reaches an agent who never reads a changelog.
+      instructions:
+        `Docs and rules for @rfdtech/components (installed version ${PACKAGE_VERSION}). ` +
+        "Search before building: `search_components`, `get_component_types`, `get_rules`.\n\n" +
+        "If this project was written against an older version of the library, run the `migrate` " +
+        "tool before editing UI code. It rewrites what is mechanical (layout shell variants, " +
+        "renamed components, theme helpers) and reports the rest with a file and line. It is a " +
+        "dry run until you pass write. Breaking changes no codemod can rewrite are listed in " +
+        '`get_component("migration-v2")`.',
+    }
+  );
 
   server.registerTool(
     "list_components",

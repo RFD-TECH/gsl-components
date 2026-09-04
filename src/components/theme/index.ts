@@ -1,11 +1,14 @@
 export { ThemeProvider } from "./ThemeProvider";
 export { useTheme } from "./useTheme";
+export { useFontSize } from "./useFontSize";
 export { cletTheme, cletTheme as gslTheme } from "./cletTheme";
 export type {
   CletComponentThemeConfig,
   CletComponentThemeConfig as GslComponentThemeConfig,
   CletComponentThemeOverrides,
   CletComponentThemeOverrides as GslComponentThemeOverrides,
+  CletFontSize,
+  CletFontSize as GslFontSize,
   CletTheme,
   CletTheme as GslTheme,
   CletThemeConfig,
@@ -13,6 +16,7 @@ export type {
   ResolvedCletTheme,
   ResolvedCletTheme as ResolvedGslTheme,
   ThemeProviderProps,
+  UseFontSizeReturn,
   UseThemeReturn,
 } from "../../types/theme";
 export type {

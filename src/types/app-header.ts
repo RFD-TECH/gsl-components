@@ -72,6 +72,22 @@ export interface AppHeaderNotificationsProps {
   loadingLabel?: string;
 }
 
+export interface AppHeaderFontSizeClassNames {
+  root?: string;
+  content?: string;
+  title?: string;
+  option?: string;
+}
+
+export interface AppHeaderFontSizeProps {
+  className?: string;
+  classNames?: AppHeaderFontSizeClassNames;
+  /** Accessible label for the trigger (default: "Text size") */
+  label?: string;
+  /** Heading shown above the options (default: "Text size") */
+  title?: string;
+}
+
 export interface AppHeaderNotificationItemClassNames {
   root?: string;
   dot?: string;

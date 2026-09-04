@@ -223,6 +223,8 @@ export interface TableSearchProps extends Omit<
 export interface TableFilterClassNames {
   root?: string;
   trigger?: string;
+  /** The trigger's chevron, which rotates while the panel is open. */
+  triggerIcon?: string;
   badge?: string;
   content?: string;
   header?: string;
@@ -240,7 +242,15 @@ export interface TableFilterProps {
   onReset?: () => void;
   applyLabel?: string;
   resetLabel?: string;
-  /** "popover" (default) opens the fields in a popover panel. "spread" removes the popover and lays the fields out inline as a flex row. */
+  /**
+   * "popover" (default) opens the fields in a popover panel. "spread" removes
+   * the popover and lays the fields out inline as a flex row.
+   *
+   * "spread" is honoured for up to two fields. A third turns the row into a
+   * wall of controls competing with the search field, so the filter groups
+   * itself back into the popover: same fields, same names, same URL keys, only
+   * the presentation moves.
+   */
   variant?: TableFilterVariant;
   classNames?: TableFilterClassNames;
   className?: string;

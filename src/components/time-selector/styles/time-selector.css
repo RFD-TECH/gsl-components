@@ -17,7 +17,7 @@
   gap: 8px;
   width: 100%;
   min-width: 0;
-  height: var(--gsl-time-selector-trigger-height, var(--clet-time-selector-trigger-height));
+  min-height: var(--gsl-time-selector-trigger-height, var(--clet-time-selector-trigger-height));
   padding: 0 12px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));

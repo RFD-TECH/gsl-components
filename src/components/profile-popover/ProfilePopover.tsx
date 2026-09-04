@@ -163,7 +163,12 @@ export const ProfilePopover = forwardRef<HTMLElement, ProfilePopoverProps>(
                 <span className="clet-app-header__user-name gsl-app-header__user-name">{user.name}</span>
                 <span className="clet-app-header__user-role gsl-app-header__user-role">{user.role}</span>
               </div>
-              <ChevronDown size={16} strokeWidth={1.5} aria-hidden />
+              <ChevronDown
+                className="clet-app-header__profile-chevron gsl-app-header__profile-chevron"
+                size={16}
+                strokeWidth={1.5}
+                aria-hidden
+              />
             </>
           ))}
         {loading ? (

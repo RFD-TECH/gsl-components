@@ -4,7 +4,7 @@
   align-items: flex-start;
   gap: 8px;
   font-family: var(--gsl-checkbox-font, var(--clet-checkbox-font));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.4;
   color: var(--gsl-text, var(--clet-text));
   cursor: pointer;

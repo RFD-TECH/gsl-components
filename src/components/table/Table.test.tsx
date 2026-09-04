@@ -1,10 +1,22 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { MemoryRouter, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Combobox } from "../combobox";
+import { Dropdown } from "../dropdown";
 import { Table, TableContent, TableFooter } from "./Table";
 import { TableHeader, TableSearch, TableFilter } from "./TableHeader";
 import { TablePagination } from "./TablePagination";
+
+const ROLE_OPTIONS = [
+  { value: "Admin", label: "Admin" },
+  { value: "Editor", label: "Editor" },
+];
+const STATUS_OPTIONS = [
+  { value: "Active", label: "Active" },
+  { value: "Inactive", label: "Inactive" },
+];
 
 describe("Table", () => {
   it("renders header, content, and footer", () => {
@@ -672,5 +684,299 @@ describe("Table", () => {
 
     // The menu still carries Select, so it is not empty.
     expect(screen.getAllByLabelText("Row actions")).toHaveLength(1);
+  });
+});
+
+describe("TableFilter spread: fields and table state", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function ParamProbe() {
+    const { search } = useLocation();
+    return <output data-testid="params">{decodeURIComponent(search)}</output>;
+  }
+
+  function Filters({
+    roleName = "role",
+    statusName = "status",
+    initialRole = "",
+    initialStatus = "",
+  }: {
+    roleName?: string;
+    statusName?: string;
+    initialRole?: string;
+    initialStatus?: string;
+  }) {
+    const [role, setRole] = useState(initialRole);
+    const [status, setStatus] = useState(initialStatus);
+    return (
+      <TableFilter variant="spread">
+        <Dropdown
+          name={roleName || undefined}
+          value={role || null}
+          onValueChange={(v) => setRole(v ?? "")}
+          options={ROLE_OPTIONS}
+          placeholder="All roles"
+          aria-label="Filter by role"
+        />
+        <Combobox
+          name={statusName || undefined}
+          value={status || null}
+          onValueChange={(v) => setStatus(v ?? "")}
+          options={STATUS_OPTIONS}
+          placeholder="All statuses"
+          aria-label="Filter by status"
+        />
+      </TableFilter>
+    );
+  }
+
+  it("keeps two fields inline", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <Filters />
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    expect(document.querySelector(".clet-table__filter--spread")).not.toBeNull();
+    expect(screen.queryByLabelText("Filter")).toBeNull();
+  });
+
+  it("groups a third field into the popover, whatever the variant asked for", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(console, "info").mockImplementation(() => {});
+
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <TableFilter variant="spread">
+              <Dropdown
+                name="role"
+                value={null}
+                onValueChange={() => {}}
+                options={ROLE_OPTIONS}
+                placeholder="All roles"
+                aria-label="Filter by role"
+              />
+              <Dropdown
+                name="status"
+                value={null}
+                onValueChange={() => {}}
+                options={STATUS_OPTIONS}
+                placeholder="All statuses"
+                aria-label="Filter by status"
+              />
+              <Dropdown
+                name="department"
+                value={null}
+                onValueChange={() => {}}
+                options={ROLE_OPTIONS}
+                placeholder="All departments"
+                aria-label="Filter by department"
+              />
+            </TableFilter>
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    // No inline row: the fields are behind the popover's own trigger.
+    expect(document.querySelector(".clet-table__filter--spread")).toBeNull();
+    const trigger = screen.getByLabelText("Filter");
+    expect(screen.queryByLabelText("Filter by department")).toBeNull();
+
+    await user.click(trigger);
+    expect(screen.getByLabelText("Filter by department")).toBeInTheDocument();
+    expect(screen.getByText("Apply Filter")).toBeInTheDocument();
+  });
+
+  it("counts fields through a layout wrapper", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <TableFilter variant="spread">
+              <div>
+                <Dropdown
+                  name="role"
+                  value={null}
+                  onValueChange={() => {}}
+                  options={ROLE_OPTIONS}
+                  placeholder="All roles"
+                  aria-label="Filter by role"
+                />
+                <Dropdown
+                  name="status"
+                  value={null}
+                  onValueChange={() => {}}
+                  options={STATUS_OPTIONS}
+                  placeholder="All statuses"
+                  aria-label="Filter by status"
+                />
+                <Dropdown
+                  name="department"
+                  value={null}
+                  onValueChange={() => {}}
+                  options={ROLE_OPTIONS}
+                  placeholder="All departments"
+                  aria-label="Filter by department"
+                />
+              </div>
+            </TableFilter>
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    // One child element, three fields inside it: the fields are what counts.
+    expect(document.querySelector(".clet-table__filter--spread")).toBeNull();
+    expect(screen.getByLabelText("Filter")).toBeInTheDocument();
+  });
+
+  it("writes a named Combobox's selection to the URL", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <Filters />
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByLabelText("Filter by status"));
+    await user.click(screen.getByText("Inactive"));
+
+    expect(
+      screen.getByRole("button", { name: /clear/i }),
+    ).toBeInTheDocument();
+    const status = document.querySelector<HTMLInputElement>(
+      'input[name="status"]',
+    );
+    expect(status?.value).toBe("Inactive");
+  });
+
+  it("clear empties every field, not only the ones with native reset", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter
+        initialEntries={["/?t.f_role=Admin&t.f_status=Inactive"]}
+      >
+        <Table paramPrefix="t">
+          <TableHeader>
+            <Filters initialRole="Admin" initialStatus="Inactive" />
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByLabelText("Filter by role")).toHaveTextContent("Admin");
+    expect(screen.getByLabelText("Filter by status")).toHaveTextContent(
+      "Inactive",
+    );
+
+    await user.click(screen.getByRole("button", { name: /clear/i }));
+
+    // Both fall back to their placeholders. The Dropdown is not restored to
+    // the value it mounted with, and the Combobox does not keep a stale one.
+    expect(screen.getByLabelText("Filter by role")).toHaveTextContent(
+      "All roles",
+    );
+    expect(screen.getByLabelText("Filter by status")).toHaveTextContent(
+      "All statuses",
+    );
+  });
+
+  it("reports a field that takes a value but declares no name", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <Filters statusName="" />
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    expect(error).toHaveBeenCalledWith(
+      expect.stringContaining('missing a "name"'),
+    );
+    expect(error.mock.calls.flat().join(" ")).toContain("Combobox");
+  });
+
+  it("reports a filter param that no field carries", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(
+      <MemoryRouter initialEntries={["/?t.f_status=Inactive"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <Filters statusName="" />
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() =>
+      expect(error.mock.calls.flat().join(" ")).toContain(
+        'no field inside this TableFilter is named "status"',
+      ),
+    );
+  });
+
+  it("reports a field that was not seeded from the URL", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(
+      <MemoryRouter initialEntries={["/?t.f_role=Admin"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <Filters />
+          </TableHeader>
+        </Table>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() =>
+      expect(error.mock.calls.flat().join(" ")).toContain(
+        'the URL says "Admin"',
+      ),
+    );
+  });
+
+  it("leaves filter params it has no field for alone", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(
+      <MemoryRouter initialEntries={["/?t.f_department=Finance"]}>
+        <Table paramPrefix="t">
+          <TableHeader>
+            <Filters />
+          </TableHeader>
+        </Table>
+        <ParamProbe />
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByLabelText("Filter by role"));
+    await user.click(screen.getByRole("option", { name: "Editor" }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("params")).toHaveTextContent("t.f_role=Editor"),
+    );
+    // The department filter belongs to something else and survives the write.
+    expect(screen.getByTestId("params")).toHaveTextContent(
+      "t.f_department=Finance",
+    );
   });
 });

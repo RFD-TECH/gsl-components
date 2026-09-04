@@ -63,6 +63,7 @@ import {
   AppHeader,
   AppHeaderActions,
   AppHeaderSearch,
+  AppHeaderFontSize,
   AppHeaderNotifications,
   AppHeaderNotificationItem,
   AppSwitcher,
@@ -430,6 +431,7 @@ export function DemoLayout() {
                 maxItems={9}
                 onAppSelect={(app) => console.log("Selected:", app.name)}
               />
+              <AppHeaderFontSize />
               <AppHeaderNotifications loading={notifLoading}>
                 {notifData?.map((n: (typeof notifData)[number]) => (
                   <AppHeaderNotificationItem

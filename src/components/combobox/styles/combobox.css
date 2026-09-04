@@ -23,7 +23,7 @@
   gap: 8px;
   width: 100%;
   min-width: 0;
-  height: var(--gsl-combobox-trigger-height, var(--clet-combobox-trigger-height));
+  min-height: var(--gsl-combobox-trigger-height, var(--clet-combobox-trigger-height));
   padding: 0 32px 0 12px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: var(--gsl-combobox-radius, var(--clet-combobox-radius));
@@ -149,7 +149,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 40px;
+  min-height: 40px;
   padding: 0 12px;
   border-bottom: 1px solid var(--gsl-border, var(--clet-border));
 }
@@ -278,7 +278,7 @@
 }
 
 .clet-combobox__loading-text {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 }
 
 .clet-combobox__spinner {

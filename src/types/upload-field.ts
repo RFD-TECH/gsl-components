@@ -1,6 +1,13 @@
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 
 export type UploadFieldFileStatusKind = "uploading" | "completed" | "failed";
+
+/** Why a file name was rejected before the file was ever accepted. */
+export type UnsafeFileNameReason =
+  | "empty"
+  | "control-character"
+  | "path-separator"
+  | "bidi-override";
 
 export interface UploadFieldFileStatus {
   status: UploadFieldFileStatusKind;
@@ -35,6 +42,12 @@ export interface UploadFieldProps extends Omit<HTMLAttributes<HTMLDivElement>, "
   accept?: string;
   multiple?: boolean;
   maxSize?: number;
+  /**
+   * Overrides the hint under the title. By default it is derived from `accept`
+   * and `maxSize` (e.g. "Only PDF and JPG files are supported. Maximum filesize
+   * 5MB."). Pass "" to drop the line entirely.
+   */
+  subtitle?: ReactNode;
   value?: File | File[] | null;
   onChange?: (file: File | File[] | null) => void;
   name?: string;

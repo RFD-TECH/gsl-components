@@ -2,7 +2,7 @@ export const meta = {
   title: "Theme",
   description: "Theme provider",
   category: "Guide",
-  keywords: ["theme", "dark mode", "light mode", "theme provider", "design tokens", "tailwind", "clettheme", "runtime theme override", "component tokens", "customize colors"],
+  keywords: ["theme", "dark mode", "light mode", "theme provider", "design tokens", "tailwind", "clettheme", "runtime theme override", "component tokens", "customize colors", "font size", "text size", "accessibility", "resize text", "wcag"],
   since: "1.3.0",
   status: "guide",
   related: ["getting-started"],
@@ -57,6 +57,56 @@ function ThemeSwitcher() {
 ```
 
 `resolvedTheme` is the palette currently applied (`light` or `dark`).
+
+## Text size (accessibility)
+
+`ThemeProvider` also holds the accessibility text size, so an app that already has the provider gets it with nothing extra to mount. Four steps, `md` being the shipped default:
+
+| Step | Label | Scale | Base text |
+| --- | --- | --- | --- |
+| `sm` | Small | 0.875 | 12.25px |
+| `md` | Normal (default) | 1 | 14px |
+| `lg` | Large | 1.15 | 16.1px |
+| `xl` | Largest | 1.3 | 18.2px |
+
+Drop `AppHeaderFontSize` into your header for a ready-made picker, or drive it yourself:
+
+```tsx title="TextSizeSwitcher.tsx"
+import { useFontSize } from "@rfdtech/components";
+
+function TextSizeSwitcher() {
+  const { fontSize, setFontSize } = useFontSize();
+
+  return <button onClick={() => setFontSize("lg")}>Bigger text ({fontSize})</button>;
+}
+```
+
+`useTheme()` returns `fontSize` and `setFontSize` too, so you do not need both hooks.
+
+The step is persisted under `clet-font-size` and written to `document.documentElement` as `data-clet-font-size`, which is what lets portaled surfaces (menus, dialogs, tooltips) scale along with the page. Every `--clet-text-size-*` token multiplies by `--clet-text-scale`, so any component reading those tokens follows automatically.
+
+### Avoid a flash on first paint
+
+Like the theme, the stored step has to be applied before React mounts:
+
+```html title="index.html"
+<script>
+  (function () {
+    var stored = localStorage.getItem("clet-font-size");
+    var size = ["sm", "md", "lg", "xl"].indexOf(stored) === -1 ? "md" : stored;
+    document.documentElement.setAttribute("data-clet-font-size", size);
+    document.documentElement.setAttribute("data-gsl-font-size", size);
+  })();
+</script>
+```
+
+### Overriding a text size
+
+A `cletTheme()` override replaces the computed value, so a plain literal opts that token out of scaling. Keep the multiplier to stay scale-aware:
+
+```ts
+cletTheme({ all: { textSizeBase: "calc(15px * var(--clet-text-scale, 1))" } });
+```
 
 ## CSS tokens
 
@@ -371,3 +421,5 @@ const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
 ```
 
 When `theme` is passed, the provider is controlled and `setTheme` from `useTheme()` calls `onThemeChange` only.
+
+`fontSize` works the same way: pass `fontSize` plus `onFontSizeChange` to control it, and nothing is written to storage.

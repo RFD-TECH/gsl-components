@@ -4,13 +4,13 @@
   display: block;
   width: 100%;
   min-width: 0;
-  height: 40px;
+  min-height: 40px;
   padding: 0 12px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));
   background-color: var(--gsl-bg, var(--clet-bg));
   font-family: var(--gsl-input-font, var(--clet-input-font));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.4;
   color: var(--gsl-text, var(--clet-text));
   transition:

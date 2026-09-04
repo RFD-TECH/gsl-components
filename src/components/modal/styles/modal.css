@@ -1,3 +1,14 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-modal-title-text-size: calc(18px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-modal-confirm-title-text-size: calc(18px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-modal {
   --clet-modal-max-width-sm: 400px;
   --clet-modal-max-width-md: 512px;
@@ -106,7 +117,7 @@
 
 .clet-modal__title {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--gsl-modal-title-text-size, var(--clet-modal-title-text-size));
   font-weight: 500;
   line-height: 1.4;
   color: var(--gsl-text, var(--clet-text));
@@ -114,7 +125,7 @@
 
 .clet-modal__description {
   margin: 6px 0 0;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.5;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
@@ -166,13 +177,13 @@
 
 .clet-modal__confirm-title {
   margin: 0 0 12px;
-  font-size: 18px;
+  font-size: var(--gsl-modal-confirm-title-text-size, var(--clet-modal-confirm-title-text-size));
   font-weight: 700;
 }
 
 .clet-modal__confirm-description {
   margin: 0 0 28px;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.5;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }

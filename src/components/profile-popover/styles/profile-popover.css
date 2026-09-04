@@ -1,3 +1,14 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-profile-popover-trigger-email-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-profile-popover-user-role-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-profile-menu__trigger {
   display: flex;
   align-items: center;
@@ -32,7 +43,7 @@
 
 .clet-profile-menu__trigger-name {
   overflow: hidden;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   font-weight: 600;
   color: var(--gsl-text, var(--clet-text));
   text-overflow: ellipsis;
@@ -41,7 +52,7 @@
 
 .clet-profile-menu__trigger-email {
   overflow: hidden;
-  font-size: 11px;
+  font-size: var(--gsl-profile-popover-trigger-email-text-size, var(--clet-profile-popover-trigger-email-text-size));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -70,6 +81,21 @@
   padding: 4px;
 }
 
+/* Below the sidebar breakpoint variant="full" folds to the avatar shape rather
+   than push a name and email off the edge. Presentational only: the popover
+   still carries the full identity once opened. */
+@media (width <= 768px) {
+  .clet-app-header__profile {
+    gap: 0;
+    padding: 4px;
+  }
+
+  .clet-app-header__profile .clet-app-header__user-info,
+  .clet-app-header__profile .clet-app-header__profile-chevron {
+    display: none;
+  }
+}
+
 .clet-app-header__user-info {
   display: flex;
   flex: 1;
@@ -78,13 +104,13 @@
 }
 
 .clet-app-header__user-name {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   font-weight: 600;
   color: var(--gsl-text, var(--clet-text));
 }
 
 .clet-app-header__user-role {
-  font-size: 11px;
+  font-size: var(--gsl-profile-popover-user-role-text-size, var(--clet-profile-popover-user-role-text-size));
   color: var(--gsl-text-muted, var(--clet-text-muted));
 }
 
@@ -180,14 +206,14 @@
 }
 
 .clet-profile-menu__name {
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 600;
   color: var(--gsl-text, var(--clet-text));
   line-height: 1.4;
 }
 
 .clet-profile-menu__email {
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
   line-height: 1.4;
 
@@ -256,7 +282,7 @@
   background: transparent;
   color: var(--gsl-text, var(--clet-text));
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   text-align: left;
   cursor: pointer;
   transition: background-color 0.15s ease;

@@ -297,6 +297,9 @@ function TableContentRender<T>(
   const virtualizer = useVirtualizer({
     count: isVirtual ? sorted.length : 0,
     getScrollElement: () => scrollRef.current,
+    /* Deliberately unscaled: rows are placed by translateY from this estimate
+       but sized by --clet-table-row-height, so scaling one and not the other
+       opens gaps. It is also the caller's own number to honour. */
     estimateSize: () => virtualRowHeight ?? 44,
     overscan: 5,
   });

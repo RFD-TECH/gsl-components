@@ -1,3 +1,14 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+	--clet-table-filter-badge-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+	--clet-table-actions-section-label-text-size: calc(10px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 /* ── Root ── */
 
 .clet-table {
@@ -47,10 +58,11 @@
 	align-items: center;
 	gap: 6px;
 	padding: 8px 16px;
-	/* Match the height of taller siblings in the header row. `align-self` is
-	   used instead of `height: stretch`, which Safari resolves against the
-	   block containing block and blows the field up to full page height. */
-	align-self: stretch;
+	/* Sized by its own content, never by the tallest sibling in the header
+	   row: no `align-self: stretch` and no `height: stretch`. The bar's
+	   `align-items` places it (centred in the row layout, full width once the
+	   bar turns into a column), and it never gives up width to a neighbour. */
+	flex: 0 0 auto;
 	min-height: 36px;
 	border: 1px solid var(--gsl-border, var(--clet-border));
 	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
@@ -78,7 +90,7 @@
 	outline: none;
 	background: transparent;
 	font-family: var(--gsl-table-font, var(--clet-table-font));
-	font-size: 13px;
+	font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 	color: var(--gsl-text, var(--clet-text));
 	line-height: 1.4;
 }
@@ -117,14 +129,14 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	height: 34px;
+	min-height: 34px;
 	padding: 0 12px;
 	border: 1px solid var(--gsl-border, var(--clet-border));
 	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
 	background: var(--gsl-bg, var(--clet-bg));
 	color: var(--gsl-text-secondary, var(--clet-text-secondary));
 	font-family: var(--gsl-table-font, var(--clet-table-font));
-	font-size: 13px;
+	font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 	cursor: pointer;
 	white-space: nowrap;
 	transition:
@@ -132,25 +144,36 @@
 		background-color 150ms ease;
 }
 
+.clet-table__filter-trigger-icon {
+	flex-shrink: 0;
+	color: var(--gsl-text-secondary, var(--clet-text-secondary));
+	transition: transform 150ms ease;
+}
+
+.clet-table__filter-trigger-icon[data-state="open"] {
+	transform: rotate(180deg);
+}
+
 .clet-table__filter-badge {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	min-width: 18px;
-	height: 18px;
+	min-height: 18px;
 	padding: 0 5px;
 	border-radius: 9px;
 	background: var(--gsl-primary, var(--clet-primary));
 	color: var(--gsl-on-primary, var(--clet-on-primary));
-	font-size: 11px;
+	font-size: var(--gsl-table-filter-badge-text-size, var(--clet-table-filter-badge-text-size));
 	font-weight: 600;
 	line-height: 1;
 }
 
 .clet-table__filter-header {
 	display: flex;
+	flex-shrink: 0;
 	align-items: center;
-	font-size: 13px;
+	font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 	justify-content: space-between;
 	gap: 8px;
 	padding-bottom: 8px;
@@ -168,10 +191,20 @@
 
 .clet-table__filter-content {
 	--clet-table-filter-font: var(--gsl-font-body, var(--clet-font-body));
+	--clet-table-filter-content-max-height: 400px;
 
+	display: flex;
+	flex-direction: column;
 	z-index: var(--gsl-z-popover, var(--clet-z-popover));
 	min-width: 240px;
 	max-width: calc(100vw - 32px);
+	max-height: min(
+		var(
+			--gsl-table-filter-content-max-height,
+			var(--clet-table-filter-content-max-height)
+		),
+		var(--radix-popover-content-available-height, 100vh)
+	);
 	padding: 16px;
 	background: var(--gsl-bg, var(--clet-bg));
 	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
@@ -189,8 +222,17 @@
 	margin-bottom: 16px;
 }
 
+/* Scoped to the popover: the spread variant shares this class but sits inline in
+   the header, where an overflow box would crop the soft controls' shadows. */
+.clet-table__filter-content .clet-table__filter-fields {
+	/* min-height lets the form shrink under the cap so its own scrollbar engages. */
+	min-height: 0;
+	overflow-y: auto;
+}
+
 .clet-table__filter-actions {
 	display: flex;
+	flex-shrink: 0;
 	justify-content: flex-end;
 	gap: 8px;
 }
@@ -199,12 +241,12 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	height: 32px;
+	min-height: 32px;
 	padding: 0 14px;
 	border: 1px solid var(--gsl-border, var(--clet-border));
 	border-radius: var(--gsl-radius-base, var(--clet-radius-base));
 	font-family: var(--gsl-table-filter-font, var(--clet-table-filter-font));
-	font-size: 13px;
+	font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 	cursor: pointer;
 	transition:
 		background-color 150ms ease,
@@ -214,9 +256,12 @@
 
 .clet-table__filter-btn--reset {
 	background: transparent;
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	gap: 4px;
+	flex: 0 0 auto;
+	padding: 0;
+	white-space: nowrap;
 	color: var(--gsl-error-text, var(--clet-error-text));
 	border: none;
 }
@@ -238,19 +283,24 @@
 
 /* ── Filter — spread variant: no popover, fields laid out as a flex row ── */
 
+/* One inline row, sized to its content. It never wraps and never turns into a
+   column at desktop widths. The only place it stacks is the mobile block at
+   the bottom of this file, where every control goes full width on purpose. */
 .clet-table__filter--spread {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	align-items: center;
 	gap: 12px;
+	min-width: 0;
 }
 
 .clet-table__filter-fields--spread {
 	display: flex;
-	flex-flow: row wrap;
+	flex-flow: row nowrap;
 	align-items: center;
 	gap: 12px;
 	margin-bottom: 0;
+	min-width: 0;
 }
 
 /* Fields (e.g. Dropdown) default to width: 100% for stacked/popover layouts,
@@ -274,6 +324,7 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	flex: 0 0 auto;
 	margin-left: auto;
 }
 
@@ -312,7 +363,7 @@
 .clet-table__content th,
 .clet-table__content thead td {
 	background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
-	font-size: 12px;
+	font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
 	font-weight: 600;
 	color: var(--gsl-text-secondary, var(--clet-text-secondary));
 	text-transform: uppercase;
@@ -364,7 +415,7 @@
 			var(--clet-table-cell-padding-y, 12px)
 		)
 		16px;
-	font-size: 14px;
+	font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
 	color: var(--gsl-text, var(--clet-text));
 	white-space: nowrap;
 	overflow: hidden;
@@ -579,7 +630,7 @@
 
 .clet-table__empty-text {
 	color: var(--gsl-text-secondary, var(--clet-text-secondary));
-	font-size: 14px;
+	font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
 }
 
 /* ── Footer ── */
@@ -639,8 +690,8 @@
 	align-items: center;
 	justify-content: center;
 	width: 32px;
-	height: 32px;
-	font-size: 13px;
+	min-height: 32px;
+	font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 	color: var(--gsl-text-muted, var(--clet-text-muted));
 	user-select: none;
 }
@@ -649,13 +700,13 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	font-size: 13px;
+	font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 	color: var(--gsl-text-muted, var(--clet-text-muted));
 	white-space: nowrap;
 }
 
 .clet-table__page-size {
-	font-size: 13px;
+	font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 }
 
 /* ── Row states ── */
@@ -760,7 +811,7 @@ table tbody tr.clet-table__row--clickable:hover {
 	background: transparent;
 	color: var(--gsl-text, var(--clet-text));
 	font-family: var(--gsl-table-actions-font, var(--clet-table-actions-font));
-	font-size: 13px;
+	font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 	cursor: pointer;
 	transition: background 100ms ease;
 }
@@ -787,7 +838,7 @@ table tbody tr.clet-table__row--clickable:hover {
 	padding: 4px 8px 2px;
 	color: var(--gsl-text-muted, var(--clet-text-muted));
 	font-family: var(--gsl-table-actions-font, var(--clet-table-actions-font));
-	font-size: 10px;
+	font-size: var(--gsl-table-actions-section-label-text-size, var(--clet-table-actions-section-label-text-size));
 	font-weight: 700;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
@@ -833,7 +884,7 @@ table tbody tr.clet-table__row--clickable:hover {
 }
 
 .clet-table__bulk-actions-count {
-	font-size: 13px;
+	font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 	font-weight: 500;
 	color: var(--gsl-text-secondary, var(--clet-text-secondary));
 	white-space: nowrap;

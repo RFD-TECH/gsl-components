@@ -7,7 +7,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { forwardRef, useCallback, useRef, useState } from "react";
+import { forwardRef, useCallback, useMemo, useRef, useState } from "react";
 import {
   Dialog,
   DialogPortal,
@@ -20,8 +20,9 @@ import {
 } from "../dialog/Dialog";
 import { Button } from "../button/Button";
 import { ProgressBar } from "../progress-bar/ProgressBar";
-import type { UploadFieldProps } from "../../types/upload-field";
+import type { UnsafeFileNameReason, UploadFieldProps } from "../../types/upload-field";
 import { cn } from "../../utils/cn";
+import { findUnsafeFileNameReason, sanitizeFileNameForDisplay } from "../../utils/fileName";
 import "./styles/upload-field.css";
 
 function FilePdfIcon({ size = 24 }: { size?: number }) {
@@ -59,22 +60,108 @@ function formatSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function acceptToLabel(accept?: string): string {
-  if (!accept) return "any files";
-  const normalized = accept.toLowerCase();
-  if (normalized.includes(".csv") && normalized.includes(".xls")) return "Spreadsheet files";
-  if (normalized.includes(".xls")) return "Excel files";
-  if (normalized.includes(".csv")) return "CSV files";
-  if (normalized.includes(".pdf")) return "PDF files";
-  if (normalized.includes(".json")) return "JSON files";
-  if (normalized.includes(".xml")) return "XML files";
-  if (normalized.includes(".zip") || normalized.includes(".tar")) return "archive files";
-  if (normalized.includes("image/")) return "image files";
-  if (normalized.includes("video/")) return "video files";
-  if (normalized.includes("audio/")) return "audio files";
-  if (normalized.includes("text/")) return "text files";
-  return accept;
+const EXTENSION_LABELS: Record<string, string> = {
+  pdf: "PDF",
+  jpg: "JPG",
+  jpeg: "JPG",
+  png: "PNG",
+  gif: "GIF",
+  webp: "WebP",
+  svg: "SVG",
+  bmp: "BMP",
+  heic: "HEIC",
+  csv: "CSV",
+  xls: "Excel",
+  xlsx: "Excel",
+  doc: "Word",
+  docx: "Word",
+  ppt: "PowerPoint",
+  pptx: "PowerPoint",
+  txt: "text",
+  json: "JSON",
+  xml: "XML",
+  zip: "archive",
+  tar: "archive",
+  gz: "archive",
+  mp4: "MP4",
+  webm: "WebM",
+  mov: "MOV",
+  mp3: "MP3",
+  wav: "WAV",
+};
+
+const MIME_LABELS: Record<string, string> = {
+  "application/pdf": "PDF",
+  "text/csv": "CSV",
+  "text/plain": "text",
+  "application/json": "JSON",
+  "application/xml": "XML",
+  "application/zip": "archive",
+  "application/msword": "Word",
+  "application/vnd.ms-excel": "Excel",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Word",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Excel",
+};
+
+const MIME_GROUP_LABELS: Record<string, string> = {
+  image: "image",
+  video: "video",
+  audio: "audio",
+  text: "text",
+};
+
+/** Human label for one `accept` entry: ".jpg", "image/*" or a full MIME type. */
+function labelForAcceptToken(token: string): string | null {
+  const value = token.trim().toLowerCase();
+  if (!value) return null;
+
+  if (value.startsWith(".")) {
+    const extension = value.slice(1);
+    return EXTENSION_LABELS[extension] ?? extension.toUpperCase();
+  }
+
+  if (MIME_LABELS[value]) return MIME_LABELS[value];
+
+  const [group, subtype] = value.split("/");
+  if (!subtype) return null;
+  if (subtype === "*") return MIME_GROUP_LABELS[group] ?? null;
+  return EXTENSION_LABELS[subtype] ?? subtype.toUpperCase();
 }
+
+function joinLabels(labels: string[]): string {
+  if (labels.length === 1) return labels[0];
+  if (labels.length === 2) return `${labels[0]} and ${labels[1]}`;
+  return `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`;
+}
+
+/**
+ * Describes every entry in `accept`, not just the first one that matches.
+ * Returns "" when there is nothing to say, so the caller can drop the sentence
+ * rather than print "Only any files are supported".
+ */
+function acceptToLabel(accept?: string): string {
+  if (!accept || !accept.trim()) return "";
+
+  const labels: string[] = [];
+  for (const token of accept.split(",")) {
+    const label = labelForAcceptToken(token);
+    if (label && !labels.includes(label)) labels.push(label);
+  }
+
+  if (labels.length === 0) return "";
+
+  return `${joinLabels(labels)} files`;
+}
+
+const UNSAFE_FILE_NAME_MESSAGES: Record<UnsafeFileNameReason, string> = {
+  empty: "This file has no name. Rename it and try again.",
+  "control-character":
+    "This file name contains hidden control characters. Rename the file and try again.",
+  "path-separator":
+    "This file name contains a path separator. Rename the file and try again.",
+  "bidi-override":
+    "This file name contains hidden characters that disguise its real type. Rename the file and try again.",
+};
 
 function maxSizeLabel(bytes?: number): string {
   if (!bytes) return "";
@@ -93,6 +180,7 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
       accept,
       multiple = false,
       maxSize,
+      subtitle,
       value: controlledValue,
       onChange,
       name,
@@ -125,6 +213,20 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
     const handleFiles = useCallback(
       (files: FileList | null) => {
         if (!files || files.length === 0) return;
+
+        /* Name check first: a file rejected for its name is rejected outright,
+           never merged into the accepted set alongside sound ones. */
+        for (const file of Array.from(files)) {
+          const reason = findUnsafeFileNameReason(file.name);
+          if (reason) {
+            setFileErrorDialog({
+              name: sanitizeFileNameForDisplay(file.name),
+              message: UNSAFE_FILE_NAME_MESSAGES[reason],
+            });
+            return;
+          }
+        }
+
         const filtered = Array.from(files).filter((f) => {
           if (maxSize && f.size > maxSize) return false;
           return true;
@@ -199,11 +301,20 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
     const hasFiles = value ? (Array.isArray(value) ? value.length > 0 : true) : false;
     const files = value ? (Array.isArray(value) ? value : [value]) : [];
 
-    const supportedLabel = acceptToLabel(accept);
-    const sizeLabel = maxSizeLabel(maxSize);
-    const subtitle = sizeLabel
-      ? `Only ${supportedLabel} are supported. Maximum filesize ${sizeLabel}.`
-      : `Only ${supportedLabel} are supported.`;
+    const derivedSubtitle = useMemo(() => {
+      const supportedLabel = acceptToLabel(accept);
+      const sizeLabel = maxSizeLabel(maxSize);
+      return [
+        supportedLabel ? `Only ${supportedLabel} are supported.` : "",
+        sizeLabel ? `Maximum filesize ${sizeLabel}.` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+    }, [accept, maxSize]);
+
+    /* Anything explicit wins, so "" and null both drop the line. Only leaving
+       the prop off falls back to the derived text. */
+    const resolvedSubtitle = subtitle !== undefined ? subtitle : derivedSubtitle;
 
     return (
       <>
@@ -255,9 +366,11 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
           <p className={cn("clet-upload-field__title gsl-upload-field__title", classNames?.title)}>
             Click to upload or drag and drop
           </p>
-          <p className={cn("clet-upload-field__subtitle gsl-upload-field__subtitle", classNames?.subtitle)}>
-            {subtitle}
-          </p>
+          {resolvedSubtitle ? (
+            <p className={cn("clet-upload-field__subtitle gsl-upload-field__subtitle", classNames?.subtitle)}>
+              {resolvedSubtitle}
+            </p>
+          ) : null}
 
           {hasFiles && (
             <div className={cn("clet-upload-field__files gsl-upload-field__files", classNames?.files)}>

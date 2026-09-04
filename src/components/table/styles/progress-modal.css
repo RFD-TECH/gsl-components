@@ -14,7 +14,7 @@
 
 .clet-progress-modal__text {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
   font-family: var(--gsl-progress-modal-font, var(--clet-progress-modal-font));
 }

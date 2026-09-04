@@ -58,6 +58,65 @@ describe("AppLayout", () => {
     expect(sidebarWrapper).toHaveTextContent("Sidebar");
   });
 
+  it("hideHeader drops the header without holding its space", () => {
+    const { container } = render(
+      <RenderInRouter>
+        <AppLayout hideHeader>
+          <AppHeader>Header</AppHeader>
+          <AppBody>Body</AppBody>
+        </AppLayout>
+      </RenderInRouter>,
+    );
+    expect(screen.queryByText("Header")).toBeNull();
+    expect(container.querySelector(".clet-app-header")).toBeNull();
+    expect(screen.getByText("Body")).toBeInTheDocument();
+  });
+
+  it("hideSidebar drops the sidebar and its wrapper", () => {
+    const { container } = render(
+      <RenderInRouter>
+        <AppLayout hideSidebar>
+          <AppSidebar>Sidebar</AppSidebar>
+          <AppBody>Body</AppBody>
+        </AppLayout>
+      </RenderInRouter>,
+    );
+    expect(screen.queryByText("Sidebar")).toBeNull();
+    // The wrapper is what would hold a column, so it has to be gone too.
+    expect(container.querySelector(".clet-app-layout__sidebar")).toBeNull();
+    expect(screen.getByText("Body")).toBeInTheDocument();
+  });
+
+  it("both flags together leave only the content", () => {
+    const { container } = render(
+      <RenderInRouter>
+        <AppLayout hideHeader hideSidebar>
+          <AppHeader>Header</AppHeader>
+          <AppSidebar>Sidebar</AppSidebar>
+          <AppBody>Body</AppBody>
+        </AppLayout>
+      </RenderInRouter>,
+    );
+    expect(container.querySelector(".clet-app-header")).toBeNull();
+    expect(container.querySelector(".clet-app-layout__sidebar")).toBeNull();
+    expect(container.querySelector(".clet-app-layout__content")).toHaveTextContent("Body");
+  });
+
+  it("hides the sidebar in the stacked arrangement too", () => {
+    const { container } = render(
+      <RenderInRouter>
+        <AppLayout variant="stacked" hideSidebar>
+          <AppHeader>Header</AppHeader>
+          <AppSidebar>Sidebar</AppSidebar>
+          <AppBody>Body</AppBody>
+        </AppLayout>
+      </RenderInRouter>,
+    );
+    expect(container.querySelector(".clet-app-layout__sidebar")).toBeNull();
+    expect(screen.getByText("Header")).toBeInTheDocument();
+    expect(screen.getByText("Body")).toBeInTheDocument();
+  });
+
   it("renders breadcrumbs from context when items exist", () => {
     const { container } = render(
       <RenderInRouter>

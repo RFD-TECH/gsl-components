@@ -1,9 +1,20 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+:root {
+	--clet-sidebar-header-title-text-size: calc(18px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+	--clet-sidebar-link-badge-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
 /* --clet-sidebar-bg is the single override point for every background
    declaration in this file that paints the sidebar surface itself. */
 .clet-sidebar {
 	--clet-sidebar-font: var(--gsl-font-body, var(--clet-font-body));
 	--clet-sidebar-bg: var(--gsl-bg, var(--clet-bg));
-	--clet-sidebar-wordmark-size: 24px;
+	--clet-sidebar-wordmark-size: calc(
+		24px * var(--gsl-text-scale, var(--clet-text-scale, 1))
+	);
 	--clet-sidebar-logo-size: 28px;
 	/* The mobile drawer stacks one level below the popover level (1000) on
 	   the shared stack scale in styles/theme/base.css. Portaled overlays
@@ -160,7 +171,7 @@
 .clet-sidebar__header-title {
 	overflow: hidden;
 	font-family: var(--gsl-font-header, var(--clet-font-header));
-	font-size: 18px;
+	font-size: var(--gsl-sidebar-header-title-text-size, var(--clet-sidebar-header-title-text-size));
 	font-weight: 700;
 	line-height: 1.2;
 	text-overflow: ellipsis;
@@ -314,7 +325,7 @@
 .clet-sidebar__group-toggle {
 	margin: 0;
 	padding: 0 12px 4px;
-	font-size: 12px;
+	font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
 	font-weight: 500;
 	letter-spacing: 0.06em;
 	color: var(
@@ -403,7 +414,7 @@
 		var(--clet-sidebar-link-text, var(--clet-text-secondary))
 	);
 	font-family: var(--gsl-sidebar-font, var(--clet-sidebar-font));
-	font-size: 14px;
+	font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
 	font-weight: 400;
 	line-height: 1.4;
 	text-align: left;
@@ -447,7 +458,7 @@
 		--gsl-sidebar-badge-color,
 		var(--clet-sidebar-badge-color, var(--clet-on-primary))
 	);
-	font-size: 11px;
+	font-size: var(--gsl-sidebar-link-badge-text-size, var(--clet-sidebar-link-badge-text-size));
 	font-weight: 600;
 	line-height: 1.4;
 	text-overflow: ellipsis;
@@ -528,7 +539,7 @@
 	align-items: center;
 	justify-content: center;
 	width: 40px;
-	height: 40px;
+	min-height: 40px;
 	flex-shrink: 0;
 	margin-bottom: 16px;
 	padding: 0;

@@ -2,7 +2,7 @@ export const meta = {
   title: "UploadField",
   description: "File upload",
   category: "Components",
-  keywords: ["upload field", "file upload", "dropzone", "file picker", "drag and drop upload"],
+  keywords: ["upload field", "file upload", "dropzone", "file picker", "drag and drop upload", "file name validation", "null byte", "path traversal", "security"],
   since: "1.9.0",
   status: "stable",
   related: ["bulk-import-modal", "form-field"],
@@ -21,7 +21,7 @@ import uploadFieldStatusCardsSource from "../previews/examples/upload-field-stat
 
 # UploadField
 
-File upload with a dashed-border dropzone, cloud upload icon, auto-generated support text, file cards with type icons and size, and a primary action button. Supports single and multiple files, accept filters, max size validation, controlled/uncontrolled value, and `react-hook-form` integration.
+File upload with a dashed-border dropzone, cloud upload icon, support text derived from `accept` (or written yourself via `subtitle`), file cards with type icons and size, and a primary action button. Supports single and multiple files, accept filters, max size validation, controlled/uncontrolled value, and `react-hook-form` integration.
 
 ## Example
 
@@ -197,6 +197,7 @@ const uploadSchema = z.object({
 | `accept` | `string` | — | Accepted MIME types (also drives the subtitle text) |
 | `multiple` | `boolean` | `false` | Allow multiple file selection |
 | `maxSize` | `number` | — | Maximum file size in bytes (drives the subtitle text; files exceeding this are silently filtered) |
+| `subtitle` | `ReactNode` | derived | Overrides the hint under the title. Pass `""` to drop the line entirely |
 | `value` | `File \| File[] \| null` | — | Controlled value |
 | `onChange` | `(file: File \| File[] \| null) => void` | — | Change handler |
 | `invalid` | `boolean` | `false` | Show error border styling |
@@ -270,7 +271,20 @@ One entry in the `fileStatuses` array:
 
 ## Notes
 
-- The subtitle is auto-generated from `accept` and `maxSize` props (e.g. "Only CSV files are supported. Maximum filesize 10MB.").
+- The subtitle is derived from `accept` and `maxSize` (e.g. "Only CSV files are supported. Maximum filesize 10MB."). Every entry in `accept` is named, so `accept=".pdf,.jpg,.jpeg"` reads "Only PDF and JPG files are supported.", and `accept="image/*,.pdf"` reads "Only image and PDF files are supported.". Pass `subtitle` to write the line yourself, or `subtitle=""` to remove it. With no `accept` and no `maxSize` there is nothing to say, so no subtitle is rendered.
+- `accept` is passed to the native input, which filters the OS file picker only. It is **not** enforced on drag-and-drop: a dropped file of the wrong type is still accepted. Validate type yourself in `onChange` if that matters.
+- File names are checked before a file is accepted, and a selection containing an unsafe name is rejected whole. The rejected name is shown with the offending characters replaced by `U+FFFD`, so a name cannot disguise itself inside the error dialog either. Four cases are refused:
+
+| Reason | Example | Why |
+|--------|---------|-----|
+| `control-character` | `shell.php\0.jpg` | A NUL truncates the name in a C string API, so the extension a server validates and the file it writes can differ |
+| `path-separator` | `../../etc/passwd` | The name can escape its directory once joined to a path |
+| `bidi-override` | a name containing `U+202E` | Reorders the rendered text so the real extension reads as something harmless |
+| `empty` | `""` | Nothing to store or display |
+
+  The same rule is exported as `findUnsafeFileNameReason(name)` and `isSafeFileName(name)`, so an app can run it before sending anything to its API.
+
+  > This is defence in depth and a usability affordance, **not** a security boundary. Anything in the browser is bypassed by posting to the API directly, so the server has to run the same check on the name it receives. Note also that a browser will rarely hand you a name containing a NUL, because filesystems reject it; the value here is in the drag-and-drop and programmatic paths, and in telling a real user plainly why their file was refused.
 - The action button changes text: "Upload file" when empty, "Replace file" when a file is selected. Only shown in single-file mode (`multiple={false}`).
 - Drop zone turns `--clet-primary-light` background when files are selected or during drag-over.
 - When `multiple` is true, selecting or dropping new files **replaces** the current set (no append) — this applies to picking new files via the input/drop zone, not to `fileStatuses`, which stays index-aligned with whatever `value` currently holds.

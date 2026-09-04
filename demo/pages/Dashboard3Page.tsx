@@ -91,7 +91,7 @@ function statusVariant(status: string) {
 export function Dashboard3Page() {
   const { page, pageSize, pageSizeOptions, search, filters } = useTableState({
     defaultPageSize: 10,
-    paramPrefix: "dash2-members",
+    paramPrefix: "dash3-members",
   });
   const [roleValue, setRoleValue] = useState(filters.role ?? "");
   const [statusValue, setStatusValue] = useState(filters.status ?? "");
@@ -108,7 +108,6 @@ export function Dashboard3Page() {
     minutes: 30,
   });
   const { loading: metricsLoading } = useMockQuery(null, 1200);
-  const { loading: tableLoading } = useMockQuery(null, 1000);
 
   const filtered = useMemo(
     () =>
@@ -376,12 +375,7 @@ export function Dashboard3Page() {
 
           <TabsContent value="members">
             <Table paramPrefix="dash3-members" variant="soft">
-              <Card
-                bordered
-                loading={tableLoading}
-                loadingLabel="Loading members…"
-                loadingMinHeight={420}
-              >
+              <Card bordered>
                 <TableHeader>
                   <TableSearch placeholder="Search members..." />
                   <TableFilter variant="spread">
@@ -398,6 +392,7 @@ export function Dashboard3Page() {
                       aria-label="Filter by role"
                     />
                     <Combobox
+                      name="status"
                       value={statusValue || null}
                       onValueChange={(v) => setStatusValue(v ?? "")}
                       options={gslStatuses}

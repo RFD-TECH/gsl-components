@@ -1,3 +1,14 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-app-header-search-kbd-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+  --clet-app-header-notif-time-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-app-header {
   --clet-header-py: var(--gsl-app-layout-body-gap, var(--clet-app-layout-body-gap, 1rem));
   --clet-header-px: var(--gsl-app-layout-body-gap, var(--clet-app-layout-body-gap, 1rem));
@@ -73,10 +84,8 @@
 }
 
 /* ── Branding (logo + title/subtitle) ──
-   All values are exposed as overridable custom properties; set them on
-   .clet-app-header__branding (or an ancestor) to re-theme without extra CSS.
-   The branding block itself (and the subtitle) read as body text — only the
-   title uses the heading font, at its own larger size. */
+   Every value is an overridable custom property, so re-theming needs no extra
+   CSS. Only the title uses the heading font; the rest reads as body text. */
 
 .clet-app-header__branding {
   /* Overridable tokens */
@@ -86,11 +95,15 @@
   --clet-branding-text-gap: 8px;
   --clet-branding-logo-size: 28px;
   --clet-branding-title-font: var(--gsl-font-header, var(--clet-font-header));
-  --clet-branding-title-size: 20px;
+  --clet-branding-title-size: calc(
+    20px * var(--gsl-text-scale, var(--clet-text-scale, 1))
+  );
   --clet-branding-title-weight: 700;
   --clet-branding-title-color: var(--gsl-branding-color, var(--clet-branding-color));
   --clet-branding-sep-opacity: 0.55;
-  --clet-branding-subtitle-size: 16px;
+  --clet-branding-subtitle-size: calc(
+    16px * var(--gsl-text-scale, var(--clet-text-scale, 1))
+  );
   --clet-branding-subtitle-weight: 400;
   --clet-branding-subtitle-color: var(--gsl-branding-color, var(--clet-branding-color));
   display: flex;
@@ -131,6 +144,10 @@
 
 .clet-app-header__branding-sep {
   color: inherit;
+
+  /* Sized like the subtitle it divides, rather than inheriting the document
+     default, so it tracks the accessibility text scale with its neighbours. */
+  font-size: var(--gsl-branding-subtitle-size, var(--clet-branding-subtitle-size));
   opacity: var(--gsl-branding-sep-opacity, var(--clet-branding-sep-opacity));
 }
 
@@ -198,11 +215,14 @@
 .clet-app-header-search.clet-app-header-search.clet-command {
   --clet-app-header-search-width: 260px;
   --clet-app-header-search-active-width: 400px;
+  --clet-app-header-search-height: 40px;
 
   display: flex;
-  /* Not `height: stretch` — Safari resolves it against the block containing
-     block rather than the header row and the field fills the page. */
-  align-self: stretch;
+  /* Fixed height, centred on the header row like every other control in it.
+     The results list is a static child that overflows this box, so an auto
+     height would grow the header every time the list opened. */
+  align-self: center;
+  min-height: var(--gsl-app-header-search-height, var(--clet-app-header-search-height));
   width: var(--gsl-app-header-search-width, var(--clet-app-header-search-width));
   max-width: 100%;
   transition: width 200ms ease;
@@ -245,14 +265,14 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 36px;
+  min-height: 36px;
   padding: 0 12px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: var(--gsl-radius-xl, var(--clet-radius-xl));
   background: var(--gsl-bg, var(--clet-bg));
   color: var(--gsl-text-muted, var(--clet-text-muted));
   font-family: var(--gsl-app-header-font, var(--clet-app-header-font));
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   cursor: pointer;
   transition: border-color 150ms ease;
 }
@@ -273,12 +293,12 @@
 .clet-app-header__search-kbd {
   display: inline-flex;
   align-items: center;
-  height: 20px;
+  min-height: 20px;
   padding: 0 5px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: 4px;
   background: var(--gsl-panel-bg, var(--clet-panel-bg, var(--clet-surface-subtle)));
-  font-size: 11px;
+  font-size: var(--gsl-app-header-search-kbd-text-size, var(--clet-app-header-search-kbd-text-size));
   color: var(--gsl-text-muted, var(--clet-text-muted));
   line-height: 1;
   font-family: inherit;
@@ -314,10 +334,8 @@
 }
 
 /* ── Profile ──
-   Base trigger styling (.clet-app-header__profile, .clet-app-header__user-*,
-   skeletons) lives in profile-popover.css — ProfilePopover owns the
-   `user`/`variant` header-style trigger now. Only header-context overrides
-   stay here. */
+   Base trigger styling lives in profile-popover.css, which owns the
+   `user`/`variant` trigger. Only header-context overrides stay here. */
 
 .clet-app-header__avatar {
   display: flex;
@@ -328,7 +346,7 @@
   border-radius: 50%;
   background: var(--gsl-primary, var(--clet-primary));
   color: var(--gsl-on-primary, var(--clet-on-primary));
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   font-weight: 700;
   line-height: 1;
   overflow: hidden;
@@ -406,7 +424,7 @@
 }
 
 .clet-notif-popover__title {
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 600;
   color: var(--gsl-text, var(--clet-text));
 }
@@ -452,7 +470,7 @@
 }
 
 .clet-notif-popover__body-text {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   color: var(--gsl-text, var(--clet-text));
   line-height: 1.4;
   display: -webkit-box;
@@ -462,7 +480,7 @@
 }
 
 .clet-notif-popover__body-time {
-  font-size: 11px;
+  font-size: var(--gsl-app-header-notif-time-text-size, var(--clet-app-header-notif-time-text-size));
   color: var(--gsl-text-muted, var(--clet-text-muted));
   margin-top: 2px;
 }
@@ -522,10 +540,112 @@
   }
 }
 
+/* ── Text size popover ── */
+
+.clet-text-size-popover {
+  --clet-app-header-text-size-popover-width: 200px;
+
+  /* The four preview glyphs deliberately do NOT read --clet-text-scale: each one
+     shows the absolute size of the step it selects, so they stay comparable. */
+  --clet-app-header-text-size-preview-sm: 12px;
+  --clet-app-header-text-size-preview-md: 14px;
+  --clet-app-header-text-size-preview-lg: 16px;
+  --clet-app-header-text-size-preview-xl: 18px;
+
+  display: flex;
+  flex-direction: column;
+  width: var(
+    --gsl-app-header-text-size-popover-width,
+    var(--clet-app-header-text-size-popover-width)
+  );
+  padding: 6px;
+  border-radius: var(--gsl-radius-xl, var(--clet-radius-xl));
+  background: var(--gsl-bg, var(--clet-bg));
+  box-shadow: var(--gsl-shadow-md, var(--clet-shadow-md));
+  border: 1px solid var(--gsl-border, var(--clet-border));
+  z-index: var(--gsl-z-popover, var(--clet-z-popover));
+}
+
+.clet-text-size-popover__title {
+  padding: 8px 10px 6px;
+  color: var(--gsl-text-muted, var(--clet-text-muted));
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
+  font-weight: 600;
+}
+
+.clet-text-size-popover__option {
+  display: flex;
+  width: 100%;
+  min-height: 36px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: var(--gsl-radius-base, var(--clet-radius-base));
+  background: transparent;
+  color: var(--gsl-text, var(--clet-text));
+  font-family: var(--gsl-app-header-font, var(--clet-app-header-font));
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.clet-text-size-popover__option:hover {
+  background: var(--gsl-hover, var(--clet-hover));
+}
+
+.clet-text-size-popover__option:focus-visible {
+  outline: 2px solid var(--gsl-focus, var(--clet-focus));
+  outline-offset: -2px;
+}
+
+.clet-text-size-popover__option[data-state="checked"] {
+  background: var(--gsl-hover, var(--clet-hover));
+  font-weight: 600;
+}
+
+.clet-text-size-popover__option-glyph {
+  display: inline-flex;
+  width: 28px;
+  flex-shrink: 0;
+  justify-content: center;
+  color: var(--gsl-text-secondary, var(--clet-text-secondary));
+}
+
+.clet-text-size-popover__option--sm .clet-text-size-popover__option-glyph {
+  font-size: var(
+    --gsl-app-header-text-size-preview-sm,
+    var(--clet-app-header-text-size-preview-sm)
+  );
+}
+
+.clet-text-size-popover__option--md .clet-text-size-popover__option-glyph {
+  font-size: var(
+    --gsl-app-header-text-size-preview-md,
+    var(--clet-app-header-text-size-preview-md)
+  );
+}
+
+.clet-text-size-popover__option--lg .clet-text-size-popover__option-glyph {
+  font-size: var(
+    --gsl-app-header-text-size-preview-lg,
+    var(--clet-app-header-text-size-preview-lg)
+  );
+}
+
+.clet-text-size-popover__option--xl .clet-text-size-popover__option-glyph {
+  font-size: var(
+    --gsl-app-header-text-size-preview-xl,
+    var(--clet-app-header-text-size-preview-xl)
+  );
+}
+
 @media (prefers-reduced-motion: reduce) {
   .clet-app-header__notif-btn,
   .clet-app-header__profile,
-  .clet-app-header__menu-btn {
+  .clet-app-header__menu-btn,
+  .clet-text-size-popover__option {
     transition: none;
   }
 }

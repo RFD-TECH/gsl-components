@@ -1,3 +1,13 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-command-group-heading-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-command {
   --clet-command-font: var(--gsl-font-body, var(--clet-font-body));
 
@@ -172,7 +182,7 @@
   background: transparent;
   color: var(--gsl-text, var(--clet-text));
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.4;
   outline: none;
 }
@@ -205,7 +215,7 @@
   border-radius: 6px;
   background: var(--gsl-surface-subtle, var(--clet-surface-subtle));
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--gsl-text-size-xs, var(--clet-text-size-xs));
   line-height: 1;
   font-weight: inherit;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
@@ -259,7 +269,7 @@
 
 .clet-command__empty {
   padding: 24px 12px;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.4;
   text-align: center;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
@@ -302,7 +312,7 @@
 .clet-command__group [cmdk-group-heading] {
   margin: 0;
   padding: 6px 10px 4px;
-  font-size: 11px;
+  font-size: var(--gsl-command-group-heading-text-size, var(--clet-command-group-heading-text-size));
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -316,7 +326,7 @@
   min-height: 40px;
   padding: 8px 10px;
   border-radius: calc(var(--gsl-radius-base, var(--clet-radius-base)) - 2px);
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.4;
   color: var(--gsl-text, var(--clet-text));
   cursor: pointer;

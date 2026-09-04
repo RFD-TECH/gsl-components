@@ -1,10 +1,20 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-country-selector-option-flag-text-size: calc(18px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-country-selector {
   --clet-country-selector-font: var(--gsl-font-body, var(--clet-font-body));
 
   position: relative;
   display: block;
   font-family: var(--gsl-country-selector-font, var(--clet-country-selector-font));
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   width: 100%;
 }
 
@@ -27,14 +37,14 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 40px;
+  min-height: 40px;
   padding: 0 12px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));
   background: var(--gsl-bg, var(--clet-bg));
   color: var(--gsl-text, var(--clet-text));
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   cursor: pointer;
   min-width: 120px;
   width: 100%;
@@ -51,7 +61,7 @@
 }
 
 .clet-country-selector__flag {
-  font-size: 20px;
+  font-size: var(--gsl-text-size-lg, var(--clet-text-size-lg));
   line-height: 1;
 }
 
@@ -83,14 +93,14 @@
 
 .clet-country-selector__search-input {
   width: 100%;
-  height: 36px;
+  min-height: 36px;
   padding: 0 10px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: calc(var(--gsl-radius-base, var(--clet-radius-base)) - 2px);
   background: var(--gsl-bg, var(--clet-bg));
   color: var(--gsl-text, var(--clet-text));
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   outline: none;
   box-sizing: border-box;
 }
@@ -115,7 +125,7 @@
   background: transparent;
   color: var(--gsl-text, var(--clet-text));
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   cursor: pointer;
   text-align: left;
 }
@@ -126,7 +136,7 @@
 }
 
 .clet-country-selector__option-flag {
-  font-size: 18px;
+  font-size: var(--gsl-country-selector-option-flag-text-size, var(--clet-country-selector-option-flag-text-size));
   line-height: 1;
 }
 

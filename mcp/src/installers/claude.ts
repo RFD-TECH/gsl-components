@@ -30,7 +30,7 @@ export async function install(
 ): Promise<InstallResult> {
   const mcpJsonPath = path.join(cwd, ".mcp.json");
   const existing = await readJsonIfExists(mcpJsonPath);
-  const { data, changed: mcpChanged } = mergeMcpServers(existing);
+  const { data, changed: mcpChanged } = mergeMcpServers(existing, cwd);
   await writeJson(mcpJsonPath, data);
 
   const skillChanged = await installSkill(cwd, "rfdtech-ui", skillSourcePath);

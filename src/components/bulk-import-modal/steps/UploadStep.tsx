@@ -2,6 +2,13 @@ import type { BulkImportField } from "../../../types/bulk-import-modal";
 import { UploadField } from "../../upload-field/UploadField";
 import { getFieldExampleValue } from "../utils/validateFieldValue";
 
+/** Matches UploadField's own size wording, so the two lines read as one sentence. */
+function formatMaxSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(0)}MB`;
+}
+
 interface UploadStepProps {
   fields: BulkImportField[];
   parseError: string | null;
@@ -55,6 +62,13 @@ export function UploadStep({
         <UploadField
           value={uploadedFile ?? undefined}
           accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
+          /* "Spreadsheet files" reads better here than naming each format, and
+             saying it locally keeps the special case out of UploadField. */
+          subtitle={
+            maxFileSizeBytes
+              ? `Only Spreadsheet files are supported. Maximum filesize ${formatMaxSize(maxFileSizeBytes)}.`
+              : "Only Spreadsheet files are supported."
+          }
           maxSize={maxFileSizeBytes}
           disabled={isParsing}
           invalid={!!parseError}

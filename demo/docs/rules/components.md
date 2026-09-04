@@ -308,7 +308,8 @@ The current preferred variant set is the 2.3 shell, demonstrated at `/` in the d
 `Sidebar` `variant="primary"`; `AppHeader` `variant="plain"`; `MetricCard` `variant="soft"` over
 `"outline"` and `"default"`; `Table` and `TableContent` `variant="soft"` over `"panel"` and
 `"default"`; `SidebarGroup` `collapsible` (accordion groups) over flat non-collapsible groups;
-`TableFilter` `variant="spread"` over the default `"popover"`. Default to these in new work.
+`TableFilter` `variant="spread"` over the default `"popover"`, but only up to two filter fields
+(see `page-composition-table-filter-count`). Default to these in new work.
 
 `"outline"` on `MetricCard` and `"panel"` on `TableContent` are the superseded 2.2 set: do not
 reach for them in new work, and expect the codemod to convert them.

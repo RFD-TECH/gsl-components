@@ -13,13 +13,13 @@
   display: flex;
   align-items: center;
   width: 100%;
-  height: 40px;
+  min-height: 40px;
   padding: 0 32px 0 12px;
   border: 1px solid var(--gsl-border, var(--clet-border));
   border-radius: var(--gsl-radius-base, var(--clet-radius-base));
   background-color: var(--gsl-bg, var(--clet-bg));
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.4;
   color: var(--gsl-text, var(--clet-text));
   text-align: left;
@@ -82,7 +82,7 @@
   box-shadow: var(--gsl-shadow-md, var(--clet-shadow-md));
   overflow: hidden;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   line-height: 1.4;
   min-width: var(--radix-select-trigger-width);
   max-height: 240px;
@@ -90,7 +90,7 @@
 
 .clet-dropdown__option {
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   font-weight: 400;
   color: var(--gsl-text, var(--clet-text));
   cursor: pointer;

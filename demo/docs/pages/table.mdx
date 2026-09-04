@@ -138,6 +138,40 @@ as the default popover variant otherwise, just no trigger button or panel.
   code={tableFilterSpreadSource}
 />
 
+## Filter fields: two rules
+
+`<TableFilter>` collects its values from the form it wraps, so a field joins the
+table's state only when it renders a named form control. Both variants enforce
+this in development and report a violation to the console.
+
+1. **Every field carries a `name`.** The name is the filter key: `name="status"`
+   writes `?<prefix>.f_status=`. A field without one keeps its value to itself,
+   filters nothing, and is left behind by "clear": it looks wired up while
+   doing nothing. `Dropdown` and `Combobox` both take `name`.
+2. **Every field is seeded from the URL.** Read the initial value from
+   `useTableState({ paramPrefix }).filters` so a reload, a shared link or a
+   back-navigation restores the selection the URL describes. A field that
+   renders a different value than its param is reported the same way.
+
+```tsx
+const { filters } = useTableState({ paramPrefix: "members" });
+const [status, setStatus] = useState(filters.status ?? "");
+
+<TableFilter variant="spread">
+  <Combobox
+    name="status"
+    value={status || null}
+    onValueChange={(v) => setStatus(v ?? "")}
+    options={statusOptions}
+    placeholder="All statuses"
+  />
+</TableFilter>;
+```
+
+"clear" empties every named field, including controlled ones a native form
+reset cannot reach, and removes only the filter params the form owns. A param
+belonging to something else on the page is left alone.
+
 ## Architecture
 
 Every child component reads and writes its own URL keys through `useSearchParams`. The root `<Table paramPrefix>` provides a shared namespace via React Context. No prop drilling — pass `totalPages` and `totalItems` to `<TablePagination>`; everything else is fully automatic.

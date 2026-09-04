@@ -70,7 +70,7 @@
   background: transparent;
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
   font-family: var(--gsl-tabs-font, var(--clet-tabs-font));
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
   font-weight: 500;
   line-height: 1.4;
   cursor: pointer;

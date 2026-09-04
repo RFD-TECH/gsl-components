@@ -18,6 +18,13 @@
         }
         document.documentElement.setAttribute("data-clet-theme", theme);
         document.documentElement.setAttribute("data-gsl-theme", theme);
+
+        // Same reasoning for the accessibility text size: without this the first
+        // paint is Normal and the effect resizes every glyph a frame later.
+        var storedSize = localStorage.getItem("clet-font-size") || localStorage.getItem("gsl-font-size");
+        var fontSize = ["sm", "md", "lg", "xl"].indexOf(storedSize) === -1 ? "md" : storedSize;
+        document.documentElement.setAttribute("data-clet-font-size", fontSize);
+        document.documentElement.setAttribute("data-gsl-font-size", fontSize);
       })();
     </script>
   </head>

@@ -53,6 +53,32 @@ The default is one third of the layout shell, and the three parts are designed t
   code={appLayoutStackedSource}
 />
 
+## Hiding the chrome
+
+`hideHeader` and `hideSidebar` drop those regions whatever children were passed. Nothing renders in
+their place: the wrapper element is not emitted, no column or row is reserved, and the content
+takes the space. Neither flag changes the children, so the same tree renders whole when they are
+off.
+
+This is for an app that runs both standalone and as a remote in a federated shell. The host draws
+the chrome once, and each remote renders the same layout with the flags on so it does not draw a
+second header or a second rail inside the host's:
+
+```tsx
+<AppLayout hideHeader={isRemote} hideSidebar={isRemote}>
+  <AppHeader>…</AppHeader>
+  <AppSidebar>
+    <Sidebar variant="primary">…</Sidebar>
+  </AppSidebar>
+  <AppBody>
+    <Outlet />
+  </AppBody>
+</AppLayout>
+```
+
+`SidebarProvider` and `BreadcrumbProvider` are still mounted while a region is hidden, so
+`useSidebar()` and `useBreadcrumbs()` keep working in a remote whose sidebar the host owns.
+
 ## Components
 
 ### `AppLayout`
@@ -64,6 +90,8 @@ Root layout container. Scans direct children for `componentId` matching `"AppHea
 | `children` | `ReactNode` | Direct children — `<AppHeader>`, `<AppSidebar>`, `<AppBody>` |
 | `className` | `string` | Merged onto the root element |
 | `variant` | `"default" \| "panel" \| "stacked"` | Layout arrangement. `"default"`: flush full-height sidebar, header across the content column. `"panel"`: the same columns as inset rounded panels. `"stacked"`: full-width header on top, sidebar + content side by side below. Defaults to `"default"`. |
+| `hideHeader` | `boolean` | Drops the header even when an `<AppHeader>` child is passed. Nothing renders in its place and no space is held. |
+| `hideSidebar` | `boolean` | Drops the sidebar even when an `<AppSidebar>` child is passed. The content takes the full width. |
 
 ### `AppSidebar`
 
@@ -114,6 +142,8 @@ When `items` is empty, the breadcrumb section is hidden entirely.
 | `children` | `ReactNode` | Direct children for auto-positioning |
 | `className` | `string` | Root CSS class |
 | `variant` | `"default" \| "panel" \| "stacked"` | Layout arrangement: `"default"` (flush shell), `"panel"` (inset rounded panels) or `"stacked"` (full-width header on top). Defaults to `"default"`. |
+| `hideHeader` | `boolean` | Renders no header, whatever children were passed |
+| `hideSidebar` | `boolean` | Renders no sidebar, whatever children were passed |
 
 ### `AppSidebarProps`
 

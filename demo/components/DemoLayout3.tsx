@@ -19,6 +19,7 @@ import {
   BookOpen,
   MessageSquare,
   Eye,
+  LayoutGrid,
 } from "lucide-react";
 import {
   Sidebar,
@@ -36,6 +37,7 @@ import {
   RoleSelect,
   AppHeader,
   AppHeaderActions,
+  AppHeaderFontSize,
   AppHeaderNotifications,
   AppHeaderNotificationItem,
   AppHeaderSearch,
@@ -108,6 +110,12 @@ export function DemoLayout3() {
             label: "Create User",
             href: "/users/new",
             icon: User,
+          },
+          {
+            id: "showcase",
+            label: "Showcase",
+            href: "/showcase",
+            icon: LayoutGrid,
           },
           {
             id: "docs",
@@ -215,6 +223,7 @@ export function DemoLayout3() {
                   onClickRole={(role) => setSelectedRole(role.id)}
                 />
               </Launchpad>
+              <AppHeaderFontSize />
               <AppHeaderNotifications loading={notifLoading}>
                 {notifData?.map((n: (typeof notifData)[number]) => (
                   <AppHeaderNotificationItem

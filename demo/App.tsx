@@ -9,7 +9,10 @@ import { Dashboard2Page } from "./pages/Dashboard2Page";
 import { Dashboard3Page } from "./pages/Dashboard3Page";
 import { UserCreatePage } from "./pages/UserCreatePage";
 import { UserDetailPage } from "./pages/UserDetailPage";
+import { UserCreatePage3 } from "./pages/UserCreatePage3";
+import { UserDetailPage3 } from "./pages/UserDetailPage3";
 import { DocsPage } from "./pages/DocsPage";
+import { ShowcasePage } from "./pages/ShowcasePage";
 
 export const routes: RouteObject[] = [
   {
@@ -25,8 +28,9 @@ export const routes: RouteObject[] = [
         element: <DemoLayout3 />,
         children: [
           { index: true, element: <Dashboard3Page /> },
-          { path: "users/new", element: <UserCreatePage /> },
-          { path: "users/:userId", element: <UserDetailPage /> },
+          { path: "showcase", element: <ShowcasePage /> },
+          { path: "users/new", element: <UserCreatePage3 /> },
+          { path: "users/:userId", element: <UserDetailPage3 /> },
         ],
       },
       {

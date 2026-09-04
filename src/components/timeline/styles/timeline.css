@@ -160,14 +160,14 @@
 
 .clet-timeline__title {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--gsl-text-size-md, var(--clet-text-size-md));
   font-weight: 600;
   color: var(--gsl-text, var(--clet-text));
 }
 
 .clet-timeline__data {
   margin: 4px 0 0;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 
@@ -177,7 +177,7 @@
 
 .clet-timeline__footer {
   margin-top: 8px;
-  font-size: 14px;
+  font-size: var(--gsl-text-size-base, var(--clet-text-size-base));
   color: var(--gsl-text-secondary, var(--clet-text-secondary));
 }
 

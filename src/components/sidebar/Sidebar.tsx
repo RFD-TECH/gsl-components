@@ -14,7 +14,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import { Menu, PanelLeftClose, PanelLeftOpen, ChevronDown } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen, ChevronDown, X } from "lucide-react";
 import { getRouterAdapter } from "../../adapters/registry";
 import { useHasMounted } from "../../hooks/useHasMounted";
 import { Tooltip } from "../tooltip/Tooltip";
@@ -129,9 +129,8 @@ export const SidebarOverlay = forwardRef<
   SidebarOverlayProps
 >(function SidebarOverlay({ classNames, className, ...props }, ref) {
   const { open, setOpen, isMobile } = useSidebar();
-  // Null-vs-button is a structural branch, so it must wait a render past
-  // mount to match SSR/static-prerendered (always-desktop) markup — see
-  // useHasMounted.
+  // Structural branch: waits a render past mount to match SSR markup.
+  // See useHasMounted.
   const hasMounted = useHasMounted();
 
   if (!hasMounted || !isMobile) {
@@ -203,27 +202,31 @@ export const SidebarCollapse = forwardRef<
   HTMLButtonElement,
   SidebarCollapseProps
 >(function SidebarCollapse({ classNames, className, onClick, ...props }, ref) {
-  const { collapsed, toggleCollapsed, isMobile, sidebarId } = useSidebar();
+  const { collapsed, toggleCollapsed, open, setOpen, isMobile, sidebarId } =
+    useSidebar();
   // Structural branch: SSR renders desktop, so this waits a render past mount.
   const hasMounted = useHasMounted();
+  // On mobile the rail is a drawer with no collapse to offer, so this slot
+  // carries its close control instead. Without it the only way out is the
+  // backdrop.
+  const isDrawer = hasMounted && isMobile;
 
-  if (hasMounted && isMobile) {
-    return null;
-  }
-
-  const CollapseIcon = collapsed ? PanelLeftOpen : PanelLeftClose;
+  const CollapseIcon = isDrawer ? X : collapsed ? PanelLeftOpen : PanelLeftClose;
 
   return (
     <button
       ref={ref}
       type="button"
       className={cn("clet-sidebar__collapse gsl-sidebar__collapse", classNames?.collapse, className)}
-      aria-expanded={!collapsed}
+      aria-expanded={isDrawer ? open : !collapsed}
       aria-controls={sidebarId}
-      aria-label="Toggle sidebar"
+      aria-label={isDrawer ? "Close menu" : "Toggle sidebar"}
       onClick={(event) => {
         onClick?.(event);
-        if (!event.defaultPrevented) {
+        if (event.defaultPrevented) return;
+        if (isDrawer) {
+          setOpen(false);
+        } else {
           toggleCollapsed();
         }
       }}
@@ -600,12 +603,24 @@ export const SidebarLink = forwardRef<
     classNames,
     className,
     children,
+    onClick,
     ...props
   },
   ref,
 ) {
-  const { collapsed } = useSidebar();
+  const { collapsed, isMobile, setOpen } = useSidebar();
   const { Link } = getRouterAdapter();
+
+  // Navigating from the mobile drawer has to dismiss it, or the destination
+  // renders behind it and the next tap hits the backdrop. Typed on HTMLElement
+  // to serve the button, the router Link and an asChild anchor alike.
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    onClick?.(event as React.MouseEvent<HTMLButtonElement>);
+    if (!event.defaultPrevented && isMobile) {
+      setOpen(false);
+    }
+  };
+
   const linkClassName = cn(
     "clet-sidebar__link gsl-sidebar__link",
     active && "clet-sidebar__link--active gsl-sidebar__link--active",
@@ -641,10 +656,17 @@ export const SidebarLink = forwardRef<
       [key: string]: unknown;
     }>;
     const tooltipText = extractLabelText(children).trim();
+    const childOnClick = child.props.onClick as
+      | React.MouseEventHandler<HTMLElement>
+      | undefined;
     const linkElement = cloneElement(child, {
       ...props,
       role: child.props.role ?? "link",
       className: cn(linkClassName, child.props.className),
+      onClick: (event: React.MouseEvent<HTMLElement>) => {
+        childOnClick?.(event);
+        handleClick(event);
+      },
     });
 
     if (collapsed && tooltipText) {
@@ -676,6 +698,7 @@ export const SidebarLink = forwardRef<
       to={to}
       className={linkClassName}
       {...(props as Record<string, unknown>)}
+      onClick={handleClick}
     >
       {linkContent}
     </Link>
@@ -686,6 +709,7 @@ export const SidebarLink = forwardRef<
       role="link"
       className={linkClassName}
       {...props}
+      onClick={handleClick}
     >
       {linkContent}
     </button>

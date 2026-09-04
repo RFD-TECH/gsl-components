@@ -1,3 +1,13 @@
+
+
+/*  Scale-aware text sizes for this component. Declared on :root so a
+   cletTheme() override at the component selector still wins, and so
+   portaled parts inherit them.  */
+
+:root {
+  --clet-avatar-initials-sm-text-size: calc(11px * var(--gsl-text-scale, var(--clet-text-scale, 1)));
+}
+
 .clet-avatar {
   --clet-avatar-font: var(--gsl-font-body, var(--clet-font-body));
 
@@ -31,13 +41,13 @@
 }
 
 .clet-avatar--sm .clet-avatar__initials {
-  font-size: 11px;
+  font-size: var(--gsl-avatar-initials-sm-text-size, var(--clet-avatar-initials-sm-text-size));
 }
 
 .clet-avatar--md .clet-avatar__initials {
-  font-size: 13px;
+  font-size: var(--gsl-text-size-sm, var(--clet-text-size-sm));
 }
 
 .clet-avatar--lg .clet-avatar__initials {
-  font-size: 16px;
+  font-size: var(--gsl-text-size-md, var(--clet-text-size-md));
 }

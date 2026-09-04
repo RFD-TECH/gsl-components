@@ -14,7 +14,7 @@
   --clet-surface-subtle: #282828;
   --clet-surface-dark: #35373a;
   --clet-surface-panel: #1b1c1e;
-  --clet-main-bg: #141414;
+  --clet-main-bg: var(--gsl-bg, var(--clet-bg));
   --clet-primary: #4a7fa8;
   --clet-primary-light: #16232e;
   --clet-primary-surface: #0a2233;

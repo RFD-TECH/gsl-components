@@ -17,7 +17,7 @@ export const docNavSections: DocNavSection[] = [
 			{ slug: "theme", title: "Theme" },
 			{ slug: "router-adapter", title: "RouterAdapter" },
 			{ slug: "changelog", title: "Changelog" },
-			{ slug: "migration-v2", title: "Migration guide: v1 → v2" },
+			{ slug: "migration-v2", title: "Migration guide: update to latest" },
 		],
 	},
 	{
@@ -45,7 +45,6 @@ export const docNavSections: DocNavSection[] = [
 			{ slug: "form", title: "Form" },
 			{ slug: "form-field", title: "FormField" },
 			{ slug: "launchpad", title: "Launchpad" },
-			{ slug: "logo-loader", title: "LogoLoader" },
 			{ slug: "metric-card", title: "MetricCard" },
 			{ slug: "modal", title: "Modal" },
 			{ slug: "network-operator", title: "NetworkOperator" },

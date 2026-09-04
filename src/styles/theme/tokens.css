@@ -96,6 +96,9 @@
    - --clet-overlay, --clet-shimmer-highlight (semi-transparent compositing
      values used only inline by Modal/skeleton CSS, not general-purpose colors)
    - --clet-surface-card (already equal to --clet-bg / --color-card)
+   - --clet-text-scale (a unitless multiplier, not a length; it is already baked
+     into every --clet-text-size-* above, so the --text-* utilities scale with it
+     and a separate utility would be meaningless)
    No --clet-success-bg or --clet-warning-bg tokens exist yet (unlike error, which
    has -bg/-text companions) — new variants needing a tinted success/warning
    background should use color-mix(in srgb, var(--gsl-success, var(--clet-success)) N%, transparent)
